@@ -5,13 +5,12 @@ import CGen
 import IndexExpression
 import Matrix
 import Statement
+import TestHarness
 
 main :: IO ()
-main = putStrLn $ prettyPrint 0 cOp
+main = putStrLn $ cTestHarness "matrixAdd" [plusABC] "matrixAddOptimized" optimizedPlusABC
 
-cOp = operationToC "matrixAdd" matOp
-
-matOp = blockMatrixAddM (iVar "i") (iConst 8) plusABC
+optimizedPlusABC = blockMatrixAddM (iVar "i") (iConst 8) plusABC
 
 plusABC =
   matrixAdd a b c
