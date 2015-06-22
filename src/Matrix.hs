@@ -1,10 +1,12 @@
 module Matrix(Matrix,
               matrix,
               subMatrix,
-              numRows, numCols,
-              properties,
+              bufferName, locationExpr,
+              numRows, numCols, rowStride, colStride,
+              properties, dataType,
               Type,
               single, double,
+              isDouble, isSingle,
               arg, local) where
 
 import IndexExpression
@@ -19,11 +21,27 @@ matrix = Matrix
 subMatrix rStart numRows cStart numCols m@(Matrix name nr nc rs cs props) =
   SubMatrix rStart numRows cStart numCols m props
 
+bufferName (Matrix n _ _ _ _ _) = n
+bufferName (SubMatrix _ _ _ _ m _) = bufferName m
+
+locationExpr (Matrix _ _ _ _ _ _) = iConst 0
+locationExpr s@(SubMatrix rStart _ cStart _ m _) =
+  iAdd (iAdd (iMul rStart (rowStride s)) (iMul cStart (colStride s))) $ locationExpr m
+
 numRows (Matrix _ nr _ _ _ _) = nr
 numRows (SubMatrix _ nr _ _ _ _) = nr
 
 numCols (Matrix _ _ nc _ _ _) = nc
 numCols (SubMatrix _ _ _ nc _ _) = nc
+
+rowStride (Matrix _ _ _ rs _ _) = rs
+rowStride (SubMatrix _ _ _ _ m _) = rowStride m
+
+colStride (Matrix _ _ _ _ cs _) = cs
+colStride (SubMatrix _ _ _ _ m _) = colStride m
+
+dataType (Matrix _ _ _ _ _ (Properties _ t)) = t
+dataType (SubMatrix _ _ _ _ _ (Properties _ t)) = t
 
 data Properties
   = Properties Scope Type
@@ -38,6 +56,11 @@ data Type
 
 single = Single
 double = Double
+
+isDouble Double = True
+isDouble _ = False
+
+isSingle t = not $ isDouble t
 
 data Scope
   = Arg

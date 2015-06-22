@@ -3,7 +3,10 @@ module IndexExpression(IExpr,
                        iAdd, iMul, iConst, iVar, iSub, iDiv,
                        isConst, isVar, ieToConst,
                        constVal, varName,
-                       subIExpr, subIExprForVar) where
+                       subIExpr, subIExprForVar,
+                       iExprToCExpr) where
+
+import CGen
 
 data IExpr
   = IConst Int
@@ -88,3 +91,8 @@ ieToConst ie =
 
 subIExprForVar :: IExpr -> String -> IExpr -> IExpr
 subIExprForVar ie varName expr = subIExpr (iVar varName) ie expr
+
+iExprToCExpr (IVar n) = cVar n
+iExprToCExpr (IConst i) = cIntLit i
+iExprToCExpr (IAdd l r) = cAdd (iExprToCExpr l) (iExprToCExpr r)
+iExprToCExpr (IMul l r) = cMul (iExprToCExpr l) (iExprToCExpr r)

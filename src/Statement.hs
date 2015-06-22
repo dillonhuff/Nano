@@ -1,5 +1,8 @@
 module Statement(Statement,
                  matrixMultiply, matrixAdd, loop,
+                 isMatrixAdd, isMatrixMultiply, isLoop,
+                 loopStart, loopEnd, loopInc, loopInductionVariable, loopBody,
+                 operandWritten, leftOperand, rightOperand,
                  blockMatrixAddM) where
 
 import IndexExpression
@@ -17,6 +20,18 @@ loop = Loop
 
 isMatrixAdd (MatrixAdd _ _ _) = True
 isMatrixAdd _ = False
+
+isMatrixMultiply (MatrixMultiply _ _ _) = True
+isMatrixMultiply _ = False
+
+isLoop (Loop _ _ _ _ _) = True
+isLoop _ = False
+
+loopStart (Loop _ s _ _ _) = s
+loopEnd (Loop _ _ _ e _) = e
+loopInc (Loop _ _ i _ _) = i
+loopInductionVariable (Loop v _ _ _ _) = v
+loopBody (Loop _ _ _ _ b) = b
 
 operandWritten (MatrixAdd c _ _) = c
 
