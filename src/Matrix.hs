@@ -3,7 +3,7 @@ module Matrix(Matrix,
               subMatrix,
               bufferName, locationExpr,
               numRows, numCols, rowStride, colStride,
-              properties, dataType,
+              properties, dataType, matrixBufferNameAndType,
               Type,
               single, double,
               isDouble, isSingle,
@@ -27,6 +27,9 @@ bufferName (SubMatrix _ _ _ _ m _) = bufferName m
 locationExpr (Matrix _ _ _ _ _ _) = iConst 0
 locationExpr s@(SubMatrix rStart _ cStart _ m _) =
   iAdd (iAdd (iMul rStart (rowStride s)) (iMul cStart (colStride s))) $ locationExpr m
+
+matrixBufferNameAndType (Matrix n _ _ _ _ (Properties _ t)) = (n, t)
+matrixBufferNameAndType (SubMatrix _ _ _ _ m _) = matrixBufferNameAndType m
 
 numRows (Matrix _ nr _ _ _ _) = nr
 numRows (SubMatrix _ nr _ _ _ _) = nr

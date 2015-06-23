@@ -3,7 +3,11 @@ module Statement(Statement,
                  isMatrixAdd, isMatrixMultiply, isLoop,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody,
                  operandWritten, leftOperand, rightOperand,
-                 blockMatrixAddM) where
+                 blockMatrixAddM, blockMatrixAddN,
+                 collectFromAllOperands,
+                 collectFromStmt, collectValuesFromStmt) where
+
+import Data.List as L
 
 import IndexExpression
 import Matrix
@@ -17,6 +21,18 @@ data Statement
 matrixMultiply = MatrixMultiply
 matrixAdd = MatrixAdd
 loop = Loop
+
+collectFromAllOperands :: (Matrix -> a) -> Statement -> [a]
+collectFromAllOperands f (MatrixMultiply c a b) = [f c, f a, f b]
+collectFromAllOperands f (MatrixAdd c a b) = [f c, f a, f b]
+collectFromAllOperands _ _ = []
+
+collectFromStmt :: (Statement -> a) -> Statement -> [a]
+collectFromStmt f s@(Loop _ _ _ _ body) = (f s) : (L.concatMap (collectFromStmt f) body)
+collectFromStmt f s = [f s]
+
+collectValuesFromStmt :: (Statement -> [a]) -> Statement -> [a]
+collectValuesFromStmt f s = L.concat $ collectFromStmt f s
 
 isMatrixAdd (MatrixAdd _ _ _) = True
 isMatrixAdd _ = False
@@ -34,9 +50,7 @@ loopInductionVariable (Loop v _ _ _ _) = v
 loopBody (Loop _ _ _ _ b) = b
 
 operandWritten (MatrixAdd c _ _) = c
-
 leftOperand (MatrixAdd _ a _) = a
-
 rightOperand (MatrixAdd _ _ b) = b
 
 blockMatrixAddM indVar blockFactor stmt =
@@ -44,8 +58,16 @@ blockMatrixAddM indVar blockFactor stmt =
     True -> blockMAddM indVar blockFactor stmt
     False -> [stmt]
 
+
+blockMatrixAddN indVar blkFactor stmt =
+  case isMatrixAdd stmt of
+    True -> blockMAddN indVar blkFactor stmt
+    False -> [stmt]
+
 blockMAddM indVar blkFactor stmt =
-  [mainLoop, residual]
+  case numRows resC == iConst 0 of
+    True -> [mainLoop]
+    False -> [mainLoop, residual]
   where
     c = operandWritten stmt
     a = leftOperand stmt
@@ -62,7 +84,28 @@ blockMAddM indVar blkFactor stmt =
     mainAdd = matrixAdd mainC mainA mainB
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
     residual = matrixAdd resC resA resB
-    
+
+blockMAddN indVar blkFactor stmt =
+  case numCols resC == iConst 0 of
+    True -> [mainLoop]
+    False -> [mainLoop, residual]
+  where
+    c = operandWritten stmt
+    a = leftOperand stmt
+    b = rightOperand stmt
+    mainC = subMatrix (iConst 0) (numRows c) indVar blkFactor c
+    mainA = subMatrix (iConst 0) (numRows a) indVar blkFactor a
+    mainB = subMatrix (iConst 0) (numRows b) indVar blkFactor b
+    rs = residualStart blkFactor (numRows c)
+    rl = residualLength blkFactor (numRows c)
+    resC = subMatrix (iConst 0) (numCols c) rs rl c
+    resB = subMatrix (iConst 0) (numCols b) rs rl b
+    resA = subMatrix (iConst 0) (numCols a) rs rl a
+    e = evaluateIExprConstants $ iSub (numCols c) blkFactor
+    mainAdd = matrixAdd mainC mainA mainB
+    mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
+    residual = matrixAdd resC resA resB
+  
 residualStart blkFactor dimLength =
   let blkC = constVal blkFactor
       dimC = constVal dimLength in
@@ -72,3 +115,4 @@ residualLength blkFactor dimLength =
   let blkC = constVal blkFactor
       dimC = constVal dimLength in
   iConst $ mod dimC blkC
+

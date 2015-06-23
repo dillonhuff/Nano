@@ -9,17 +9,16 @@ import CUtils
 import EvaluationResult
 import IndexExpression
 import Statement
-import SystemSettings
+import System.Settings
 
 cTestHarness :: String -> [Statement] -> String -> [Statement] -> String
 cTestHarness scName scImp toTestName implToTest = 
   L.concatMap (\decl -> (prettyPrint 0 decl) ++ "\n") $
   prelude ((scName, scImp):(toTestName, implToTest):[]) ++
-  [sanityCheckFunc scImp implToTest,
+  [sanityCheckFunc scName scImp toTestName implToTest,
    timingFunc implToTest
    mainFunc (dataFileName toTestName)]
 
-sanityCheckFunc scImp implToCheck = error "sanityCheckFunc"
 timingFunc implToTime = error "timingFunc"
 
 prelude :: [(String, [Statement])] -> [CTopLevelItem String]
@@ -28,17 +27,24 @@ prelude impls =
       includes = [cInclude "<stdio.h>", cInclude "<stdlib.h>", cInclude "<string.h>", cInclude "\"nano_utilities.h\""] in
   includes ++ cImplFuncs
 
-{-
-sanityCheckFunc :: a -> Map String Int -> Operation a -> [Operation a] -> CTopLevelItem a
-sanityCheckFunc dummyAnn indexVals scImp implsToCheck =
-  cFuncDecl cVoid "sanity_check_impls" [(cPtr cFILE, "df")] $ cBlock argDecls (scStatements dummyAnn indexVals scImp implsToCheck)
+
+sanityCheckFunc :: String -> [Statement] -> String -> [Statement] -> CTopLevelItem String
+sanityCheckFunc scName scImp toTestName implToTest =
+  cFuncDecl cVoid "sanity_check_impls" [(cPtr cFILE, "df")] $ cBlock argDecls (scStatements scName scImp toTestName implToTest)
   where
     argumentBufferDecls = scBufferDecls scImp
-    indexDecls = L.map (\(name, tp) -> (toCType tp, name)) $ getIndexArgs scImp
+    indexDecls = []--L.map (\(name, tp) -> (toCType tp, name)) $ getIndexArgs scImp
     argDecls = indexDecls ++ argumentBufferDecls
 
-scBufferDecls :: Operation a -> [(CType, String)]
-scBufferDecls scImp = argumentBufferDecls
+scStatements :: String -> [Statement] -> String -> [Statement] -> [CStmt String]
+scStatements scName scImp toTestName implToTest =
+  error "scStatements"
+
+
+scBufferDecls :: [Statement] -> [(CType, String)]
+scBufferDecls scImp = [] --error "scBufferDecls"
+
+{-argumentBufferDecls
   where
     args = getBufferArgs scImp
     savedBufferDecls = L.map (\(name, tp) -> (toCType tp, name)) args
@@ -141,7 +147,6 @@ bufferAllocationCode dummyAnn imp = allocStmts
       argBufCDecls = L.map (\(n, tp) -> (getReferencedType $ toCType tp, n)) argBufs
       argBufCDeclsWSize = L.zip argBufCDecls argBufCSizes
       allocStmts = L.map (\((tp, n), sz) -> cExprSt (cAssign (cVar n) (cFuncall "malloc" [cMul (cSizeOf tp) sz])) dummyAnn) argBufCDeclsWSize
-
 
 referenceImplSetup :: a -> Operation a -> [CStmt a]
 referenceImplSetup dummyAnn scImp = setArgsToRand ++ copyArgsToRefs ++ [callSCImp]

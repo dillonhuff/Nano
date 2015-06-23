@@ -1,4 +1,4 @@
-module SystemSettings(compileString,
+module System.Settings(compileString,
                       projectPath,
                       testPath,
                       runString,

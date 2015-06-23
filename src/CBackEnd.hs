@@ -1,4 +1,6 @@
-module CBackEnd(operationToC) where
+module CBackEnd(operationToC,
+                argBufferDecls,
+                inductionVariableDecls) where
 
 import Data.List as L
 
@@ -9,9 +11,11 @@ import Statement
 
 operationToC :: String -> [Statement] -> CTopLevelItem String
 operationToC funcName stmts =
-  cFuncDecl cVoid funcName [] (cBlock [] body)
+  cFuncDecl cVoid funcName argDecls (cBlock iVarDecls body)
   where
     body = L.concatMap toCStmts stmts
+    iVarDecls = inductionVariableDecls stmts
+    argDecls = argBufferDecls stmts
 
 toCStmts stmt =
   case isLoop stmt of
@@ -53,3 +57,20 @@ matrixAddToCStmts madd =
 
 matToCExpr m =
   cAdd (cVar $ bufferName m) (iExprToCExpr $ evaluateIExprConstants $ locationExpr m)
+
+toCType :: Type -> CType
+toCType t =
+  case isDouble t of
+    True -> cDouble
+    False -> cFloat
+
+argBufferDecls :: [Statement] -> [(CType, String)]
+argBufferDecls stmts =
+  let allMats = L.nub $ L.concatMap (collectValuesFromStmt $ collectFromAllOperands matrixBufferNameAndType) stmts
+      argBuffers = L.map (\(n, t) -> (cPtr $ toCType t, n)) allMats in
+  argBuffers
+
+inductionVariableDecls :: [Statement] -> [(CType, String)]
+inductionVariableDecls stmts =
+  let iNames = L.nub $ L.concatMap (collectValuesFromStmt (\st -> if isLoop st then [loopInductionVariable st] else [])) stmts in
+  L.zip (L.replicate (length iNames) cInt) iNames
