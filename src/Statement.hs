@@ -32,7 +32,8 @@ applyToOperands f (ScalarMultiply a alpha b) = ScalarMultiply (f a) (f alpha) (f
 collectFromAllOperands :: (Matrix -> a) -> Statement -> [a]
 collectFromAllOperands f (MatrixMultiply c a b) = [f c, f a, f b]
 collectFromAllOperands f (MatrixAdd c a b) = [f c, f a, f b]
-collectFromAllOperands _ _ = []
+collectFromAllOperands f (ScalarMultiply c a b) = [f c, f a, f b]
+collectFromAllOperands f (Loop _ _ _ _ _) = []
 
 collectFromStmt :: (Statement -> a) -> Statement -> [a]
 collectFromStmt f s@(Loop _ _ _ _ body) = (f s) : (L.concatMap (collectFromStmt f) body)

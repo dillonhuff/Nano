@@ -1,5 +1,6 @@
 module CBackEnd.CodeGeneration(operationToC,
                                argBufferDecls,
+                               argInfoList,
                                inductionVariableDecls) where
 
 import Data.List as L
@@ -26,7 +27,9 @@ toCStmts stmt =
       True -> matrixAddToCStmts stmt
       False -> case isScalarMultiply stmt of
         True -> scalarMultiplyToCStmts stmt
-        False -> error $ "toCStmts: Unsupported statement " ++ show stmt
+        False -> case isMatrixMultiply stmt of
+          True -> matrixMultiplyToCStmts stmt
+          False -> error $ "toCStmts: Unsupported statement " ++ show stmt
 
 loopToCStmts l =
   [cFor s e i b ""]
@@ -59,6 +62,29 @@ matrixAddToCStmts madd =
             matToCExpr b, bRS, bCS,
             matToCExpr c, cRS, cCS]
 
+matrixMultiplyToCStmts madd =
+  let c = operandWritten madd in
+  case isDouble $ dataType c of
+    True -> [cExprSt (cFuncall "simple_mmul" args) ""]
+    False -> [cExprSt (cFuncall "simple_mmul_float" args) ""]
+  where
+    a = leftOperand madd
+    b = rightOperand madd
+    c = operandWritten madd
+    m = iExprToCExpr $ numRows c
+    n = iExprToCExpr $ numCols c
+    p = iExprToCExpr $ numCols a
+    aRS = iExprToCExpr $ rowStride a
+    aCS = iExprToCExpr $ colStride a
+    bRS = iExprToCExpr $ rowStride b
+    bCS = iExprToCExpr $ colStride b
+    cRS = iExprToCExpr $ rowStride c
+    cCS = iExprToCExpr $ colStride c
+    args = [m, n, p,
+            matToCExpr a, aRS, aCS,
+            matToCExpr b, bRS, bCS,
+            matToCExpr c, cRS, cCS]
+
 scalarMultiplyToCStmts madd =
   let c = operandWritten madd in
   case isDouble $ dataType c of
@@ -70,8 +96,6 @@ scalarMultiplyToCStmts madd =
     c = operandWritten madd
     m = iExprToCExpr $ numRows c
     n = iExprToCExpr $ numCols c
-    aRS = iExprToCExpr $ rowStride a
-    aCS = iExprToCExpr $ colStride a
     bRS = iExprToCExpr $ rowStride b
     bCS = iExprToCExpr $ colStride b
     cRS = iExprToCExpr $ rowStride c

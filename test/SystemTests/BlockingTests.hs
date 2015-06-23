@@ -12,9 +12,22 @@ import Module
 import Statement
 
 allSystemBlockingTests = do
+  testBlockMAdd
+  testBlockSMul
+  testBlockMMul
+  
+testBlockMAdd = do
   testFunctionIO (testBlocking blockMatrixAddM) blockMAddCases
   testFunctionIO (testBlocking blockMatrixAddN) blockMAddCases
+
+testBlockSMul = do
   testFunctionIO (testBlocking blockScalarMultiplyM) blockSMulCases
+  testFunctionIO (testBlocking blockScalarMultiplyN) blockSMulCases
+
+testBlockMMul = do
+  testFunctionIO (testBlocking blockMatrixMultiplyM) blockMMulCases
+  testFunctionIO (testBlocking blockMatrixMultiplyN) blockMMulCases
+  testFunctionIO (testBlocking blockMatrixMultiplyP) blockMMulCases
 
 blockMAddCases =
   L.map (\x -> (x, True))
@@ -42,6 +55,19 @@ blockSMulCases =
    (iConst 9, smulCAlphaA),
    (iConst 10, smulCAlphaA)]
 
+blockMMulCases =
+  L.map (\x -> (x, True))
+  [(iConst 1, mmulCBA),
+   (iConst 2, mmulCBA),
+   (iConst 3, mmulCBA),
+   (iConst 4, mmulCBA),
+   (iConst 5, mmulCBA),
+   (iConst 6, mmulCBA),
+   (iConst 7, mmulCBA),
+   (iConst 8, mmulCBA),
+   (iConst 9, mmulCBA),
+   (iConst 10, mmulCBA)]
+
 testBlocking blkFunc (blkFactor, stmt) =
   let blockedStmt = blkFunc (iVar "i") blkFactor stmt
       (cBlocked, _) = operationToC "blocked" blockedStmt
@@ -58,6 +84,7 @@ alpha = constDblMat "alpha" 1 1 1 1
 
 maddCBA = matrixAdd c b a
 smulCAlphaA = scalarMultiply c alpha a
+mmulCBA = matrixMultiply c b a
 
 constDblMat name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double)
