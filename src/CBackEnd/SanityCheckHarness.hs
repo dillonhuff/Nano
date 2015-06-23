@@ -1,4 +1,6 @@
-module CBackEnd.SanityCheckHarness(sanityCheckHarness) where
+module CBackEnd.SanityCheckHarness(sanityCheckHarness,
+                                   scSuccessString,
+                                   scFailString) where
 
 import Data.List as L
 
@@ -74,10 +76,13 @@ compareVars varList =
   cIfThenElse (orExprs varList) (cBlock [] [writeSCFail]) (cBlock [] [writeSCSuccess]) ""
 
 writeSCFail =
-  cExprSt (cFuncall "fprintf" [cVar "df", cVar "\"false\\n\""]) ""
+  cExprSt (cFuncall "fprintf" [cVar "df", cVar scFailString]) ""
 
 writeSCSuccess =
-  cExprSt (cFuncall "fprintf" [cVar "df", cVar "\"true\\n\""]) ""
+  cExprSt (cFuncall "fprintf" [cVar "df", cVar scSuccessString]) ""
+
+scFailString = "\"false\\n\""
+scSuccessString = "\"true\\n\""
 
 orExprs [e] = e
 orExprs (e2:rest) = cOr e2 $ orExprs rest

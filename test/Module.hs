@@ -23,4 +23,3 @@ ioAssert :: (Show a, Show b, Eq b) => (a -> IO b) -> a -> b -> Assertion
 ioAssert f input expected = do
   actual <- f input
   assertEqual ("Input: " ++ show input) expected actual
-

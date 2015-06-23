@@ -33,4 +33,3 @@ scMain resultFilePath =
                     cExprSt (cFuncall "sanity_check" [cVar "data_file"]) "",
                     cExprSt (cFuncall "fclose" [cVar "data_file"]) "",
                     cReturn (cIntLit 0) ""]
-
