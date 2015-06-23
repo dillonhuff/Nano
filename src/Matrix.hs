@@ -21,6 +21,8 @@ matrix = Matrix
 
 subMatrix rStart numRows cStart numCols m@(Matrix name nr nc rs cs props) =
   SubMatrix rStart numRows cStart numCols m props
+subMatrix rStart numRows cStart numCols m@(SubMatrix _ _ _ _ _ props) =
+  SubMatrix rStart numRows cStart numCols m props
 
 isScalar m =
   numRows m == iConst 1 && numCols m == iConst 1

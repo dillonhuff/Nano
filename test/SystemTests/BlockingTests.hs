@@ -57,9 +57,9 @@ blockSMulCases =
 
 blockMMulCases =
   L.map (\x -> (x, True))
-  [(iConst 1, mmulCBA),
-   (iConst 2, mmulCBA),
-   (iConst 3, mmulCBA),
+  [(iConst 1, matrixMultiply c b a),
+   (iConst 2, matrixMultiply c a a),
+   (iConst 3, matrixMultiply f d e),
    (iConst 4, mmulCBA),
    (iConst 5, mmulCBA),
    (iConst 6, mmulCBA),
@@ -77,8 +77,11 @@ testBlocking blkFunc (blkFactor, stmt) =
     return $ scRes == "true\n"
 
 a = constDblMat "A" 9 9 1 9
-b = constDblMat "B" 9 9 1 9
-c = constDblMat "C" 9 9 1 9
+b = constDblMat "B" 9 9 7 9
+c = constDblMat "C" 9 9 9 1
+d = constDblMat "D" 13 9 1 13
+e = constDblMat "E" 9 4 4 19
+f = constDblMat "F" 13 4 4 1
 
 alpha = constDblMat "alpha" 1 1 1 1
 

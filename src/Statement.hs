@@ -3,6 +3,7 @@ module Statement(Statement,
                  isMatrixAdd, isMatrixMultiply, isLoop, isScalarMultiply,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody,
                  operandWritten, leftOperand, rightOperand,
+                 expandStatementBU, expandStatementsBU,
                  applyToOperands,
                  collectFromAllOperands,
                  collectFromStmt, collectValuesFromStmt) where
@@ -24,6 +25,12 @@ loop = Loop
 matrixMultiply = MatrixMultiply
 scalarMultiply = ScalarMultiply
 
+expandStatementBU :: (Statement -> [Statement]) -> Statement -> [Statement]
+expandStatementBU f (Loop v s i e body) = f $ Loop v s i e $ expandStatementsBU f body
+expandStatementBU f s = f s
+
+expandStatementsBU :: (Statement -> [Statement]) -> [Statement] -> [Statement]
+expandStatementsBU f stmts = L.concatMap (expandStatementBU f) stmts
 
 applyToOperands :: (Matrix -> Matrix) -> Statement -> Statement
 applyToOperands f (MatrixAdd c a b) = MatrixAdd (f c) (f a) (f b)

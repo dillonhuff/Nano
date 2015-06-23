@@ -30,7 +30,7 @@ constDblMat name nr nc rs cs =
 
 -}
 
-main :: IO ()
+{-main :: IO ()
 main = do
   res <- testBlocking blockScalarMultiplyM (iConst 2, smulCAlphaA)
   putStrLn $ show res
@@ -38,6 +38,17 @@ main = do
 testBlocking blkFunc (blkFactor, stmt) = do
   putStrLn $ show [stmt]
   putStrLn $ show $ argInfoList [stmt]
+
+-}
+
+main :: IO ()
+main =
+  let res = expandStatementsBU (blockMatrixMultiplyP (iVar "k") (iConst 6)) $
+            expandStatementsBU (blockMatrixMultiplyM (iVar "j") (iConst 3)) $
+            expandStatementsBU (blockMatrixMultiplyN (iVar "i") (iConst 8)) $
+            [matrixMultiply c b a] in
+  do
+    putStrLn $ prettyPrint 0 $ fst $ operationToC "blockedMatrixMul" res
 
 a = constDblMat "A" 9 9 1 9
 b = constDblMat "B" 9 9 1 9
