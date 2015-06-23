@@ -1,4 +1,4 @@
-module SanityCheckHarness(sanityCheckHarness) where
+module CBackEnd.SanityCheckHarness(sanityCheckHarness) where
 
 import Data.List as L
 

@@ -1,10 +1,10 @@
-module SanityCheck(runSanityCheck) where
+module CBackEnd.SanityCheck(runSanityCheck) where
 
 import Data.List as L
 
 import CBackEnd.CodeGeneration
 import CBackEnd.Syntax
-import SanityCheckHarness
+import CBackEnd.SanityCheckHarness
 import System.Settings
 import System.Utils
 

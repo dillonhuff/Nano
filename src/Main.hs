@@ -5,7 +5,7 @@ import CBackEnd.CodeGeneration
 import CBackEnd.Syntax
 import IndexExpression
 import Matrix
-import SanityCheck
+import CBackEnd.SanityCheck
 import Statement
 
 main :: IO ()
