@@ -24,9 +24,8 @@ timingFunc implToTime = error "timingFunc"
 prelude :: [(String, [Statement])] -> [CTopLevelItem String]
 prelude impls =
   let cImplFuncs = L.map (\(n, impl) -> operationToC n impl) impls
-      includes = [cInclude "<stdio.h>", cInclude "<stdlib.h>", cInclude "<string.h>", cInclude "\"nano_utilities.h\""] in
+      includes = [cInclude "<stdio.h>", cInclude "<stdlib.h>", cInclude "<string.h>", cInclude "\"utils.h\""] in
   includes ++ cImplFuncs
-
 
 sanityCheckFunc :: String -> [Statement] -> String -> [Statement] -> CTopLevelItem String
 sanityCheckFunc scName scImp toTestName implToTest =
