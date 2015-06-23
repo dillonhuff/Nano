@@ -3,7 +3,7 @@ module SanityCheckHarness(sanityCheckHarness) where
 import Data.List as L
 
 import CBackEnd
-import CGen
+import CBackEnd.Syntax
 
 sanityCheckHarness :: String -> String -> [ArgumentInfo] -> CTopLevelItem String
 sanityCheckHarness scOpName testOpName argInfo =

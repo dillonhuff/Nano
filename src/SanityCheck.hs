@@ -3,7 +3,7 @@ module SanityCheck(runSanityCheck) where
 import Data.List as L
 
 import CBackEnd
-import CGen
+import CBackEnd.Syntax
 import SanityCheckHarness
 import System.Settings
 import System.Utils

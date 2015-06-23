@@ -4,7 +4,7 @@ module CBackEnd(operationToC,
 
 import Data.List as L
 
-import CGen
+import CBackEnd.Syntax
 import IndexExpression
 import Matrix
 import Statement

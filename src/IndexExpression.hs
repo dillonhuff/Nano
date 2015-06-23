@@ -6,7 +6,7 @@ module IndexExpression(IExpr,
                        subIExpr, subIExprForVar,
                        iExprToCExpr) where
 
-import CGen
+import CBackEnd.Syntax
 
 data IExpr
   = IConst Int

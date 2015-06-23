@@ -1,4 +1,4 @@
-module CGen(CTopLevelItem,
+module CBackEnd.Syntax(CTopLevelItem,
                     cFuncDecl, cInclude,
                     cFuncName,
                     cInt, cFloat, cDouble, cFILE, cVoid, cPtr, cULongLong,

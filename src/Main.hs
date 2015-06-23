@@ -2,7 +2,7 @@ module Main(main) where
 
 import Blocking
 import CBackEnd
-import CGen
+import CBackEnd.Syntax
 import IndexExpression
 import Matrix
 import SanityCheck
