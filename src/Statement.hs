@@ -65,8 +65,8 @@ operandWritten (ScalarMultiply a _ _) = a
 
 leftOperand (MatrixAdd _ a _) = a
 leftOperand (MatrixMultiply _ a _) = a
+leftOperand (ScalarMultiply _ a _) = a
 
 rightOperand (MatrixAdd _ _ b) = b
 rightOperand (MatrixMultiply _ _ b) = b
-
-
+rightOperand (ScalarMultiply _ _ b) = b

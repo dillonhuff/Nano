@@ -24,7 +24,9 @@ toCStmts stmt =
     True -> loopToCStmts stmt
     False -> case isMatrixAdd stmt of
       True -> matrixAddToCStmts stmt
-      False -> error $ "toCStmts: Unsupported statement " ++ show stmt
+      False -> case isScalarMultiply stmt of
+        True -> scalarMultiplyToCStmts stmt
+        False -> error $ "toCStmts: Unsupported statement " ++ show stmt
 
 loopToCStmts l =
   [cFor s e i b ""]
@@ -53,9 +55,31 @@ matrixAddToCStmts madd =
     cRS = iExprToCExpr $ rowStride c
     cCS = iExprToCExpr $ colStride c
     args = [m, n,
-            matToCExpr c, cRS, cCS,
             matToCExpr a, aRS, aCS,
-            matToCExpr b, bRS, bCS]
+            matToCExpr b, bRS, bCS,
+            matToCExpr c, cRS, cCS]
+
+scalarMultiplyToCStmts madd =
+  let c = operandWritten madd in
+  case isDouble $ dataType c of
+    True -> [cExprSt (cFuncall "simple_smul" args) ""]
+    False -> [cExprSt (cFuncall "simple_smul_float" args) ""]
+  where
+    a = leftOperand madd
+    b = rightOperand madd
+    c = operandWritten madd
+    m = iExprToCExpr $ numRows c
+    n = iExprToCExpr $ numCols c
+    aRS = iExprToCExpr $ rowStride a
+    aCS = iExprToCExpr $ colStride a
+    bRS = iExprToCExpr $ rowStride b
+    bCS = iExprToCExpr $ colStride b
+    cRS = iExprToCExpr $ rowStride c
+    cCS = iExprToCExpr $ colStride c
+    args = [m, n,
+            matToCExpr a,
+            matToCExpr b, bRS, bCS,
+            matToCExpr c, cRS, cCS]
 
 matToCExpr m =
   cAdd (cVar $ bufferName m) (iExprToCExpr $ evaluateIExprConstants $ locationExpr m)

@@ -58,8 +58,9 @@ void simple_mmul(int m, int n, int k,
 	double* c, int c_row_stride, int c_col_stride);
 
 void simple_smul(int m, int n,
-	double* scalar,
-	double* a, int a_row_stride, int a_col_stride);
+		 double *scalar,
+		 double *a, int a_row_stride, int a_col_stride,
+		 double *b, int b_row_stride, int b_col_stride);
 
 void simple_trsml(int m, int n,
 		  double* a, int a_row_stride, int a_col_stride,
