@@ -1,5 +1,6 @@
 module Blocking(blockMatrixAddM, blockMatrixAddN,
-                blockScalarMultiplyM, blockScalarMultiplyN) where
+                blockScalarMultiplyM, blockScalarMultiplyN,
+                blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP) where
 
 import IndexExpression
 import Matrix
@@ -27,6 +28,24 @@ blockScalarMultiplyN :: IExpr -> IExpr -> Statement -> [Statement]
 blockScalarMultiplyN indVar blkFactor stmt =
   case isScalarMultiply stmt of
     True -> blockSMulN indVar blkFactor stmt
+    False -> [stmt]
+
+blockMatrixMultiplyM :: IExpr -> IExpr -> Statement -> [Statement]
+blockMatrixMultiplyM indVar blkFactor stmt =
+  case isMatrixMultiply stmt of
+    True -> blockMMulM indVar blkFactor stmt
+    False -> [stmt]
+
+blockMatrixMultiplyN :: IExpr -> IExpr -> Statement -> [Statement]
+blockMatrixMultiplyN indVar blkFactor stmt =
+  case isMatrixMultiply stmt of
+    True -> error "blockMatrixMultiplyN"
+    False -> [stmt]
+
+blockMatrixMultiplyP :: IExpr -> IExpr -> Statement -> [Statement]
+blockMatrixMultiplyP indVar blkFactor stmt =
+  case isMatrixMultiply stmt of
+    True -> error "blockMatrixMultiplyP"
     False -> [stmt]
 
 blockMAddM indVar blkFactor stmt =
@@ -81,6 +100,25 @@ blockSMulN indVar blkFactor stmt =
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
     residual = applyToOperands (\m -> if isMatrix m then subMatrix (iConst 0) (numRows m) rs rl m else m) stmt
 
+blockMMulM indVar blkFactor stmt =
+  case numRows (operandWritten residual) == iConst 0 of
+    True -> [mainLoop]
+    False -> [mainLoop, residual]
+  where
+    c = operandWritten stmt
+    a = leftOperand stmt
+    b = rightOperand stmt
+    mainC = subMatrix indVar blkFactor (iConst 0) (numCols c) c
+    mainA = subMatrix indVar blkFactor (iConst 0) (numCols a) a
+    mainMul = matrixMultiply mainC mainA b
+    rs = residualStart blkFactor (numRows c)
+    rl = residualLength blkFactor (numRows c)
+    e = evaluateIExprConstants $ iSub (numRows c) blkFactor    
+    mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainMul]
+    resC = subMatrix rs rl (iConst 0) (numCols c) c
+    resA = subMatrix rs rl (iConst 0) (numCols a) a
+    residual = matrixMultiply resC resA b
+    
 residualStart blkFactor dimLength =
   let blkC = constVal blkFactor
       dimC = constVal dimLength in

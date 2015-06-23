@@ -60,9 +60,13 @@ loopInductionVariable (Loop v _ _ _ _) = v
 loopBody (Loop _ _ _ _ b) = b
 
 operandWritten (MatrixAdd c _ _) = c
+operandWritten (MatrixMultiply c _ _) = c
 operandWritten (ScalarMultiply a _ _) = a
 
 leftOperand (MatrixAdd _ a _) = a
+leftOperand (MatrixMultiply _ a _) = a
+
 rightOperand (MatrixAdd _ _ b) = b
+rightOperand (MatrixMultiply _ _ b) = b
 
 
