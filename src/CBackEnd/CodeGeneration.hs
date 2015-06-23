@@ -1,6 +1,6 @@
-module CBackEnd(operationToC,
-                argBufferDecls,
-                inductionVariableDecls) where
+module CBackEnd.CodeGeneration(operationToC,
+                               argBufferDecls,
+                               inductionVariableDecls) where
 
 import Data.List as L
 
@@ -85,3 +85,4 @@ argInfoList stmts =
 matrixArgInfo :: Matrix -> ArgumentInfo
 matrixArgInfo m =
   argumentInfo (bufferName m) (cPtr $ toCType $ dataType m) (iExprToCExpr $ sizeExpr m)
+

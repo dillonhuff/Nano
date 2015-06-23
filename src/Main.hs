@@ -1,7 +1,7 @@
 module Main(main) where
 
 import Blocking
-import CBackEnd
+import CBackEnd.CodeGeneration
 import CBackEnd.Syntax
 import IndexExpression
 import Matrix
@@ -27,4 +27,3 @@ c = constDblMat "C" 9 15 1 9
 
 constDblMat name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double)
-

@@ -2,7 +2,7 @@ module SanityCheckHarness(sanityCheckHarness) where
 
 import Data.List as L
 
-import CBackEnd
+import CBackEnd.CodeGeneration
 import CBackEnd.Syntax
 
 sanityCheckHarness :: String -> String -> [ArgumentInfo] -> CTopLevelItem String
