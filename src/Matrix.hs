@@ -2,7 +2,7 @@ module Matrix(Matrix,
               matrix,
               subMatrix,
               isMatrix, isVector, isScalar,
-              bufferName, locationExpr,
+              bufferName, locationExpr, sizeExpr,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
               Type,
@@ -37,6 +37,12 @@ bufferName (SubMatrix _ _ _ _ m _) = bufferName m
 locationExpr (Matrix _ _ _ _ _ _) = iConst 0
 locationExpr s@(SubMatrix rStart _ cStart _ m _) =
   iAdd (iAdd (iMul rStart (rowStride s)) (iMul cStart (colStride s))) $ locationExpr m
+
+sizeExpr (Matrix _ nr rs nc cs _) =
+  case rs == iConst 1 || cs == iConst 1 of
+    True -> evaluateIExprConstants $ iMul nr nc
+    False -> evaluateIExprConstants $ iAdd (iMul nr rs) (iMul nc cs)
+sizeExpr (SubMatrix _ _ _ _ m _) = sizeExpr m
 
 matrixBufferNameAndType (Matrix n _ _ _ _ (Properties _ t)) = (n, t)
 matrixBufferNameAndType (SubMatrix _ _ _ _ m _) = matrixBufferNameAndType m

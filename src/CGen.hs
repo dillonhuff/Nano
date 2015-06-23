@@ -11,7 +11,10 @@ module CGen(CTopLevelItem,
                     cIntLit, cFloatLit, cDoubleLit,
                     cVar, cArrAcc, cReturn, cSizeOf,
                     getReferencedType,
-                    Pretty(..)) where
+                    Pretty(..),
+                    ArgumentInfo,
+                    argumentInfo,
+                    argName, argType, argSize) where
 
 import Data.List as L
 
@@ -179,3 +182,13 @@ indent indL str = (L.replicate indL '\t') ++ str
 
 lineComment :: (Show a) => a -> String
 lineComment str = "// " ++ show str ++ "\n"
+
+data ArgumentInfo
+  = ArgumentInfo {
+    argName :: String,
+    argType :: CType,
+    argSize :: CExpr
+    }
+    deriving (Eq, Ord, Show)
+
+argumentInfo = ArgumentInfo

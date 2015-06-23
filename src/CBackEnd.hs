@@ -9,13 +9,15 @@ import IndexExpression
 import Matrix
 import Statement
 
-operationToC :: String -> [Statement] -> CTopLevelItem String
+operationToC :: String -> [Statement] -> (CTopLevelItem String, [ArgumentInfo])
 operationToC funcName stmts =
-  cFuncDecl cVoid funcName argDecls (cBlock iVarDecls body)
+  (cFunction, argInfo) 
   where
     body = L.concatMap toCStmts stmts
     iVarDecls = inductionVariableDecls stmts
-    argDecls = argBufferDecls stmts
+    argInfo = argInfoList stmts
+    argDecls = L.map (\info -> (argType info, argName info)) argInfo
+    cFunction = cFuncDecl cVoid funcName argDecls (cBlock iVarDecls body)
 
 toCStmts stmt =
   case isLoop stmt of
@@ -74,3 +76,12 @@ inductionVariableDecls :: [Statement] -> [(CType, String)]
 inductionVariableDecls stmts =
   let iNames = L.nub $ L.concatMap (collectValuesFromStmt (\st -> if isLoop st then [loopInductionVariable st] else [])) stmts in
   L.zip (L.replicate (length iNames) cInt) iNames
+
+argInfoList :: [Statement] -> [ArgumentInfo]
+argInfoList stmts =
+  let allMats = L.nub $ L.concatMap (collectValuesFromStmt $ collectFromAllOperands matrixArgInfo) stmts in
+  L.sortBy (\l r -> compare (argName l) (argName r)) allMats
+
+matrixArgInfo :: Matrix -> ArgumentInfo
+matrixArgInfo m =
+  argumentInfo (bufferName m) (cPtr $ toCType $ dataType m) (iExprToCExpr $ sizeExpr m)

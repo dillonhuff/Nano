@@ -5,8 +5,6 @@ import Data.Map as M
 
 import CGen
 
-orExprs [e] = e
-orExprs (e2:rest) = cOr e2 $ orExprs rest
 
 setSCResVar :: a -> String -> CType -> CExpr -> CStmt a
 setSCResVar dummyAnn n tp sizeExpr =
@@ -32,11 +30,4 @@ mainFunc dataFileName =
                     cExprSt (cFuncall "fclose" [cVar "data_file"]) "",
                     cReturn (cIntLit 0) ""]
 
-setArgToRandValuesCode :: a -> ((String, CType), CExpr) -> CStmt a
-setArgToRandValuesCode dummyAnn ((name, tp), sz) =
-  case getReferencedType tp == cDouble of
-    True -> cExprSt (cFuncall "rand_doubles" [cVar name, sz]) dummyAnn
-    False -> case getReferencedType tp == cFloat of
-      True -> cExprSt (cFuncall "rand_floats" [cVar name, sz]) dummyAnn
-      False -> error $ "Unrecognized type in setArgToRandValuesCode " ++ show tp
 

@@ -1,14 +1,17 @@
 module Main(main) where
 
+import Blocking
 import CBackEnd
 import CGen
 import IndexExpression
 import Matrix
+import SanityCheckHarness
 import Statement
-import TestHarness
 
 main :: IO ()
-main = putStrLn $ cTestHarness "matrixAdd" [plusABC] "matrixAddOptimized" optimizedPlusABC
+main = putStrLn $ prettyPrint 0 $ sanityCheckHarness "matrixAdd" "matrixAddOptimized" args
+  where
+    (_, args) = operationToC "matrixAdd" [plusABC]
 
 optimizedPlusABC = blockMatrixAddM (iVar "i") (iConst 8) plusABC
 
