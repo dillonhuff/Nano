@@ -53,9 +53,9 @@ setArgToRandValuesCode argInfo =
       tp = argType argInfo
       sz = argSize argInfo in
   case getReferencedType tp == cDouble of
-    True -> cExprSt (cFuncall "rand_doubles" [cVar name, sz]) ""
+    True -> cExprSt (cFuncall "rand_doubles" [sz, cVar name]) ""
     False -> case getReferencedType tp == cFloat of
-      True -> cExprSt (cFuncall "rand_floats" [cVar name, sz]) ""
+      True -> cExprSt (cFuncall "rand_floats" [sz, cVar name]) ""
       False -> error $ "Unrecognized type in setArgToRandValuesCode " ++ show tp
 
 copyBufferCode :: ArgumentInfo -> ArgumentInfo -> CStmt String
@@ -65,7 +65,7 @@ copyBufferCode destBuf srcBuf =
 bufSizeExpr bufInfo = cMul (cSizeOf (getReferencedType $ argType bufInfo)) (argSize bufInfo)      
 
 setSCResultVar varName refBuf testBuf =
-  let argList = [cVar $ argName refBuf, cVar $ argName testBuf, argSize testBuf] in
+  let argList = [argSize testBuf, cVar $ argName refBuf, cVar $ argName testBuf] in
   case getReferencedType (argType refBuf) == cDouble of
     True -> cExprSt (cAssign (cVar varName) (cFuncall "test_buffer_diff" argList)) ""
     False -> cExprSt (cAssign (cVar varName) (cFuncall "test_buffer_diff_float" argList)) ""

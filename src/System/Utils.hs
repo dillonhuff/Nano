@@ -1,4 +1,5 @@
-module System.Utils(runCommandStrict) where
+module System.Utils(runCommandStrict,
+                    readFileShowingContents) where
 
 import System.IO.Strict as S
 import System.Process

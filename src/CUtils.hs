@@ -5,7 +5,6 @@ import Data.Map as M
 
 import CGen
 
-
 setSCResVar :: a -> String -> CType -> CExpr -> CStmt a
 setSCResVar dummyAnn n tp sizeExpr =
   case tp == cDouble of

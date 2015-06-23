@@ -1,5 +1,6 @@
 module CGen(CTopLevelItem,
                     cFuncDecl, cInclude,
+                    cFuncName,
                     cInt, cFloat, cDouble, cFILE, cVoid, cPtr, cULongLong,
                     CBlock,
                     cBlock,
@@ -25,6 +26,8 @@ data CTopLevelItem a
 
 cInclude str = CInclude str
 cFuncDecl retType name fParams body = CFuncDecl $ CFunc retType name fParams body
+
+cFuncName (CFuncDecl (CFunc _ n _ _)) = n
 
 instance Show a => Pretty (CTopLevelItem a) where
   prettyPrint indL (CInclude name) = indent indL $ "#include " ++ name

@@ -303,23 +303,23 @@ void print_buffer(int size, double *buf)	{
 	printf("\n");
 }
 
-void test_buffer_diff(int size, double *a, double *b, char *test_name)	{
+int test_buffer_diff(int size, double *a, double *b)	{
 	double diff = diff_buffer(size, a, b);
 	// Should really have a tolerance but for now this will do
 	if (diff != 0.0)	{
-		printf("\n\nERROR in %s: diff = %f\n\n", test_name, diff);
+	  return 1;
 	} else {
-		printf("%s PASSED\n", test_name);
+	  return 0;
 	}
 }
 
-void test_buffer_diff_float(int size, float *a, float *b, char *test_name)	{
+int test_buffer_diff_float(int size, float *a, float *b)	{
 	float diff = diff_buffer_float(size, a, b);
 	// Should really have a tolerance but for now this will do
 	if (diff != 0.0)	{
-		printf("\n\nERROR in %s: diff = %f\n\n", test_name, diff);
+	  return 1;
 	} else {
-		printf("%s PASSED\n", test_name);
+	  return 0;
 	}
 }
 

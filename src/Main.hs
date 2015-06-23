@@ -5,13 +5,16 @@ import CBackEnd
 import CGen
 import IndexExpression
 import Matrix
-import SanityCheckHarness
+import SanityCheck
 import Statement
 
 main :: IO ()
-main = putStrLn $ prettyPrint 0 $ sanityCheckHarness "matrixAdd" "matrixAddOptimized" args
+main = do
+  scResStr <- runSanityCheck "mainMAddTest" maddOp maddRefinedOp args
+  putStrLn $ scResStr
   where
-    (_, args) = operationToC "matrixAdd" [plusABC]
+    (maddOp, args) = operationToC "matrixAdd" [plusABC]
+    (maddRefinedOp, _) = operationToC "optimizedMatrixAdd" optimizedPlusABC
 
 optimizedPlusABC = blockMatrixAddM (iVar "i") (iConst 8) plusABC
 

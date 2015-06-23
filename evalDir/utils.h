@@ -100,9 +100,9 @@ void copy_buffer_float(int size, float *src, float *dest);
 
 void print_buffer(int size, double* buf);
 
-void test_buffer_diff(int size, double* a, double* b, char *test_name);
+int test_buffer_diff(int size, double* a, double* b);
 
-void test_buffer_diff_float(int size, float *a, float *b, char *test_name);
+int test_buffer_diff_float(int size, float *a, float *b);
 
 void test_mats_diff(int m, int n, double* a, int a_row_stride, int a_col_stride, double* b, int b_row_stride, int b_col_stride, char *test_name);
 
