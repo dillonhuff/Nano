@@ -1,5 +1,5 @@
 module Blocking(blockMatrixAddM, blockMatrixAddN,
-                blockScalarMultiplyM) where
+                blockScalarMultiplyM, blockScalarMultiplyN) where
 
 import IndexExpression
 import Matrix
@@ -21,6 +21,12 @@ blockScalarMultiplyM :: IExpr -> IExpr -> Statement -> [Statement]
 blockScalarMultiplyM indVar blkFactor stmt =
   case isScalarMultiply stmt of
     True -> blockSMulM indVar blkFactor stmt
+    False -> [stmt]
+
+blockScalarMultiplyN :: IExpr -> IExpr -> Statement -> [Statement]
+blockScalarMultiplyN indVar blkFactor stmt =
+  case isScalarMultiply stmt of
+    True -> blockSMulN indVar blkFactor stmt
     False -> [stmt]
 
 blockMAddM indVar blkFactor stmt =
@@ -61,6 +67,19 @@ blockSMulM indVar blkFactor stmt =
     mainAdd = applyToOperands (\m -> if isMatrix m then subMatrix indVar blkFactor (iConst 0) (numCols m) m else m) stmt
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
     residual = applyToOperands (\m -> if isMatrix m then subMatrix rs rl (iConst 0) (numCols m) m else m) stmt
+
+blockSMulN indVar blkFactor stmt =
+  case numRows (operandWritten residual) == iConst 0 of
+    True -> [mainLoop]
+    False -> [mainLoop, residual]
+  where
+    c = operandWritten stmt
+    rs = residualStart blkFactor (numCols c)
+    rl = residualLength blkFactor (numCols c)
+    e = evaluateIExprConstants $ iSub (numCols c) blkFactor
+    mainAdd = applyToOperands (\m -> if isMatrix m then subMatrix (iConst 0) (numRows m) indVar blkFactor m else m) stmt
+    mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
+    residual = applyToOperands (\m -> if isMatrix m then subMatrix (iConst 0) (numRows m) rs rl m else m) stmt
 
 residualStart blkFactor dimLength =
   let blkC = constVal blkFactor
