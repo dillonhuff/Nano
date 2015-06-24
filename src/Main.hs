@@ -75,7 +75,7 @@ constDblMat name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double)
 -}
 
-{-
+
 main :: IO ()
 main = do
   bestOp <- search 2 someOp optimizations allCostsOne
@@ -92,24 +92,42 @@ allCostsOne stmts =
     timeResStr <- runTimingCode "mainTiming" opC argInfo
     return $ read $ L.head $ L.lines timeResStr
 
+optimizations :: [[Statement] -> [Statement]]
 optimizations =
-  L.map (\t -> expandStatementsBU t)
-  [blockMatrixAddM (iVar "i1") (iConst 1),
-   blockMatrixAddN (iVar "i2") (iConst 1),
-   blockMatrixAddM (iVar "i3") (iConst 3),
-   blockMatrixAddN (iVar "i4") (iConst 11),
-   blockScalarMultiplyM (iVar "i5") (iConst 1),
-   blockScalarMultiplyN (iVar "i6") (iConst 3),
-   blockScalarMultiplyN (iVar "i7") (iConst 4),
-   blockMatrixMultiplyM (iVar "i8") (iConst 1),
-   blockMatrixMultiplyN (iVar "i9") (iConst 1),
-   blockMatrixMultiplyP (iVar "i10") (iConst 1),
-   blockMatrixTransposeM (iVar "i11") (iConst 1),
-   blockMatrixTransposeM (iVar "i12") (iConst 6),
-   blockMatrixTransposeN (iVar "i13") (iConst 3),
-   blockMatrixTransposeN (iVar "i14") (iConst 1)]   
--}
+  L.map (\(f, b) -> blkUniqueVar f b)
+  [(blockMatrixAddM, iConst 1),
+   (blockMatrixAddN, iConst 1),
+   (blockMatrixAddM, iConst 3),
+   (blockMatrixAddN, iConst 11),
+   (blockScalarMultiplyM, iConst 1),
+   (blockScalarMultiplyN, iConst 3),
+   (blockScalarMultiplyN, iConst 4),
+   (blockMatrixMultiplyM, iConst 1),
+   (blockMatrixMultiplyN, iConst 1),
+   (blockMatrixMultiplyP, iConst 1),
+   (blockMatrixTransposeM, iConst 1),
+   (blockMatrixTransposeM, iConst 6),
+   (blockMatrixTransposeN, iConst 3),
+   (blockMatrixTransposeN, iConst 1)]
 
+blkUniqueVar :: (IExpr -> IExpr -> Statement -> [Statement]) -> IExpr -> [Statement] -> [Statement]
+blkUniqueVar blkFunc blkFactor stmts =
+  let v = uniqueVarName stmts in
+  expandStatementsBU (blkFunc v blkFactor) stmts
+
+uniqueVarName stmts =
+  let vs = uniqueVars stmts in
+  case vs of
+    [] -> iVar "i"
+    (v:rest) ->iVar $ (varName v) ++ "_unique"
+
+uniqueVars stmts = L.nub $ L.concatMap (collectValuesFromStmt loopIVar) stmts
+
+loopIVar stmt =
+  case isLoop stmt of
+    True -> [iVar $ loopInductionVariable stmt]
+    False -> []
+{-
 main :: IO ()
 main = do
   operations <- sequence $ L.map (applyRandomOptimizations blockingOptimizations) testOperations
@@ -124,3 +142,4 @@ timeImpl op =
   do
     timeResStr <- runTimingCode "costModelTiming" cOp argInfo
     return $ read $ L.head $ L.lines timeResStr
+-}

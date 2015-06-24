@@ -1,5 +1,6 @@
 module Fuzz(applyRandomOptimizations,
-            applyTransforms, selectTransforms) where
+            applyOptimizations,
+            selectTransforms) where
 
 import Control.Monad.Random
 import Data.List as L

@@ -2,7 +2,7 @@ module CBackEnd.Utils(initializeBuffer, freeBuffer,
                       bufSizeExpr,
                       bufDecls,
                       setArgToRandValuesCode,
-                      compileAndRunC) where
+                      compileAndRunC, mainFunc) where
 
 import Data.List as L
 
@@ -36,3 +36,12 @@ compileAndRunC testName codeItems =
     writeFile (cFileName testName) codeString
     runCommandStrict $ compileString testName
     runCommandStrict $ runString testName  
+
+mainFunc :: [String] -> FilePath -> CTopLevelItem String
+mainFunc harnessFuncs resultFilePath =
+  cFuncDecl cInt "main" [] $ cBlock [(cPtr cFILE, "data_file")] body
+  where
+    harnessCalls = L.map (\n -> cExprSt (cFuncall n [cVar "data_file"]) "") harnessFuncs
+    body = [cExprSt (cAssign (cVar "data_file") (cFuncall "fopen" [cVar ("\"" ++ resultFilePath ++ "\""), cVar "\"w\""])) ""] ++
+           harnessCalls ++
+           [cExprSt (cFuncall "fclose" [cVar "data_file"]) "", cReturn (cIntLit 0) ""]

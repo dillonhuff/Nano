@@ -13,16 +13,8 @@ runSanityCheck :: FilePath -> CTopLevelItem String -> CTopLevelItem String -> [B
 runSanityCheck testName scFunc testFunc argInfo =
   let scHarness = sanityCheckHarness (cFuncName scFunc) (cFuncName testFunc) argInfo
       scHeader = cInclude "\"utils.h\""
-      codeItems = [scHeader, scFunc, testFunc, scHarness, scMain (dataFileName testName)] in
+      scMain = mainFunc ["sanity_check"] (dataFileName testName)
+      codeItems = [scHeader, scFunc, testFunc, scHarness, scMain] in
   do
     compileAndRunC testName codeItems
     readFileShowingContents $ dataFileName testName
-      
-scMain :: FilePath -> CTopLevelItem String
-scMain resultFilePath =
-  cFuncDecl cInt "main" [] $
-            cBlock [(cPtr cFILE, "data_file")]
-                   [cExprSt (cAssign (cVar "data_file") (cFuncall "fopen" [cVar ("\"" ++ resultFilePath ++ "\""), cVar "\"w\""])) "",
-                    cExprSt (cFuncall "sanity_check" [cVar "data_file"]) "",
-                    cExprSt (cFuncall "fclose" [cVar "data_file"]) "",
-                    cReturn (cIntLit 0) ""]

@@ -17,8 +17,8 @@ allMultiBlockingTests = TestLabel "All multi blocking tests" $
                         TestList $ L.map (\op -> TestCase $ assertRandomTransformsCorrect op) testOperations
 
 assertRandomTransformsCorrect operation = do
-  transformsToApply <- selectTransforms blockingTransforms
-  let (transformedOp, _) = operationToC "transformedOp" $ applyTransforms transformsToApply operation
+  transformsToApply <- selectTransforms blockingOptimizations
+  let (transformedOp, _) = operationToC "transformedOp" $ applyOptimizations transformsToApply operation
       (regularOp, argInfo) = operationToC "op" operation in
     do
       scRes <- runSanityCheck "multiBlockingTest" regularOp transformedOp argInfo
