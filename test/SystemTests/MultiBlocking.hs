@@ -44,7 +44,9 @@ testOperations =
     [matrixTranspose i h],
     [matrixMultiply x j y],
     [matrixMultiply alpha p x],
-    [matrixMultiply j x p]]
+    [matrixMultiply j x p],
+    [matrixAdd tr9c9 a b,
+     matrixAdd c tr9c9 c]]
 
 randomBit :: (RandomGen g) => Rand g Int
 randomBit = getRandomR (0, 1)

@@ -7,7 +7,7 @@ import Data.List as L
 import CBackEnd.CodeGeneration
 import CBackEnd.Syntax
 
-sanityCheckHarness :: String -> String -> [ArgumentInfo] -> CTopLevelItem String
+sanityCheckHarness :: String -> String -> [BufferInfo] -> CTopLevelItem String
 sanityCheckHarness scOpName testOpName argInfo =
   cFuncDecl cVoid "sanity_check" [(cPtr cFILE, "df")] $ cBlock allDecls scBody 
   where
@@ -32,43 +32,41 @@ sanityCheckBody scOpName testOpName argInfo =
     setMainBuffersToRandValues = L.map setArgToRandValuesCode argInfo
     copyMainBuffersToRefBuffers = L.zipWith copyBufferCode refBufs argInfo
     copyMainBuffersToTestBuffers = L.zipWith copyBufferCode testBufs argInfo
-    callRef = [cExprSt (cFuncall scOpName $ L.map (\bufInfo -> cVar $ argName bufInfo) refBufs) ""]
-    callMain = [cExprSt (cFuncall testOpName $ L.map (\bufInfo -> cVar $ argName bufInfo) testBufs) ""]
+    callRef = [cExprSt (cFuncall scOpName $ L.map (\bufInfo -> cVar $ bufName bufInfo) refBufs) ""]
+    callMain = [cExprSt (cFuncall testOpName $ L.map (\bufInfo -> cVar $ bufName bufInfo) testBufs) ""]
     setSCResultVars = L.zipWith3 setSCResultVar scResultVars refBufs testBufs
     compareSCResultVars = [compareVars $ L.map cVar scResultVars]
 
-initializeBuffer bufInfo = cExprSt (cAssign (cVar $ argName bufInfo) (cFuncall "malloc" [bufSizeExpr bufInfo])) ""
+initializeBuffer bufInfo = cExprSt (cAssign (cVar $ bufName bufInfo) (cFuncall "malloc" [bufSizeExpr bufInfo])) ""
 
+bufDecls argInfo = L.map (\info -> (bufType info, bufName info)) argInfo
+refBufDecls argInfo = L.map (\info -> (bufType info, (bufName info) ++ "_ref")) argInfo
+testBufDecls argInfo = L.map (\info -> (bufType info, (bufName info) ++ "_test")) argInfo
+scResultVarDecls argInfo = L.map (\info -> (cInt, (bufName info) ++ "_sc_result")) argInfo
 
+refBufInfo bufInfo = bufferInfo ((bufName bufInfo) ++ "_ref") (bufType bufInfo) (bufSize bufInfo) (bufScope bufInfo)
+testBufInfo bufInfo = bufferInfo ((bufName bufInfo) ++ "_test") (bufType bufInfo) (bufSize bufInfo) (bufScope bufInfo)
 
-bufDecls argInfo = L.map (\info -> (argType info, argName info)) argInfo
-refBufDecls argInfo = L.map (\info -> (argType info, (argName info) ++ "_ref")) argInfo
-testBufDecls argInfo = L.map (\info -> (argType info, (argName info) ++ "_test")) argInfo
-scResultVarDecls argInfo = L.map (\info -> (cInt, (argName info) ++ "_sc_result")) argInfo
-
-refBufInfo bufInfo = argumentInfo ((argName bufInfo) ++ "_ref") (argType bufInfo) (argSize bufInfo)
-testBufInfo bufInfo = argumentInfo ((argName bufInfo) ++ "_test") (argType bufInfo) (argSize bufInfo)
-
-setArgToRandValuesCode :: ArgumentInfo -> CStmt String
+setArgToRandValuesCode :: BufferInfo -> CStmt String
 setArgToRandValuesCode argInfo =
-  let name = argName argInfo
-      tp = argType argInfo
-      sz = argSize argInfo in
+  let name = bufName argInfo
+      tp = bufType argInfo
+      sz = bufSize argInfo in
   case getReferencedType tp == cDouble of
     True -> cExprSt (cFuncall "rand_doubles" [sz, cVar name]) ""
     False -> case getReferencedType tp == cFloat of
       True -> cExprSt (cFuncall "rand_floats" [sz, cVar name]) ""
       False -> error $ "Unrecognized type in setArgToRandValuesCode " ++ show tp
 
-copyBufferCode :: ArgumentInfo -> ArgumentInfo -> CStmt String
+copyBufferCode :: BufferInfo -> BufferInfo -> CStmt String
 copyBufferCode destBuf srcBuf =
-  cExprSt (cFuncall "memcpy" [cVar $ argName destBuf, cVar $ argName srcBuf, bufSizeExpr destBuf]) ""
+  cExprSt (cFuncall "memcpy" [cVar $ bufName destBuf, cVar $ bufName srcBuf, bufSizeExpr destBuf]) ""
 
-bufSizeExpr bufInfo = cMul (cSizeOf (getReferencedType $ argType bufInfo)) (argSize bufInfo)      
+bufSizeExpr bufInfo = cMul (cSizeOf (getReferencedType $ bufType bufInfo)) (bufSize bufInfo)      
 
 setSCResultVar varName refBuf testBuf =
-  let argList = [argSize testBuf, cVar $ argName refBuf, cVar $ argName testBuf] in
-  case getReferencedType (argType refBuf) == cDouble of
+  let argList = [bufSize testBuf, cVar $ bufName refBuf, cVar $ bufName testBuf] in
+  case getReferencedType (bufType refBuf) == cDouble of
     True -> cExprSt (cAssign (cVar varName) (cFuncall "test_buffer_diff" argList)) ""
     False -> cExprSt (cAssign (cVar varName) (cFuncall "test_buffer_diff_float" argList)) ""
 

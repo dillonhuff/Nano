@@ -1,6 +1,6 @@
 module CBackEnd.CodeGeneration(operationToC,
                                argBufferDecls,
-                               argInfoList,
+                               bufferInfoList,
                                inductionVariableDecls) where
 
 import Data.List as L
@@ -10,15 +10,20 @@ import IndexExpression
 import Matrix
 import Statement
 
-operationToC :: String -> [Statement] -> (CTopLevelItem String, [ArgumentInfo])
+operationToC :: String -> [Statement] -> (CTopLevelItem String, [BufferInfo])
 operationToC funcName stmts =
   (cFunction, argInfo) 
-  where
-    body = L.concatMap toCStmts stmts
+  where    
+    bufInfo = bufferInfoList stmts
+    tempBufInfo = L.filter (\info -> bufScope info == local) bufInfo
+    tempBufferDecls = bufDecls tempBufInfo
+    tempBufAllocation = L.map initializeBuffer tempBufInfo
+    body = tempBufAllocation ++ (L.concatMap toCStmts stmts)
     iVarDecls = inductionVariableDecls stmts
-    argInfo = argInfoList stmts
-    argDecls = L.map (\info -> (argType info, argName info)) argInfo
-    cFunction = cFuncDecl cVoid funcName argDecls (cBlock iVarDecls body)
+    localVarDecls = iVarDecls ++ tempBufferDecls
+    argInfo = L.filter (\info -> bufScope info == arg) bufInfo
+    argDecls = L.map (\info -> (bufType info, bufName info)) argInfo
+    cFunction = cFuncDecl cVoid funcName argDecls (cBlock localVarDecls body)
 
 toCStmts stmt =
   case isLoop stmt of
@@ -145,12 +150,15 @@ inductionVariableDecls stmts =
   let iNames = L.nub $ L.concatMap (collectValuesFromStmt (\st -> if isLoop st then [loopInductionVariable st] else [])) stmts in
   L.zip (L.replicate (length iNames) cInt) iNames
 
-argInfoList :: [Statement] -> [ArgumentInfo]
-argInfoList stmts =
-  let allMats = L.nub $ L.concatMap (collectValuesFromStmt $ collectFromAllOperands matrixArgInfo) stmts in
-  L.sortBy (\l r -> compare (argName l) (argName r)) allMats
+bufferInfoList :: [Statement] -> [BufferInfo]
+bufferInfoList stmts =
+  let allMats = L.nub $ L.concatMap (collectValuesFromStmt $ collectFromAllOperands matrixBufferInfo) stmts in
+  L.sortBy (\l r -> compare (bufName l) (bufName r)) allMats
 
-matrixArgInfo :: Matrix -> ArgumentInfo
-matrixArgInfo m =
-  argumentInfo (bufferName m) (cPtr $ toCType $ dataType m) (iExprToCExpr $ sizeExpr m)
+matrixBufferInfo :: Matrix -> BufferInfo
+matrixBufferInfo m =
+  bufferInfo (bufferName m) (cPtr $ toCType $ dataType m) (iExprToCExpr $ sizeExpr m) (bufferScope m)
 
+initializeBuffer bufInfo = cExprSt (cAssign (cVar $ bufName bufInfo) (cFuncall "malloc" [bufSizeExpr bufInfo])) ""
+bufSizeExpr bufInfo = cMul (cSizeOf (getReferencedType $ bufType bufInfo)) (bufSize bufInfo)      
+bufDecls argInfo = L.map (\info -> (bufType info, bufName info)) argInfo

@@ -1,6 +1,7 @@
 module Dummies(a, b, c, d, e, f, g, h, i, j,
                x, y, z, p,
                alpha,
+               tr9c9, tr13c4,
                maddCBA, smulCAlphaA, mmulCBA,
                constDblMat) where
 
@@ -26,11 +27,17 @@ p = constDblMat "p" 1 16 1 1
 
 alpha = constDblMat "alpha" 1 1 1 1
 
+tr9c9 = constDblMatTemp "tr9c9" 9 9 1 9
+tr13c4 = constDblMatTemp "tr13c4" 13 4 1 13
+
 maddCBA = matrixAdd c b a
 smulCAlphaA = scalarMultiply c alpha a
 mmulCBA = matrixMultiply c b a
 
 constDblMat name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double)
+
+constDblMatTemp name nr nc rs cs =
+  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties local double)
 
 

@@ -13,11 +13,13 @@ module CBackEnd.Syntax(CTopLevelItem,
                     cVar, cArrAcc, cReturn, cSizeOf,
                     getReferencedType,
                     Pretty(..),
-                    ArgumentInfo,
-                    argumentInfo,
-                    argName, argType, argSize) where
+                    BufferInfo,
+                    bufferInfo,
+                    bufName, bufType, bufScope, bufSize) where
 
 import Data.List as L
+
+import Scope
 
 data CTopLevelItem a
   = CInclude String
@@ -186,12 +188,13 @@ indent indL str = (L.replicate indL '\t') ++ str
 lineComment :: (Show a) => a -> String
 lineComment str = "// " ++ show str ++ "\n"
 
-data ArgumentInfo
-  = ArgumentInfo {
-    argName :: String,
-    argType :: CType,
-    argSize :: CExpr
+data BufferInfo
+  = BufferInfo {
+    bufName :: String,
+    bufType :: CType,
+    bufSize :: CExpr,
+    bufScope :: Scope
     }
     deriving (Eq, Ord, Show)
 
-argumentInfo = ArgumentInfo
+bufferInfo = BufferInfo

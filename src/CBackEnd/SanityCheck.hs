@@ -8,7 +8,7 @@ import CBackEnd.SanityCheckHarness
 import System.Settings
 import System.Utils
 
-runSanityCheck :: FilePath -> CTopLevelItem String -> CTopLevelItem String -> [ArgumentInfo] -> IO String
+runSanityCheck :: FilePath -> CTopLevelItem String -> CTopLevelItem String -> [BufferInfo] -> IO String
 runSanityCheck testName scFunc testFunc argInfo =
   let scHarness = sanityCheckHarness (cFuncName scFunc) (cFuncName testFunc) argInfo
       scHeader = cInclude "\"utils.h\""

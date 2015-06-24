@@ -8,9 +8,10 @@ module Matrix(Matrix,
               Type,
               single, double,
               isDouble, isSingle,
-              arg, local) where
+              arg, local, bufferScope) where
 
 import IndexExpression
+import Scope
 
 data Matrix
   = Matrix String IExpr IExpr IExpr IExpr Properties
@@ -35,6 +36,9 @@ isMatrix m =
 
 bufferName (Matrix n _ _ _ _ _) = n
 bufferName (SubMatrix _ _ _ _ m _) = bufferName m
+
+bufferScope (Matrix _ _ _ _ _ p) = propScope p
+bufferScope (SubMatrix _ _ _ _ m _) = bufferScope m
 
 locationExpr (Matrix _ _ _ _ _ _) = iConst 0
 locationExpr s@(SubMatrix rStart _ cStart _ m _) =
@@ -70,6 +74,8 @@ data Properties
 
 properties = Properties
 
+propScope (Properties s _) = s
+
 data Type
   = Single
   | Double
@@ -82,11 +88,3 @@ isDouble Double = True
 isDouble _ = False
 
 isSingle t = not $ isDouble t
-
-data Scope
-  = Arg
-  | Local
-    deriving (Eq, Ord, Show)
-
-arg = Arg
-local = Local
