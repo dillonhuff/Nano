@@ -1,33 +1,36 @@
 module SystemTests.BlockingTests(allSystemBlockingTests) where
 
 import Data.List as L
+import Test.HUnit
 
 import Blocking
 import CBackEnd.CodeGeneration
 import CBackEnd.SanityCheck
 import CBackEnd.SanityCheckHarness
+import Dummies
 import IndexExpression
 import Matrix
 import Module
 import Statement
 
-allSystemBlockingTests = do
-  testBlockMAdd
-  testBlockSMul
-  testBlockMMul
+allSystemBlockingTests =
+  TestLabel "Single blocking tests" $ TestList $
+            [testBlockMAdd,
+             testBlockSMul,
+             testBlockMMul]
   
-testBlockMAdd = do
-  testFunctionIO (testBlocking blockMatrixAddM) blockMAddCases
-  testFunctionIO (testBlocking blockMatrixAddN) blockMAddCases
+testBlockMAdd = TestLabel "Single matrix add blocking" $ TestList $
+  [makeTestCasesIO (testBlocking blockMatrixAddM) blockMAddCases,
+   makeTestCasesIO (testBlocking blockMatrixAddN) blockMAddCases]
 
-testBlockSMul = do
-  testFunctionIO (testBlocking blockScalarMultiplyM) blockSMulCases
-  testFunctionIO (testBlocking blockScalarMultiplyN) blockSMulCases
+testBlockSMul = TestLabel "Single scalar multiply blocking" $ TestList $
+  [makeTestCasesIO (testBlocking blockScalarMultiplyM) blockSMulCases,
+   makeTestCasesIO (testBlocking blockScalarMultiplyN) blockSMulCases]
 
-testBlockMMul = do
-  testFunctionIO (testBlocking blockMatrixMultiplyM) blockMMulCases
-  testFunctionIO (testBlocking blockMatrixMultiplyN) blockMMulCases
-  testFunctionIO (testBlocking blockMatrixMultiplyP) blockMMulCases
+testBlockMMul = TestLabel "Single matrix multiply blocking" $ TestList $ 
+  [makeTestCasesIO (testBlocking blockMatrixMultiplyM) blockMMulCases,
+   makeTestCasesIO (testBlocking blockMatrixMultiplyN) blockMMulCases,
+   makeTestCasesIO (testBlocking blockMatrixMultiplyP) blockMMulCases]
 
 blockMAddCases =
   L.map (\x -> (x, True))
@@ -36,11 +39,11 @@ blockMAddCases =
    (iConst 3, maddCBA),
    (iConst 4, maddCBA),
    (iConst 5, maddCBA),
-   (iConst 6, maddCBA),
-   (iConst 7, maddCBA),
-   (iConst 8, maddCBA),
-   (iConst 9, maddCBA),
-   (iConst 10, maddCBA)]
+   (iConst 6, matrixAdd h f g),
+   (iConst 7, matrixAdd g f g),
+   (iConst 8, matrixAdd g f f),
+   (iConst 9, matrixAdd g f h),
+   (iConst 10, matrixAdd f g g)]
 
 blockSMulCases =
   L.map (\x -> (x, True))
@@ -75,20 +78,4 @@ testBlocking blkFunc (blkFactor, stmt) =
   do
     scRes <- runSanityCheck "blockingTest" cUnBlocked cBlocked unBlockedArgs
     return $ scRes == "true\n"
-
-a = constDblMat "A" 9 9 1 9
-b = constDblMat "B" 9 9 7 9
-c = constDblMat "C" 9 9 9 1
-d = constDblMat "D" 13 9 1 13
-e = constDblMat "E" 9 4 4 19
-f = constDblMat "F" 13 4 4 1
-
-alpha = constDblMat "alpha" 1 1 1 1
-
-maddCBA = matrixAdd c b a
-smulCAlphaA = scalarMultiply c alpha a
-mmulCBA = matrixMultiply c b a
-
-constDblMat name nr nc rs cs =
-  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double)
 

@@ -7,14 +7,14 @@ import Matrix
 import Statement
 
 blockMatrixAddM :: IExpr -> IExpr -> Statement -> [Statement]
-blockMatrixAddM indVar blockFactor stmt =
-  case isMatrixAdd stmt of
-    True -> blockMAddM indVar blockFactor stmt
+blockMatrixAddM indVar blkFactor stmt =
+  case isMatrixAdd stmt && numRows (operandWritten stmt) > blkFactor of
+    True -> blockMAddM indVar blkFactor stmt
     False -> [stmt]
 
 blockMatrixAddN :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixAddN indVar blkFactor stmt =
-  case isMatrixAdd stmt of
+  case isMatrixAdd stmt && numCols (operandWritten stmt) > blkFactor of
     True -> blockMAddN indVar blkFactor stmt
     False -> [stmt]
 
@@ -67,8 +67,8 @@ blockMAddN indVar blkFactor stmt =
     False -> [mainLoop, residual]
   where
     c = operandWritten stmt
-    rs = residualStart blkFactor (numRows c)
-    rl = residualLength blkFactor (numRows c)
+    rs = residualStart blkFactor (numCols c)
+    rl = residualLength blkFactor (numCols c)
     e = evaluateIExprConstants $ iSub (numCols c) blkFactor
     mainAdd = applyToOperands (\m -> subMatrix (iConst 0) (numRows m) indVar blkFactor m) stmt
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]

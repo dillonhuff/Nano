@@ -307,6 +307,7 @@ int test_buffer_diff(int size, double *a, double *b)	{
 	double diff = diff_buffer(size, a, b);
 	// Should really have a tolerance but for now this will do
 	if (diff != 0.0)	{
+	  printf("Error: diff = %f\n", diff);
 	  return 1;
 	} else {
 	  return 0;
