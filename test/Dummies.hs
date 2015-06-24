@@ -1,4 +1,4 @@
-module Dummies(a, b, c, d, e, f, g, h, i, j,
+module Dummies(a, b, c, d, e, f, g, h, i, j, k,
                x, y, z, p,
                alpha,
                tr9c9, tr13c4,
@@ -19,6 +19,7 @@ g = constDblMat "G" 13 4 1 13
 h = constDblMat "H" 13 4 1 13
 i = constDblMat "I" 4 13 13 1
 j = constDblMat "J" 16 16 1 16
+k = constDblMat "K" 13 13 1 13
 
 x = constDblMat "x" 16 1 1 1
 y = constDblMat "y" 16 1 1 1
