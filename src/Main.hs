@@ -6,6 +6,7 @@ import CBackEnd.Syntax
 import IndexExpression
 import Matrix
 import CBackEnd.SanityCheck
+import CBackEnd.Timing
 import CBackEnd.TimingHarness
 import Statement
 
@@ -50,7 +51,10 @@ main =
             [matrixMultiply c b a]
       (cOp, argInfo) = operationToC "blockedMatrixMul" res in
   do
-    putStrLn $ prettyPrint 0 $ timingHarness "blockedMatrixMul" argInfo
+    res <- runTimingCode "mainTiming" cOp argInfo
+    putStrLn res
+
+--    putStrLn $ prettyPrint 0 $ timingHarness "blockedMatrixMul" argInfo
 
 a = constDblMat "A" 9 9 1 9
 b = constDblMat "B" 9 9 1 9

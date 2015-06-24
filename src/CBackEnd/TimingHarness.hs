@@ -54,7 +54,7 @@ timedLoop funcName bufInfo =
   endRDTSC
 
 timedLoopBody funcName bufInfo =
-  [cFor (cAssign (cVar "lvar") (cIntLit 1)) (cLEQ (cVar "lvar") (cVar "num_runs")) (cAdd (cVar "lvar") (cIntLit 1)) (cBlock [] $ timeLoopBody funcName bufInfo) ""]
+  [cFor (cAssign (cVar "lvar") (cIntLit 1)) (cLEQ (cVar "lvar") (cVar "num_runs")) (cAssign (cVar "lvar") (cAdd (cVar "lvar") (cIntLit 1))) (cBlock [] $ timeLoopBody funcName bufInfo) ""]
 
 timeLoopBody funcName bufInfo =
   [cExprSt (cFuncall funcName $ L.map (\info -> cVar $ bufName info) bufInfo) ""]

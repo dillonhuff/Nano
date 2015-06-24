@@ -5,6 +5,7 @@ import Data.List as L
 import CBackEnd.CodeGeneration
 import CBackEnd.Syntax
 import CBackEnd.SanityCheckHarness
+import CBackEnd.Utils
 import System.Settings
 import System.Utils
 
@@ -16,14 +17,6 @@ runSanityCheck testName scFunc testFunc argInfo =
   do
     compileAndRunC testName codeItems
     readFileShowingContents $ dataFileName testName
-
-compileAndRunC :: FilePath -> [CTopLevelItem String] -> IO ()
-compileAndRunC testName codeItems =
-  let codeString = L.concat $ L.intersperse "\n" $ L.map (prettyPrint 0) codeItems in
-  do
-    writeFile (cFileName testName) codeString
-    runCommandStrict $ compileString testName
-    runCommandStrict $ runString testName  
       
 scMain :: FilePath -> CTopLevelItem String
 scMain resultFilePath =

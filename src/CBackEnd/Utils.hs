@@ -1,11 +1,14 @@
 module CBackEnd.Utils(initializeBuffer, freeBuffer,
                       bufSizeExpr,
                       bufDecls,
-                      setArgToRandValuesCode) where
+                      setArgToRandValuesCode,
+                      compileAndRunC) where
 
 import Data.List as L
 
 import CBackEnd.Syntax
+import System.Settings
+import System.Utils
 
 initializeBuffer bufInfo = cExprSt (cAssign (cVar $ bufName bufInfo) (cFuncall "malloc" [bufSizeExpr bufInfo])) ""
 
@@ -25,3 +28,11 @@ setArgToRandValuesCode argInfo =
     False -> case getReferencedType tp == cFloat of
       True -> cExprSt (cFuncall "rand_floats" [sz, cVar name]) ""
       False -> error $ "Unrecognized type in setArgToRandValuesCode " ++ show tp
+
+compileAndRunC :: FilePath -> [CTopLevelItem String] -> IO ()
+compileAndRunC testName codeItems =
+  let codeString = L.concat $ L.intersperse "\n" $ L.map (prettyPrint 0) codeItems in
+  do
+    writeFile (cFileName testName) codeString
+    runCommandStrict $ compileString testName
+    runCommandStrict $ runString testName  
