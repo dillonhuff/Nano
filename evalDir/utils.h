@@ -47,6 +47,10 @@ void rand_doubles(int size, double* rands);
 
 void rand_floats(int size, float *rands);
 
+void simple_trans(int m, int n,
+		  double* a, int a_row_stride, int a_col_stride,
+		  double* b, int b_row_stride, int b_col_stride);
+
 void simple_add(int m, int n,
 		double* a, int a_row_stride, int a_col_stride,
 		double* b, int b_row_stride, int b_col_stride,
@@ -65,6 +69,10 @@ void simple_smul(int m, int n,
 void simple_trsml(int m, int n,
 		  double* a, int a_row_stride, int a_col_stride,
 		  double* b, int b_row_stride, int b_col_stride);
+
+void simple_trans_float(int m, int n,
+			float* a, int a_row_stride, int a_col_stride,
+			float* b, int b_row_stride, int b_col_stride);
 
 void simple_add_float(int m, int n,
 	float *a, int a_row_stride, int a_col_stride,

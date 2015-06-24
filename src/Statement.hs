@@ -1,6 +1,6 @@
 module Statement(Statement,
-                 matrixMultiply, matrixAdd, loop, scalarMultiply,
-                 isMatrixAdd, isMatrixMultiply, isLoop, isScalarMultiply,
+                 matrixMultiply, matrixTranspose, matrixAdd, loop, scalarMultiply,
+                 isMatrixAdd, isMatrixTranspose, isMatrixMultiply, isLoop, isScalarMultiply,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody,
                  operandWritten, leftOperand, rightOperand,
                  expandStatementBU, expandStatementsBU,
@@ -16,6 +16,7 @@ import Matrix
 data Statement
   = MatrixMultiply Matrix Matrix Matrix
   | ScalarMultiply Matrix Matrix Matrix
+  | MatrixTranspose Matrix Matrix
   | MatrixAdd Matrix Matrix Matrix
   | Loop String IExpr IExpr IExpr [Statement]
     deriving (Eq, Ord, Show)
@@ -23,6 +24,7 @@ data Statement
 matrixAdd = MatrixAdd
 loop = Loop
 matrixMultiply = MatrixMultiply
+matrixTranspose = MatrixTranspose
 scalarMultiply = ScalarMultiply
 
 expandStatementBU :: (Statement -> [Statement]) -> Statement -> [Statement]
@@ -40,6 +42,7 @@ collectFromAllOperands :: (Matrix -> a) -> Statement -> [a]
 collectFromAllOperands f (MatrixMultiply c a b) = [f c, f a, f b]
 collectFromAllOperands f (MatrixAdd c a b) = [f c, f a, f b]
 collectFromAllOperands f (ScalarMultiply c a b) = [f c, f a, f b]
+collectFromAllOperands f (MatrixTranspose a b) = [f a, f b]
 collectFromAllOperands f (Loop _ _ _ _ _) = []
 
 collectFromStmt :: (Statement -> a) -> Statement -> [a]
@@ -54,6 +57,9 @@ isScalarMultiply _ = False
 
 isMatrixAdd (MatrixAdd _ _ _) = True
 isMatrixAdd _ = False
+
+isMatrixTranspose (MatrixTranspose _ _) = True
+isMatrixTranspose _ = False
 
 isMatrixMultiply (MatrixMultiply _ _ _) = True
 isMatrixMultiply _ = False
@@ -70,6 +76,7 @@ loopBody (Loop _ _ _ _ b) = b
 operandWritten (MatrixAdd c _ _) = c
 operandWritten (MatrixMultiply c _ _) = c
 operandWritten (ScalarMultiply a _ _) = a
+operandWritten (MatrixTranspose a _) = a
 
 leftOperand (MatrixAdd _ a _) = a
 leftOperand (MatrixMultiply _ a _) = a
@@ -78,3 +85,4 @@ leftOperand (ScalarMultiply _ a _) = a
 rightOperand (MatrixAdd _ _ b) = b
 rightOperand (MatrixMultiply _ _ b) = b
 rightOperand (ScalarMultiply _ _ b) = b
+rightOperand (MatrixTranspose _ b) = b

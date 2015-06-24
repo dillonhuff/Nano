@@ -1,4 +1,4 @@
-module Dummies(a, b, c, d, e, f, g, h, alpha,
+module Dummies(a, b, c, d, e, f, g, h, i, alpha,
                maddCBA, smulCAlphaA, mmulCBA,
                constDblMat) where
 
@@ -14,6 +14,7 @@ e = constDblMat "E" 9 4 4 19
 f = constDblMat "F" 13 4 4 1
 g = constDblMat "G" 13 4 1 13
 h = constDblMat "H" 13 4 1 13
+i = constDblMat "I" 4 13 13 1
 
 alpha = constDblMat "alpha" 1 1 1 1
 

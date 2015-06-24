@@ -176,6 +176,28 @@ void simple_mmul(int m, int n, int k,
 	}
 }
 
+void simple_trans(int m, int n,
+		  double* a, int a_row_stride, int a_col_stride,
+		  double* b, int b_row_stride, int b_col_stride) {
+  int i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
+      A(i, j) = B(j, i);
+    }
+  }
+}
+
+void simple_trans_float(int m, int n,
+			float* a, int a_row_stride, int a_col_stride,
+			float* b, int b_row_stride, int b_col_stride) {
+  int i, j;
+  for (i = 0; i < m; i++) {
+    for (j = 0; j < n; j++) {
+      A(i, j) = B(j, i);
+    }
+  }
+}
+
 void simple_smul(int m, int n,
 		 double *scalar,
 		 double *a, int a_row_stride, int a_col_stride,

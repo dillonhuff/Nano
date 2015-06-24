@@ -17,6 +17,7 @@ allSystemBlockingTests =
   TestLabel "Single blocking tests" $ TestList
             [testBlockMAdd,
              testBlockSMul,
+             testBlockTrans,
              testBlockMMul]
   
 testBlockMAdd = TestLabel "Single matrix add blocking" $ TestList
@@ -26,6 +27,10 @@ testBlockMAdd = TestLabel "Single matrix add blocking" $ TestList
 testBlockSMul = TestLabel "Single scalar multiply blocking" $ TestList
   [makeTestCasesIO (testBlocking blockScalarMultiplyM) blockSMulCases,
    makeTestCasesIO (testBlocking blockScalarMultiplyN) blockSMulCases]
+
+testBlockTrans = TestLabel "Single transpose multiply blocking" $ TestList
+  [makeTestCasesIO (testBlocking blockTransposeM) blockTransCases,
+   makeTestCasesIO (testBlocking blockTransposeN) blockTransCases]
 
 testBlockMMul = TestLabel "Single matrix multiply blocking" $ TestList
   [makeTestCasesIO (testBlocking blockMatrixMultiplyM) blockMMulCases,
@@ -70,6 +75,13 @@ blockMMulCases =
    (iConst 8, mmulCBA),
    (iConst 9, mmulCBA),
    (iConst 10, mmulCBA)]
+
+blockTransCases =
+  L.map (\x -> (x, True))
+  [(iConst 1, matrixTranspose h i),
+   (iConst 13, matrixTranspose h i),
+   (iConst 1, matrixTranspose i h),
+   (iConst 5, matrixTranspose i h)]
 
 testBlocking blkFunc (blkFactor, stmt) =
   let blockedStmt = blkFunc (iVar "i") blkFactor stmt

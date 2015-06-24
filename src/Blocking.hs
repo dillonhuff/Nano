@@ -1,4 +1,5 @@
 module Blocking(blockMatrixAddM, blockMatrixAddN,
+                blockTransposeM, blockTransposeN,
                 blockScalarMultiplyM, blockScalarMultiplyN,
                 blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP) where
 
@@ -16,6 +17,18 @@ blockMatrixAddN :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixAddN indVar blkFactor stmt =
   case isMatrixAdd stmt && numCols (operandWritten stmt) > blkFactor of
     True -> blockMAddN indVar blkFactor stmt
+    False -> [stmt]
+
+blockTransposeM :: IExpr -> IExpr -> Statement -> [Statement]
+blockTransposeM indVar blkFactor stmt =
+  case isMatrixTranspose stmt && numRows (operandWritten stmt) > blkFactor of
+    True -> blockTransM indVar blkFactor stmt
+    False -> [stmt]
+
+blockTransposeN :: IExpr -> IExpr -> Statement -> [Statement]
+blockTransposeN indVar blkFactor stmt =
+  case isMatrixTranspose stmt && numCols (operandWritten stmt) > blkFactor of
+    True -> blockTransN indVar blkFactor stmt
     False -> [stmt]
 
 blockScalarMultiplyM :: IExpr -> IExpr -> Statement -> [Statement]
@@ -159,6 +172,42 @@ blockMMulP indVar blkFactor stmt =
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainMul]
     residual = matrixMultiply c resA resB
 
+blockTransM indVar blkFactor stmt =
+  case numRows (operandWritten residual) == iConst 0 of
+    True -> [mainLoop]
+    False -> [mainLoop, residual]
+  where
+    a = operandWritten stmt
+    b = rightOperand stmt
+    mainA = subMatrix indVar blkFactor (iConst 0) (numCols a) a
+    mainB = subMatrix (iConst 0) (numRows b) indVar blkFactor b
+    rs = residualStart blkFactor (numRows a)
+    rl = residualLength blkFactor (numRows a)
+    resA = subMatrix rs rl (iConst 0) (numCols a) a
+    resB = subMatrix (iConst 0) (numRows b) rs rl b
+    e = evaluateIExprConstants $ iSub (numRows a) blkFactor
+    mainTrans = matrixTranspose mainA mainB
+    mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainTrans]
+    residual = matrixTranspose resA resB
+
+blockTransN indVar blkFactor stmt =
+  case numRows (operandWritten residual) == iConst 0 of
+    True -> [mainLoop]
+    False -> [mainLoop, residual]
+  where
+    a = operandWritten stmt
+    b = rightOperand stmt
+    mainA = subMatrix (iConst 0) (numRows a) indVar blkFactor a
+    mainB = subMatrix indVar blkFactor (iConst 0) (numCols b) b
+    rs = residualStart blkFactor (numCols a)
+    rl = residualLength blkFactor (numCols a)
+    resA = subMatrix (iConst 0) (numRows a) rs rl a
+    resB = subMatrix rs rl (iConst 0) (numCols b) b
+    e = evaluateIExprConstants $ iSub (numCols a) blkFactor
+    mainTrans = matrixTranspose mainA mainB
+    mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainTrans]
+    residual = matrixTranspose resA resB
+  
 residualStart blkFactor dimLength =
   let blkC = constVal blkFactor
       dimC = constVal dimLength in
