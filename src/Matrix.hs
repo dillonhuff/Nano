@@ -40,10 +40,10 @@ locationExpr (Matrix _ _ _ _ _ _) = iConst 0
 locationExpr s@(SubMatrix rStart _ cStart _ m _) =
   iAdd (iAdd (iMul rStart (rowStride s)) (iMul cStart (colStride s))) $ locationExpr m
 
-sizeExpr (Matrix _ nr rs nc cs _) =
-  case rs == iConst 1 || cs == iConst 1 of
-    True -> evaluateIExprConstants $ iMul nr nc
-    False -> evaluateIExprConstants $ iAdd (iMul nr rs) (iMul nc cs)
+sizeExpr m@(Matrix _ _ _ _ _ _) =
+  case rowStride m == iConst 1 || colStride m == iConst 1 of
+    True -> evaluateIExprConstants $ iMul (numRows m) (numCols m)
+    False -> evaluateIExprConstants $ iAdd (iMul (numRows m) (rowStride m)) (iMul (numCols m) (colStride m))
 sizeExpr (SubMatrix _ _ _ _ m _) = sizeExpr m
 
 matrixBufferNameAndType (Matrix n _ _ _ _ (Properties _ t)) = (n, t)

@@ -20,13 +20,13 @@ blockMatrixAddN indVar blkFactor stmt =
 
 blockScalarMultiplyM :: IExpr -> IExpr -> Statement -> [Statement]
 blockScalarMultiplyM indVar blkFactor stmt =
-  case isScalarMultiply stmt of
+  case isScalarMultiply stmt && numRows (operandWritten stmt) > blkFactor of
     True -> blockSMulM indVar blkFactor stmt
     False -> [stmt]
 
 blockScalarMultiplyN :: IExpr -> IExpr -> Statement -> [Statement]
 blockScalarMultiplyN indVar blkFactor stmt =
-  case isScalarMultiply stmt of
+  case isScalarMultiply stmt && numCols (operandWritten stmt) > blkFactor of
     True -> blockSMulN indVar blkFactor stmt
     False -> [stmt]
 

@@ -14,20 +14,20 @@ import Module
 import Statement
 
 allSystemBlockingTests =
-  TestLabel "Single blocking tests" $ TestList $
+  TestLabel "Single blocking tests" $ TestList
             [testBlockMAdd,
              testBlockSMul,
              testBlockMMul]
   
-testBlockMAdd = TestLabel "Single matrix add blocking" $ TestList $
+testBlockMAdd = TestLabel "Single matrix add blocking" $ TestList
   [makeTestCasesIO (testBlocking blockMatrixAddM) blockMAddCases,
    makeTestCasesIO (testBlocking blockMatrixAddN) blockMAddCases]
 
-testBlockSMul = TestLabel "Single scalar multiply blocking" $ TestList $
+testBlockSMul = TestLabel "Single scalar multiply blocking" $ TestList
   [makeTestCasesIO (testBlocking blockScalarMultiplyM) blockSMulCases,
    makeTestCasesIO (testBlocking blockScalarMultiplyN) blockSMulCases]
 
-testBlockMMul = TestLabel "Single matrix multiply blocking" $ TestList $ 
+testBlockMMul = TestLabel "Single matrix multiply blocking" $ TestList
   [makeTestCasesIO (testBlocking blockMatrixMultiplyM) blockMMulCases,
    makeTestCasesIO (testBlocking blockMatrixMultiplyN) blockMMulCases,
    makeTestCasesIO (testBlocking blockMatrixMultiplyP) blockMMulCases]
