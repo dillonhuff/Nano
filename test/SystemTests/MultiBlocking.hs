@@ -28,9 +28,8 @@ blockingTransforms =
    blockMatrixMultiplyP (iVar "i10") (iConst 1),
    blockMatrixTransposeM (iVar "i11") (iConst 1),
    blockMatrixTransposeM (iVar "i12") (iConst 6),
-   blockMatrixTransposeN (iVar "i11") (iConst 3),
-   blockMatrixTransposeN (iVar "i12") (iConst 1)]
-   
+   blockMatrixTransposeN (iVar "i13") (iConst 3),
+   blockMatrixTransposeN (iVar "i14") (iConst 1)]   
 
 testOperations =
    [[matrixAdd f g h],
@@ -42,7 +41,10 @@ testOperations =
     [matrixMultiply a b b],
     [matrixMultiply h d e],
     [matrixTranspose h i],
-    [matrixTranspose i h]]
+    [matrixTranspose i h],
+    [matrixMultiply x j y],
+    [matrixMultiply alpha p x],
+    [matrixMultiply j x p]]
 
 randomBit :: (RandomGen g) => Rand g Int
 randomBit = getRandomR (0, 1)
