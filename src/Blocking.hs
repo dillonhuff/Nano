@@ -96,9 +96,9 @@ blockSMulM indVar blkFactor stmt =
     rs = residualStart blkFactor (numRows c)
     rl = residualLength blkFactor (numRows c)
     e = evaluateIExprConstants $ iSub (numRows c) blkFactor
-    mainAdd = applyToOperands (\m -> if isMatrix m then subMatrix indVar blkFactor (iConst 0) (numCols m) m else m) stmt
+    mainAdd = applyToOperands (\m -> if not (isScalar m) then subMatrix indVar blkFactor (iConst 0) (numCols m) m else m) stmt
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
-    residual = applyToOperands (\m -> if isMatrix m then subMatrix rs rl (iConst 0) (numCols m) m else m) stmt
+    residual = applyToOperands (\m -> if not (isScalar m) then subMatrix rs rl (iConst 0) (numCols m) m else m) stmt
 
 blockSMulN indVar blkFactor stmt =
   case numRows (operandWritten residual) == iConst 0 of
@@ -109,9 +109,9 @@ blockSMulN indVar blkFactor stmt =
     rs = residualStart blkFactor (numCols c)
     rl = residualLength blkFactor (numCols c)
     e = evaluateIExprConstants $ iSub (numCols c) blkFactor
-    mainAdd = applyToOperands (\m -> if isMatrix m then subMatrix (iConst 0) (numRows m) indVar blkFactor m else m) stmt
+    mainAdd = applyToOperands (\m -> if not (isScalar m) then subMatrix (iConst 0) (numRows m) indVar blkFactor m else m) stmt
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
-    residual = applyToOperands (\m -> if isMatrix m then subMatrix (iConst 0) (numRows m) rs rl m else m) stmt
+    residual = applyToOperands (\m -> if not (isScalar m) then subMatrix (iConst 0) (numRows m) rs rl m else m) stmt
 
 blockMMulM indVar blkFactor stmt =
   case numRows (operandWritten residual) == iConst 0 of
