@@ -11,6 +11,8 @@ import CBackEnd.SanityCheck
 import CBackEnd.Timing
 import CBackEnd.TimingHarness
 import Dummies
+import Fuzz
+import Reporting.Report
 import Search.Exhaustive
 import Statement
 
@@ -73,6 +75,7 @@ constDblMat name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double)
 -}
 
+{-
 main :: IO ()
 main = do
   bestOp <- search 2 someOp optimizations allCostsOne
@@ -105,3 +108,19 @@ optimizations =
    blockMatrixTransposeM (iVar "i12") (iConst 6),
    blockMatrixTransposeN (iVar "i13") (iConst 3),
    blockMatrixTransposeN (iVar "i14") (iConst 1)]   
+-}
+
+main :: IO ()
+main = do
+  operations <- sequence $ L.map (applyRandomOptimizations blockingOptimizations) testOperations
+  avgCyclesPerRun <- sequence $ L.map timeImpl operations
+  let fakeCostEstimates = L.replicate (length avgCyclesPerRun) 1.0
+      fakePlot = dblScatterPlotComp "Cost_is_always_1.0" $ L.zip avgCyclesPerRun fakeCostEstimates in
+    writeReportHtml "Fake_Cost_Report" $ report "Fake_Cost_report" [fakePlot]
+
+timeImpl :: [Statement] -> IO Double
+timeImpl op =
+  let (cOp, argInfo) = operationToC "testingCostModel" op in
+  do
+    timeResStr <- runTimingCode "costModelTiming" cOp argInfo
+    return $ read $ L.head $ L.lines timeResStr

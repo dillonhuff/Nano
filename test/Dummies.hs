@@ -3,8 +3,13 @@ module Dummies(a, b, c, d, e, f, g, h, i, j, k,
                alpha,
                tr9c9, tr13c4,
                maddCBA, smulCAlphaA, mmulCBA,
-               constDblMat) where
+               constDblMat,
+               blockingTransforms, blockingOptimizations,
+               testOperations) where
 
+import Data.List as L
+
+import Blocking
 import IndexExpression
 import Matrix
 import Statement
@@ -41,4 +46,38 @@ constDblMat name nr nc rs cs =
 constDblMatTemp name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties local double)
 
+blockingOptimizations =
+  L.map (\t -> expandStatementsBU t) blockingTransforms
+  
+blockingTransforms =
+  [blockMatrixAddM (iVar "i1") (iConst 1),
+   blockMatrixAddN (iVar "i2") (iConst 1),
+   blockMatrixAddM (iVar "i3") (iConst 3),
+   blockMatrixAddN (iVar "i4") (iConst 11),
+   blockScalarMultiplyM (iVar "i5") (iConst 1),
+   blockScalarMultiplyN (iVar "i6") (iConst 3),
+   blockScalarMultiplyN (iVar "i7") (iConst 4),
+   blockMatrixMultiplyM (iVar "i8") (iConst 1),
+   blockMatrixMultiplyN (iVar "i9") (iConst 1),
+   blockMatrixMultiplyP (iVar "i10") (iConst 1),
+   blockMatrixTransposeM (iVar "i11") (iConst 1),
+   blockMatrixTransposeM (iVar "i12") (iConst 6),
+   blockMatrixTransposeN (iVar "i13") (iConst 3),
+   blockMatrixTransposeN (iVar "i14") (iConst 1)]   
 
+testOperations =
+   [[matrixAdd f g h],
+    [matrixAdd f f f],
+    [matrixAdd g h f],
+    [matrixAdd a b c],
+    [scalarMultiply a alpha a],
+    [matrixMultiply a b c],
+    [matrixMultiply a b b],
+    [matrixMultiply h d e],
+    [matrixTranspose h i],
+    [matrixTranspose i h],
+    [matrixMultiply x j y],
+    [matrixMultiply alpha p x],
+    [matrixMultiply j x p],
+    [matrixAdd tr9c9 a b,
+     matrixAdd c tr9c9 c]]
