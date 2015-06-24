@@ -6,6 +6,7 @@ module CBackEnd.CodeGeneration(operationToC,
 import Data.List as L
 
 import CBackEnd.Syntax
+import CBackEnd.Utils
 import IndexExpression
 import Matrix
 import Statement
@@ -159,6 +160,3 @@ matrixBufferInfo :: Matrix -> BufferInfo
 matrixBufferInfo m =
   bufferInfo (bufferName m) (cPtr $ toCType $ dataType m) (iExprToCExpr $ sizeExpr m) (bufferScope m)
 
-initializeBuffer bufInfo = cExprSt (cAssign (cVar $ bufName bufInfo) (cFuncall "malloc" [bufSizeExpr bufInfo])) ""
-bufSizeExpr bufInfo = cMul (cSizeOf (getReferencedType $ bufType bufInfo)) (bufSize bufInfo)      
-bufDecls argInfo = L.map (\info -> (bufType info, bufName info)) argInfo
