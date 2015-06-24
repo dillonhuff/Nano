@@ -29,8 +29,8 @@ testBlockSMul = TestLabel "Single scalar multiply blocking" $ TestList
    makeTestCasesIO (testBlocking blockScalarMultiplyN) blockSMulCases]
 
 testBlockTrans = TestLabel "Single transpose multiply blocking" $ TestList
-  [makeTestCasesIO (testBlocking blockTransposeM) blockTransCases,
-   makeTestCasesIO (testBlocking blockTransposeN) blockTransCases]
+  [makeTestCasesIO (testBlocking blockMatrixTransposeM) blockTransCases,
+   makeTestCasesIO (testBlocking blockMatrixTransposeN) blockTransCases]
 
 testBlockMMul = TestLabel "Single matrix multiply blocking" $ TestList
   [makeTestCasesIO (testBlocking blockMatrixMultiplyM) blockMMulCases,

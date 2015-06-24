@@ -1,5 +1,5 @@
 module Blocking(blockMatrixAddM, blockMatrixAddN,
-                blockTransposeM, blockTransposeN,
+                blockMatrixTransposeM, blockMatrixTransposeN,
                 blockScalarMultiplyM, blockScalarMultiplyN,
                 blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP) where
 
@@ -19,14 +19,14 @@ blockMatrixAddN indVar blkFactor stmt =
     True -> blockMAddN indVar blkFactor stmt
     False -> [stmt]
 
-blockTransposeM :: IExpr -> IExpr -> Statement -> [Statement]
-blockTransposeM indVar blkFactor stmt =
+blockMatrixTransposeM :: IExpr -> IExpr -> Statement -> [Statement]
+blockMatrixTransposeM indVar blkFactor stmt =
   case isMatrixTranspose stmt && numRows (operandWritten stmt) > blkFactor of
     True -> blockTransM indVar blkFactor stmt
     False -> [stmt]
 
-blockTransposeN :: IExpr -> IExpr -> Statement -> [Statement]
-blockTransposeN indVar blkFactor stmt =
+blockMatrixTransposeN :: IExpr -> IExpr -> Statement -> [Statement]
+blockMatrixTransposeN indVar blkFactor stmt =
   case isMatrixTranspose stmt && numCols (operandWritten stmt) > blkFactor of
     True -> blockTransN indVar blkFactor stmt
     False -> [stmt]

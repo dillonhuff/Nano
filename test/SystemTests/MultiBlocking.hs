@@ -25,7 +25,11 @@ blockingTransforms =
    blockScalarMultiplyN (iVar "i7") (iConst 4),
    blockMatrixMultiplyM (iVar "i8") (iConst 1),
    blockMatrixMultiplyN (iVar "i9") (iConst 1),
-   blockMatrixMultiplyP (iVar "i10") (iConst 1)]
+   blockMatrixMultiplyP (iVar "i10") (iConst 1),
+   blockMatrixTransposeM (iVar "i11") (iConst 1),
+   blockMatrixTransposeM (iVar "i12") (iConst 6),
+   blockMatrixTransposeN (iVar "i11") (iConst 3),
+   blockMatrixTransposeN (iVar "i12") (iConst 1)]
    
 
 testOperations =
@@ -36,7 +40,9 @@ testOperations =
     [scalarMultiply a alpha a],
     [matrixMultiply a b c],
     [matrixMultiply a b b],
-    [matrixMultiply h d e]]
+    [matrixMultiply h d e],
+    [matrixTranspose h i],
+    [matrixTranspose i h]]
 
 randomBit :: (RandomGen g) => Rand g Int
 randomBit = getRandomR (0, 1)
