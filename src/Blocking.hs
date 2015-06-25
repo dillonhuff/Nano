@@ -67,8 +67,7 @@ blockMAddM indVar blkFactor stmt =
     False -> [mainLoop, residual]
   where
     c = operandWritten stmt
-    rs = residualStart blkFactor (numRows c)
-    rl = residualLength blkFactor (numRows c)
+    (rs, rl) = computeResidual blkFactor (numRows c)
     e = evaluateIExprConstants $ iSub (numRows c) blkFactor
     mainAdd = applyToOperands (\m -> rowPart indVar blkFactor m) stmt
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
@@ -80,8 +79,7 @@ blockMAddN indVar blkFactor stmt =
     False -> [mainLoop, residual]
   where
     c = operandWritten stmt
-    rs = residualStart blkFactor (numCols c)
-    rl = residualLength blkFactor (numCols c)
+    (rs, rl) = computeResidual blkFactor (numCols c)
     e = evaluateIExprConstants $ iSub (numCols c) blkFactor
     mainAdd = applyToOperands (\m -> colPart indVar blkFactor m) stmt
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
@@ -93,8 +91,7 @@ blockSMulM indVar blkFactor stmt =
     False -> [mainLoop, residual]
   where
     c = operandWritten stmt
-    rs = residualStart blkFactor (numRows c)
-    rl = residualLength blkFactor (numRows c)
+    (rs, rl) = computeResidual blkFactor (numRows c)
     e = evaluateIExprConstants $ iSub (numRows c) blkFactor
     mainAdd = applyToOperands (\m -> if not (isScalar m) then rowPart indVar blkFactor m else m) stmt
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
@@ -106,8 +103,7 @@ blockSMulN indVar blkFactor stmt =
     False -> [mainLoop, residual]
   where
     c = operandWritten stmt
-    rs = residualStart blkFactor (numCols c)
-    rl = residualLength blkFactor (numCols c)
+    (rs, rl) = computeResidual blkFactor (numCols c)
     e = evaluateIExprConstants $ iSub (numCols c) blkFactor
     mainAdd = applyToOperands (\m -> if not (isScalar m) then colPart indVar blkFactor m else m) stmt
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainAdd]
@@ -124,8 +120,7 @@ blockMMulM indVar blkFactor stmt =
     mainC = rowPart indVar blkFactor c
     mainA = rowPart indVar blkFactor a
     mainMul = matrixMultiply mainC mainA b
-    rs = residualStart blkFactor (numRows c)
-    rl = residualLength blkFactor (numRows c)
+    (rs, rl) = computeResidual blkFactor (numRows c)
     e = evaluateIExprConstants $ iSub (numRows c) blkFactor    
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainMul]
     resC = rowPart rs rl c
@@ -143,8 +138,7 @@ blockMMulN indVar blkFactor stmt =
     mainC = colPart indVar blkFactor c
     mainB = colPart indVar blkFactor b
     mainMul = matrixMultiply mainC a mainB
-    rs = residualStart blkFactor (numCols c)
-    rl = residualLength blkFactor (numCols c)
+    (rs, rl) = computeResidual blkFactor (numCols c)
     e = evaluateIExprConstants $ iSub (numCols c) blkFactor    
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainMul]
     resC = colPart rs rl c
@@ -161,11 +155,9 @@ blockMMulP indVar blkFactor stmt =
     b = rightOperand stmt
     mainA = colPart indVar blkFactor a
     mainB = rowPart indVar blkFactor b
-    rsA = residualStart blkFactor (numCols a)
-    rlA = residualLength blkFactor (numCols a)
+    (rsA, rlA) = computeResidual blkFactor (numCols a)
     resA = colPart rsA rlA a
-    rsB = residualStart blkFactor (numRows b)
-    rlB = residualLength blkFactor (numRows b)
+    (rsB, rlB) = computeResidual blkFactor (numRows b)
     resB = rowPart rsB rlB b
     e = evaluateIExprConstants $ iSub (numRows b) blkFactor
     mainMul = matrixMultiply c mainA mainB
@@ -181,8 +173,7 @@ blockTransM indVar blkFactor stmt =
     b = rightOperand stmt
     mainA = rowPart indVar blkFactor a
     mainB = colPart indVar blkFactor b
-    rs = residualStart blkFactor (numRows a)
-    rl = residualLength blkFactor (numRows a)
+    (rs, rl) = computeResidual blkFactor (numRows a)
     resA = rowPart rs rl a
     resB = colPart rs rl b
     e = evaluateIExprConstants $ iSub (numRows a) blkFactor
@@ -199,14 +190,16 @@ blockTransN indVar blkFactor stmt =
     b = rightOperand stmt
     mainA = colPart indVar blkFactor a
     mainB = rowPart indVar blkFactor b
-    rs = residualStart blkFactor (numCols a)
-    rl = residualLength blkFactor (numCols a)
+    (rs, rl) = computeResidual blkFactor (numCols a)
     resA = colPart rs rl a
     resB = rowPart rs rl b
     e = evaluateIExprConstants $ iSub (numCols a) blkFactor
     mainTrans = matrixTranspose mainA mainB
     mainLoop = loop (varName indVar) (iConst 0) blkFactor e [mainTrans]
     residual = matrixTranspose resA resB
+
+computeResidual blkFactor dimLength =
+  (residualStart blkFactor dimLength, residualLength blkFactor dimLength)
   
 residualStart blkFactor dimLength =
   let blkC = constVal blkFactor
