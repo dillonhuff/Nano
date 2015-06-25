@@ -9,7 +9,7 @@ import Statement
 
 canFuseIfAdjacent :: Statement -> Statement -> Bool
 canFuseIfAdjacent first second =
-  case isLoop first && isLoop second of
+  case isInnerLoop first && isInnerLoop second of
     True -> case sameIterationSpace first second of
       True -> fusionDoesNotCreateDependencesFromFirstLoopToSecond first second
       False -> False
