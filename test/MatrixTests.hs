@@ -1,14 +1,15 @@
-module MatrixTests() where
+module MatrixTests(allMatrixTests) where
 
 import Data.List as L
+import Test.HUnit
 
 import IndexExpression
 import Matrix
 import Module
 
-allMatrixTests = do
-  testFunction numRows numRowsCases
-  testFunction numCols numColsCases
+allMatrixTests = TestLabel "All matrix tests" $ TestList
+  [makeTestCases numRows numRowsCases,
+   makeTestCases numCols numColsCases]
 
 numRowsCases =
   L.map (\(x, y) -> (x, iConst y))

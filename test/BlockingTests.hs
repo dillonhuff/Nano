@@ -1,21 +1,21 @@
 module BlockingTests(allBlockingTests) where
 
+import Test.HUnit
+
 import Blocking
 import IndexExpression
 import Matrix
 import Module
 import Statement
 
-allBlockingTests = do
-  testFunction (blockMatrixAddMTest $ iVar "i") blockMatrixAddMCases
-  testFunction (blockMatrixAddNTest $ iVar "j") blockMatrixAddNCases
-  
-  testFunction (blockScalarMultiplyMTest $ iVar "i") blockScalarMultiplyMCases
-  testFunction (blockScalarMultiplyNTest $ iVar "j") blockScalarMultiplyNCases
-  
-  testFunction (blockMatrixMultiplyMTest $ iVar "i") blockMatrixMultiplyMCases
-  testFunction (blockMatrixMultiplyNTest $ iVar "j") blockMatrixMultiplyNCases
-  testFunction (blockMatrixMultiplyPTest $ iVar "k") blockMatrixMultiplyPCases
+allBlockingTests = TestLabel "All blocking tests" $ TestList 
+  [makeTestCases (blockMatrixAddMTest $ iVar "i") blockMatrixAddMCases,
+   makeTestCases (blockMatrixAddNTest $ iVar "j") blockMatrixAddNCases,
+   makeTestCases (blockScalarMultiplyMTest $ iVar "i") blockScalarMultiplyMCases,
+   makeTestCases (blockScalarMultiplyNTest $ iVar "j") blockScalarMultiplyNCases,
+   makeTestCases (blockMatrixMultiplyMTest $ iVar "i") blockMatrixMultiplyMCases,
+   makeTestCases (blockMatrixMultiplyNTest $ iVar "j") blockMatrixMultiplyNCases,
+   makeTestCases (blockMatrixMultiplyPTest $ iVar "k") blockMatrixMultiplyPCases]
 
 blockMatrixAddMCases =
   [((iConst 5, matrixMultiply a a a), [matrixMultiply a a a]),

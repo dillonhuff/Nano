@@ -1,14 +1,15 @@
 module IndexExpressionTests(allIndexExpressionTests) where
 
 import Data.List as L
+import Test.HUnit
 
 import IndexExpression
 import Module
 
-allIndexExpressionTests = do
-  testFunction evaluateIExprConstants evalConstTests
-  testFunction ieToConst successIEConstCases
-  testFunction ieToConst failIEConstCases
+allIndexExpressionTests = TestLabel "All index expression tests" $ TestList
+  [makeTestCases evaluateIExprConstants evalConstTests,
+   makeTestCases ieToConst successIEConstCases,
+   makeTestCases ieToConst failIEConstCases]
 
 evalConstTests =
   [(iVar "n", iVar "n"),

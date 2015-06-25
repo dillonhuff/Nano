@@ -1,6 +1,4 @@
-module Module(testFunction,
-              makeTestCases,
-              testFunctionIO,
+module Module(makeTestCases,
               makeTestCasesIO) where
 
 import Control.Monad
