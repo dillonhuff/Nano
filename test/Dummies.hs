@@ -4,7 +4,7 @@ module Dummies(a, b, c, d, e, f, g, h, i, j, k,
                tr9c9, tr13c4,
                maddCBA, smulCAlphaA, mmulCBA,
                constDblMat,
-               blockingTransforms, blockingOptimizations,
+               blockingOptimizations,
                testOperations) where
 
 import Data.List as L
@@ -47,23 +47,21 @@ constDblMatTemp name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties local double)
 
 blockingOptimizations =
-  L.map (\t -> expandStatementsBU t) blockingTransforms
-  
-blockingTransforms =
-  [blockMatrixAddM (iVar "i1") (iConst 1),
-   blockMatrixAddN (iVar "i2") (iConst 1),
-   blockMatrixAddM (iVar "i3") (iConst 3),
-   blockMatrixAddN (iVar "i4") (iConst 11),
-   blockScalarMultiplyM (iVar "i5") (iConst 1),
-   blockScalarMultiplyN (iVar "i6") (iConst 3),
-   blockScalarMultiplyN (iVar "i7") (iConst 4),
-   blockMatrixMultiplyM (iVar "i8") (iConst 1),
-   blockMatrixMultiplyN (iVar "i9") (iConst 1),
-   blockMatrixMultiplyP (iVar "i10") (iConst 1),
-   blockMatrixTransposeM (iVar "i11") (iConst 1),
-   blockMatrixTransposeM (iVar "i12") (iConst 6),
-   blockMatrixTransposeN (iVar "i13") (iConst 3),
-   blockMatrixTransposeN (iVar "i14") (iConst 1)]   
+  L.map (\(f, b) -> blkUniqueVar f b)
+  [(blockMatrixAddM, iConst 1),
+   (blockMatrixAddN, iConst 1),
+   (blockMatrixAddM, iConst 3),
+   (blockMatrixAddN, iConst 11),
+   (blockScalarMultiplyM, iConst 1),
+   (blockScalarMultiplyN, iConst 3),
+   (blockScalarMultiplyN, iConst 4),
+   (blockMatrixMultiplyM, iConst 1),
+   (blockMatrixMultiplyN, iConst 1),
+   (blockMatrixMultiplyP, iConst 1),
+   (blockMatrixTransposeM, iConst 1),
+   (blockMatrixTransposeM, iConst 6),
+   (blockMatrixTransposeN, iConst 3),
+   (blockMatrixTransposeN, iConst 1)]
 
 testOperations =
    [[matrixAdd f g h],
@@ -81,3 +79,21 @@ testOperations =
     [matrixMultiply j x p],
     [matrixAdd tr9c9 a b,
      matrixAdd c tr9c9 c]]
+
+blkUniqueVar :: (IExpr -> IExpr -> Statement -> [Statement]) -> IExpr -> [Statement] -> [Statement]
+blkUniqueVar blkFunc blkFactor stmts =
+  let v = uniqueVarName stmts in
+  expandStatementsBU (blkFunc v blkFactor) stmts
+
+uniqueVarName stmts =
+  let vs = uniqueVars stmts in
+  case vs of
+    [] -> iVar "i"
+    vs ->iVar $ (varName $ L.head $ L.sortBy (\a b -> compare b a) vs) ++ "z"
+
+uniqueVars stmts = L.nub $ L.concatMap (collectValuesFromStmt loopIVar) stmts
+
+loopIVar stmt =
+  case isLoop stmt of
+    True -> [iVar $ loopInductionVariable stmt]
+    False -> []
