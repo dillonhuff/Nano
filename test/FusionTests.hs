@@ -23,7 +23,10 @@ cantFuseCases =
 
 canFuseCases =
   L.map (\(x, y) -> ((x, y), True))
-  [(maddAAABlockM3, maddCCCBlockM3)]
+  [(maddAAABlockM3, maddCCCBlockM3),
+   (maddABBBlockN4, maddCAABlockN4),
+   (maddCCCBlockM4, maddABBBlockN4),
+   (smulAAlphaABlockM4, mmulCABBlockM4)]
 
 
 canFuseTest (left, right) =
@@ -40,3 +43,10 @@ matMulAlphaPXBlockP5 = L.head $ blockMatrixMultiplyP (iVar "b") (iConst 5) $ mat
 
 smulZAlphaZBlockM5 = L.head $ blockScalarMultiplyM (iVar "k") (iConst 5) $ scalarMultiply z alpha z
 
+smulAAlphaABlockM4 = L.head $ blockScalarMultiplyM (iVar "k2") (iConst 4) $ scalarMultiply a alpha a
+
+maddABBBlockN4 = L.head $ blockMatrixAddN (iVar "i1") (iConst 4) $ matrixAdd a b b
+
+maddCAABlockN4 = L.head $ blockMatrixAddN (iVar "i2") (iConst 4) $ matrixAdd c a a
+
+mmulCABBlockM4 = L.head $ blockMatrixMultiplyM (iVar "i3") (iConst 4) $ matrixMultiply c a b

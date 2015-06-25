@@ -5,7 +5,7 @@ module Matrix(Matrix,
               bufferName, locationExpr, sizeExpr,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
-              substituteInIExprs,
+              substituteInIExprs, partitionList,
               Type,
               single, double,
               isDouble, isSingle,
@@ -82,11 +82,20 @@ substituteInIExprs target result (Matrix n nr nc rs cs p) =
 substituteInIExprs target result (SubMatrix s i l m p) =
   SubMatrix s (subIExpr target result i) (subIExpr target result l) (substituteInIExprs target result m) p
 
+partitionList (SubMatrix s i l m p) = (partition s i l) : (partitionList m)
+partitionList _ = []
+
 data Shape
   = Row
   | Col
     deriving (Eq, Ord, Show)
-             
+
+data Partition
+  = Partition Shape IExpr IExpr
+    deriving (Eq, Ord, Show)
+
+partition s i l = Partition s i l
+
 data Properties
   = Properties Scope Type
     deriving (Eq, Ord, Show)

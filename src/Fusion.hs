@@ -35,7 +35,10 @@ dependsOnLexicallyBefore :: Statement -> Statement -> Bool
 dependsOnLexicallyBefore s t =
   case matricesInCommon s t of
     [] -> False
-    _ -> True
+    commonMatrixPairs -> L.or $ L.map (\(l, r) -> potentialNegativeDependenceVector l r) commonMatrixPairs
+
+potentialNegativeDependenceVector l r =
+  (not (l == r)) || (l == r && (partitionList l == []) && (partitionList r == []))
 
 matricesInCommon :: Statement -> Statement -> [(Matrix, Matrix)]
 matricesInCommon s t =
