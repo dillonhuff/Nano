@@ -2,9 +2,9 @@ module Statement(Statement,
                  matrixMultiply, matrixTranspose, matrixAdd, loop, scalarMultiply,
                  isMatrixAdd, isMatrixTranspose, isMatrixMultiply, isLoop, isScalarMultiply,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody,
-                 operandWritten, leftOperand, rightOperand,
+                 operandWritten, leftOperand, rightOperand, allOperands,
                  expandStatementBU, expandStatementsBU,
-                 applyToOperands,
+                 applyToOperands, applyToStatementBU,
                  collectFromAllOperands,
                  collectFromStmt, collectValuesFromStmt) where
 
@@ -33,6 +33,10 @@ expandStatementBU f s = f s
 
 expandStatementsBU :: (Statement -> [Statement]) -> [Statement] -> [Statement]
 expandStatementsBU f stmts = L.concatMap (expandStatementBU f) stmts
+
+applyToStatementBU :: (Statement -> Statement) -> Statement -> Statement
+applyToStatementBU f (Loop v s i e body) = f $ Loop v s i e $ L.map (applyToStatementBU f) body
+applyToStatementBU f s = f s
 
 applyToOperands :: (Matrix -> Matrix) -> Statement -> Statement
 applyToOperands f (MatrixAdd c a b) = MatrixAdd (f c) (f a) (f b)
@@ -86,3 +90,10 @@ rightOperand (MatrixAdd _ _ b) = b
 rightOperand (MatrixMultiply _ _ b) = b
 rightOperand (ScalarMultiply _ _ b) = b
 rightOperand (MatrixTranspose _ b) = b
+
+allOperands stmt = L.nub $ allOperandsWithRepeats stmt
+
+allOperandsWithRepeats (MatrixAdd c a b) = [c, a, b]
+allOperandsWithRepeats (MatrixMultiply c a b) = [c, a, b]
+allOperandsWithRepeats (MatrixTranspose a b) = [a, b]
+allOperandsWithRepeats (ScalarMultiply a alpha b) = [a, alpha, b]

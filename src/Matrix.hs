@@ -5,6 +5,7 @@ module Matrix(Matrix,
               bufferName, locationExpr, sizeExpr,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
+              substituteInIExprs,
               Type,
               single, double,
               isDouble, isSingle,
@@ -75,6 +76,11 @@ colStride (SubMatrix _ _ _ m _) = colStride m
 
 dataType (Matrix _ _ _ _ _ p) = propType p
 dataType (SubMatrix _ _ _ _ p) = propType p
+
+substituteInIExprs target result (Matrix n nr nc rs cs p) =
+  Matrix n (subIExpr target result nr) (subIExpr target result nc) (subIExpr target result rs) (subIExpr target result cs) p
+substituteInIExprs target result (SubMatrix s i l m p) =
+  SubMatrix s (subIExpr target result i) (subIExpr target result l) (substituteInIExprs target result m) p
 
 data Shape
   = Row
