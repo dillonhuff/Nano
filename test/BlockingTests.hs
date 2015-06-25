@@ -97,24 +97,24 @@ smulABlk2N =
 smulABlk2NResidual =
   scalarMultiply residualA2N alpha residualA2N
 
-mainA1M = subMatrix (iVar "i") (iConst 1) (iConst 0) (iConst 9) a
-mainA2M = subMatrix (iVar "i") (iConst 2) (iConst 0) (iConst 9) a
-mainA3M = subMatrix (iVar "i") (iConst 3) (iConst 0) (iConst 9) a
-mainA4M = subMatrix (iVar "i") (iConst 4) (iConst 0) (iConst 9) a
-mainA6M = subMatrix (iVar "i") (iConst 6) (iConst 0) (iConst 9) a
+mainA1M = rowPart (iVar "i") (iConst 1) a
+mainA2M = rowPart (iVar "i") (iConst 2) a
+mainA3M = rowPart (iVar "i") (iConst 3) a
+mainA4M = rowPart (iVar "i") (iConst 4) a
+mainA6M = rowPart (iVar "i") (iConst 6) a
 
-residualA2M = subMatrix (iConst 8) (iConst 1) (iConst 0) (iConst 9) a
-residualA4M = subMatrix (iConst 8) (iConst 1) (iConst 0) (iConst 9) a
-residualA6M = subMatrix (iConst 6) (iConst 3) (iConst 0) (iConst 9) a
+residualA2M = rowPart (iConst 8) (iConst 1) a
+residualA4M = rowPart (iConst 8) (iConst 1) a
+residualA6M = rowPart (iConst 6) (iConst 3) a
 
-mainA1N = subMatrix (iConst 0) (iConst 9) (iVar "j") (iConst 1) a
-mainA2N = subMatrix (iConst 0) (iConst 9) (iVar "j") (iConst 2) a
+mainA1N = colPart (iVar "j") (iConst 1) a
+mainA2N = colPart (iVar "j") (iConst 2) a
 
-residualA2N = subMatrix (iConst 0) (iConst 9) (iConst 8) (iConst 1) a
+residualA2N = colPart (iConst 8) (iConst 1) a
 
-mainC2M = subMatrix (iVar "i") (iConst 2) (iConst 0) (iConst 13) c
+mainC2M = rowPart (iVar "i") (iConst 2) c
 
-residualC2M = subMatrix (iConst 8) (iConst 1) (iConst 0) (iConst 13) c
+residualC2M = rowPart (iConst 8) (iConst 1) c
 
 mmulCBlk2M =
   matrixMultiply mainC2M mainA2M b

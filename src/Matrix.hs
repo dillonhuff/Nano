@@ -1,6 +1,6 @@
 module Matrix(Matrix,
               matrix,
-              subMatrix,
+              rowPart, colPart,
               isMatrix, isVector, isScalar,
               bufferName, locationExpr, sizeExpr,
               numRows, numCols, rowStride, colStride,
@@ -25,6 +25,12 @@ subMatrix rStart numRows cStart numCols m@(Matrix name nr nc rs cs props) =
 subMatrix rStart numRows cStart numCols m@(SubMatrix _ _ _ _ _ props) =
   SubMatrix rStart numRows cStart numCols m props
 
+rowPart rStart numRows m =
+  SubMatrix rStart numRows (iConst 0) (numCols m) m (matProperties m)
+
+colPart cStart numCols m =
+  SubMatrix (iConst 0) (numRows m) cStart numCols m (matProperties m)
+
 isScalar m =
   numRows m == iConst 1 && numCols m == iConst 1
 
@@ -33,6 +39,9 @@ isVector m =
 
 isMatrix m =
   not (isScalar m) && not (isVector m)
+
+matProperties (Matrix _ _ _ _ _ p) = p
+matProperties (SubMatrix _ _ _ _ _ p) = p
 
 bufferName (Matrix n _ _ _ _ _) = n
 bufferName (SubMatrix _ _ _ _ m _) = bufferName m
