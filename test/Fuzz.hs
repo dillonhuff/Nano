@@ -1,10 +1,17 @@
 module Fuzz(applyRandomOptimizations,
             applyOptimizations,
-            selectTransforms) where
+            selectTransforms,
+            assertOptimizationsCorrect,
+            assertRandomOptimizationsCorrect) where
 
 import Control.Monad.Random
 import Data.List as L
+import System.Random.Shuffle
+import Test.HUnit
 
+import CBackEnd.CodeGeneration
+import CBackEnd.SanityCheck
+import CBackEnd.Syntax
 import Statement
 
 applyTransforms :: [Statement -> [Statement]] -> [Statement] -> [Statement]
@@ -20,7 +27,8 @@ randomBits n = sequence (replicate n randomBit)
 selectTransformsR :: (RandomGen g) => [a] -> Rand g [a]
 selectTransformsR ts = do
   selectList <- randomBits (length ts)
-  return $ L.map fst $ L.filter (\(t, b) -> b == 1) $ L.zip ts selectList
+  let selected = L.map fst $ L.filter (\(t, b) -> b == 1) $ L.zip ts selectList in
+    shuffleM selected
 
 selectTransforms ts = evalRandIO (selectTransformsR ts)
 
@@ -32,3 +40,19 @@ applyRandomOptimizations possibleOptimizations stmts = do
 applyOptimizations :: [[Statement] -> [Statement]] -> [Statement] -> [Statement]
 applyOptimizations [] stmts = stmts
 applyOptimizations (r:rest) stmts = r $ applyOptimizations rest stmts
+
+assertRandomOptimizationsCorrect possibleOptimizations operation = do
+  transformsToApply <- selectTransforms possibleOptimizations
+  assertOptimizationsCorrect transformsToApply operation
+
+assertOptimizationsCorrect transformsToApply operation =
+  let (transformedOp, _) = operationToC "transformedOp" $ applyOptimizations transformsToApply operation
+      (regularOp, argInfo) = operationToC "op" operation in
+    do
+      scRes <- runSanityCheck "fuzzTest" regularOp transformedOp argInfo
+      assertEqual (failMessageInfo transformedOp regularOp argInfo) scRes "true\n"
+
+failMessageInfo resultOp regularOp argInfo =
+  "Operation:\n" ++ (prettyPrint 0 regularOp) ++ "\n" ++
+  "Arguments:\n" ++ show argInfo ++ "\n" ++
+  "Resulting Operation:\n" ++ (prettyPrint 0 resultOp) ++ "\n"

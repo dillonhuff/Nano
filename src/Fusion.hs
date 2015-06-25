@@ -1,4 +1,5 @@
-module Fusion(canFuseIfAdjacent) where
+module Fusion(canFuseIfAdjacent,
+              fuseInnerLoops) where
 
 import Data.List as L
 
@@ -6,6 +7,16 @@ import Analysis.Loop
 import IndexExpression
 import Matrix
 import Statement
+
+fuseInnerLoops :: [Statement] -> [Statement]
+fuseInnerLoops stmts = applyToLoopBodiesBU tryToFuseStmtList stmts
+
+tryToFuseStmtList [] = []
+tryToFuseStmtList [stmt] = [stmt]
+tryToFuseStmtList (l:r:rest) =
+  case canFuseIfAdjacent l r of
+    True -> tryToFuseStmtList ((fuseLoops l r):rest)
+    False -> l : (tryToFuseStmtList (r:rest))
 
 canFuseIfAdjacent :: Statement -> Statement -> Bool
 canFuseIfAdjacent first second =

@@ -4,7 +4,7 @@ module Statement(Statement,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody,
                  operandWritten, leftOperand, rightOperand, allOperands,
                  expandStatementBU, expandStatementsBU,
-                 applyToOperands, applyToStatementBU,
+                 applyToOperands, applyToStatementBU, applyToLoopBodiesBU,
                  collectFromAllOperands,
                  collectFromStmt, collectValuesFromStmt) where
 
@@ -33,6 +33,13 @@ expandStatementBU f s = f s
 
 expandStatementsBU :: (Statement -> [Statement]) -> [Statement] -> [Statement]
 expandStatementsBU f stmts = L.concatMap (expandStatementBU f) stmts
+
+applyToLoopBodiesBU :: ([Statement] -> [Statement]) -> [Statement] -> [Statement]
+applyToLoopBodiesBU f stmts =
+  f $ L.map (applyToLoopBodyBU f) stmts
+
+applyToLoopBodyBU f (Loop v s i e body) = Loop v s i e $ f $ applyToLoopBodiesBU f body
+applyToLoopBodyBU f s = s
 
 applyToStatementBU :: (Statement -> Statement) -> Statement -> Statement
 applyToStatementBU f (Loop v s i e body) = f $ Loop v s i e $ L.map (applyToStatementBU f) body
