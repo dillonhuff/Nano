@@ -1,4 +1,5 @@
 module Analysis.IndexExpression(IRectangle, iRectangle,
+                                horizontalRange, verticalRange,
                                 rectanglesOverlap,
                                 iRange) where
 

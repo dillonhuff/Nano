@@ -26,8 +26,10 @@ numColsCases =
    (colPart (iVar "j") (iConst 2) m, 2)]
 
 accessedRectangleCases =
-  [(m, Just $ iRectangle (iConst 0) (iConst 0) (iConst 17) (iConst 8)),
-   (rowPart (iConst 3) (iConst 2) m, Just $ iRectangle (iConst 3) (iConst 0) (iConst 2) (iConst 8))]
---   (rowPart (iVar "i") (iConst 2) m, Just $ iRectangle (iConst 0) (iConst 0) (iConst 15) (
+  [(m, Just $ constRect 0 7 0 16),
+   (rowPart (iConst 3) (iConst 2) m, Just $ constRect 0 7 3 4),
+   (colPart (iConst 5) (iConst 3) m, Just $ constRect 5 7 0 16),
+   (rowPart (iVar "i") (iConst 2) m, Just $ constRect 0 7 0 13)]
+
 
 m = matrix "A" (iConst 17) (iConst 8) (iConst 1) (iConst 17) (properties arg double)

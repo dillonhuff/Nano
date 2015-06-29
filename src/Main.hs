@@ -10,6 +10,7 @@ import Matrix
 import CBackEnd.SanityCheck
 import CBackEnd.Timing
 import CBackEnd.TimingHarness
+import CostModel.Flops
 import Dummies
 import Fuzz
 import Reporting.Report
@@ -132,9 +133,9 @@ main :: IO ()
 main = do
   operations <- sequence $ L.map (applyRandomOptimizations blockingOptimizations) testOperations
   avgCyclesPerRun <- sequence $ L.map timeImpl operations
-  let fakeCostEstimates = L.replicate (length avgCyclesPerRun) 1.0
-      fakePlot = dblScatterPlotComp "Cost_is_always_1.0" $ L.zip avgCyclesPerRun fakeCostEstimates in
-    writeReportHtml "Fake_Cost_Report" $ report "Fake_Cost_report" [fakePlot]
+  let flopCostEstimates = L.map flopCost operations
+      fakePlot = dblScatterPlotComp "Crude flop estimate" $ L.zip avgCyclesPerRun flopCostEstimates in
+    writeReportHtml "CrudeFlopEstimate" $ report "CrudeFlopEstimate" [fakePlot]
 
 timeImpl :: [Statement] -> IO Double
 timeImpl op =

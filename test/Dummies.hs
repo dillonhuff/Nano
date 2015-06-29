@@ -114,4 +114,6 @@ dummyRanges = M.fromList [(iVar "i", (iConst 0, iConst 13)),
                           (iVar "j", (iConst 3, iConst 7)),
                           (iVar "k", (iConst 0, iConst 3))]
 
-constRect x y xL yL = iRectangle x y xL yL
+constRect :: Int -> Int -> Int -> Int -> IRectangle
+constRect r1 c1 r2 c2 =
+  iRectangle (iRange (iConst r1) (iConst c1)) (iRange (iConst r2) (iConst c2))
