@@ -20,7 +20,7 @@ tryToInterchangeStmtList varRanges (l:r:rest) =
     True -> r:l:(tryToInterchangeStmtList varRanges rest)
     False -> l:r:(tryToInterchangeStmtList varRanges rest)
 
-canInterchange :: Map IExpr (IExpr, IExpr) -> Statement -> Statement -> Bool
+canInterchange :: Map IExpr (IExpr, IExpr, IExpr) -> Statement -> Statement -> Bool
 canInterchange iRanges l r =
   let lMatrices = allMatrices l
       rMatrices = allMatrices r in

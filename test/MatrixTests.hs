@@ -29,7 +29,7 @@ accessedRectangleCases =
   [(m, Just $ constRect 0 7 0 16),
    (rowPart (iConst 3) (iConst 2) m, Just $ constRect 0 7 3 4),
    (colPart (iConst 5) (iConst 3) m, Just $ constRect 5 7 0 16),
-   (rowPart (iVar "i") (iConst 2) m, Just $ constRect 0 7 0 13)]
+   (rowPart (iVar "i") (iConst 2) m, Just $ constRect 0 7 0 17)]
 
 
 m = matrix "A" (iConst 17) (iConst 8) (iConst 1) (iConst 17) (properties arg double)

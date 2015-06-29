@@ -48,6 +48,7 @@ instance Show IExpr where
   show (IConst it) = show it
   show (IAdd l r) = "(" ++ show l ++ " + " ++ show r ++ ")"
   show (IMul l r) = "(" ++ show l ++ " * " ++ show r ++ ")"
+  show (IDiv l r) = "(" ++ show l ++ " / " ++ show r ++ ")"
 
 evaluateIExprConstants :: IExpr -> IExpr
 evaluateIExprConstants (IMul l r) =
@@ -64,7 +65,19 @@ evaluateIExprConstants (IAdd l r) =
   where
     evaledL = evaluateIExprConstants l
     evaledR = evaluateIExprConstants r
+evaluateIExprConstants (IDiv l r) =
+  case isConst evaledL && isConst evaledR of
+    True -> iConst $ div (constVal evaledL) (constVal evaledR)
+    False -> simplifyDiv evaledL evaledR
+  where
+    evaledL = evaluateIExprConstants l
+    evaledR = evaluateIExprConstants r    
 evaluateIExprConstants e = e
+
+simplifyDiv l r =
+  case r == iConst 1 of
+    True -> l
+    False -> iDiv l r
 
 simplifyMul l r =
   case l == iConst 0 || r == iConst 0 of

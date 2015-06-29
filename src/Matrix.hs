@@ -60,7 +60,7 @@ sizeExpr m@(Matrix _ _ _ _ _ _) =
     False -> evaluateIExprConstants $ iAdd (iMul (numRows m) (rowStride m)) (iMul (numCols m) (colStride m))
 sizeExpr (SubMatrix _ _ _ m _) = sizeExpr m
 
-accessedRectangle :: Map IExpr (IExpr, IExpr) -> Matrix -> Maybe IRectangle
+accessedRectangle :: Map IExpr (IExpr, IExpr, IExpr) -> Matrix -> Maybe IRectangle
 accessedRectangle iRanges (Matrix _ nr nc _ _ _) =
   case isConst nr && isConst nc of
     True -> Just $ iRectangle
@@ -77,12 +77,17 @@ accessedRectangle iRanges (SubMatrix s r l m _) = do
 accessedRange iRanges r l =
   case isConst r && isConst l of
     True -> Just $ iRange r $ evaluateIExprConstants $ iSub (iAdd r l) (iConst 1)
-    False -> case isVar r of
-      True -> Just $ iRange rStart rEnd
-           where
-             (rStart, rEnd) = case M.lookup r iRanges of
-               Just rng -> rng
-               Nothing -> error $ "accessedRange: Cannot find " ++ show r ++ " in " ++ show iRanges
+    False -> varAccessedRange iRanges r l
+
+varAccessedRange iRanges r l =
+  case isVar r of
+    True ->
+      case M.lookup r iRanges of
+        Just (s, i, e) -> case l == i && s == iConst 0 of
+          True -> Just $ iRange (iConst 0) $ evaluateIExprConstants $ iAdd (iMul (iDiv e i) i) (iSub i (iConst 1))
+          False -> Nothing
+        Nothing -> error $ "accessedRange: Cannot find " ++ show r ++ " in " ++ show iRanges
+    False -> Nothing
 
 matrixBufferNameAndType (Matrix n _ _ _ _ (Properties _ t)) = (n, t)
 matrixBufferNameAndType (SubMatrix _ _ _ m _) = matrixBufferNameAndType m

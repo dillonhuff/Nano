@@ -6,13 +6,13 @@ import Analysis.IndexExpression
 import IndexExpression
 import Matrix
 
-matricesOverlap :: Map IExpr (IExpr, IExpr) -> Matrix -> Matrix -> Bool
+matricesOverlap :: Map IExpr (IExpr, IExpr, IExpr) -> Matrix -> Matrix -> Bool
 matricesOverlap ranges s t =
   case bufferName s == bufferName t of
     True -> accessedRegionsOverlap ranges s t
     False -> False
 
-accessedRegionsOverlap :: Map IExpr (IExpr, IExpr) -> Matrix -> Matrix -> Bool
+accessedRegionsOverlap :: Map IExpr (IExpr, IExpr, IExpr) -> Matrix -> Matrix -> Bool
 accessedRegionsOverlap ranges s t =
   error "accessedRegionsOverlap"
 {-  case accessedRegionsOverlapM ranges s t of
