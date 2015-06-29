@@ -55,7 +55,7 @@ collectFromAllOperands f (MatrixMultiply c a b) = [f c, f a, f b]
 collectFromAllOperands f (MatrixAdd c a b) = [f c, f a, f b]
 collectFromAllOperands f (ScalarMultiply c a b) = [f c, f a, f b]
 collectFromAllOperands f (MatrixTranspose a b) = [f a, f b]
-collectFromAllOperands f (Loop _ _ _ _ _) = []
+collectFromAllOperands f (Loop _ _ _ _ body) = L.concatMap (collectFromAllOperands f) body
 
 collectFromStmt :: (Statement -> a) -> Statement -> [a]
 collectFromStmt f s@(Loop _ _ _ _ body) = (f s) : (L.concatMap (collectFromStmt f) body)

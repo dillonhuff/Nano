@@ -11,7 +11,7 @@ import IndexExpression
 import Statement
 
 allFusionTests = TestLabel "All fusion fuzz tests" $
-                 TestList $ L.map (\op -> TestCase $ assertRandomOptimizationsCorrect fusionOpts op) operations
+                 TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect fusionOpts op) operations
 
 operations =
   [[matrixAdd a b c],

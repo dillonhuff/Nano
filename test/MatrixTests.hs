@@ -3,23 +3,31 @@ module MatrixTests(allMatrixTests) where
 import Data.List as L
 import Test.HUnit
 
+import Analysis.IndexExpression
 import IndexExpression
+import Dummies
 import Matrix
 import Module
 
 allMatrixTests = TestLabel "All matrix tests" $ TestList
   [makeTestCases numRows numRowsCases,
-   makeTestCases numCols numColsCases]
+   makeTestCases numCols numColsCases,
+   makeTestCases (accessedRectangle dummyRanges) accessedRectangleCases]
 
 numRowsCases =
   L.map (\(x, y) -> (x, iConst y))
-  [(a, 17),
-   (rowPart (iVar "i") (iConst 4) a, 4),
-   (rowPart (iConst 4) (iConst 2) a, 2)]
+  [(m, 17),
+   (rowPart (iVar "i") (iConst 4) m, 4),
+   (rowPart (iConst 4) (iConst 2) m, 2)]
 
 numColsCases =
   L.map (\(x, y) -> (x, iConst y))
-  [(a, 8),
-   (colPart (iVar "j") (iConst 2) a, 2)]
+  [(m, 8),
+   (colPart (iVar "j") (iConst 2) m, 2)]
 
-a = matrix "A" (iConst 17) (iConst 8) (iConst 1) (iConst 17) (properties arg double)
+accessedRectangleCases =
+  [(m, Just $ iRectangle (iConst 0) (iConst 0) (iConst 17) (iConst 8)),
+   (rowPart (iConst 3) (iConst 2) m, Just $ iRectangle (iConst 3) (iConst 0) (iConst 2) (iConst 8))]
+--   (rowPart (iVar "i") (iConst 2) m, Just $ iRectangle (iConst 0) (iConst 0) (iConst 15) (
+
+m = matrix "A" (iConst 17) (iConst 8) (iConst 1) (iConst 17) (properties arg double)

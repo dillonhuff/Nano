@@ -28,7 +28,6 @@ canFuseCases =
    (maddCCCBlockM4, maddABBBlockN4),
    (smulAAlphaABlockM4, mmulCABBlockM4)]
 
-
 canFuseTest (left, right) =
   canFuseIfAdjacent left right
 

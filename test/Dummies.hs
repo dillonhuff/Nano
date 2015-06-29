@@ -2,13 +2,17 @@ module Dummies(a, b, c, d, e, f, g, h, i, j, k,
                x, y, z, p,
                alpha,
                tr9c9, tr13c4,
+               fA, fB, fC,
+               dummyRanges,
                maddCBA, smulCAlphaA, mmulCBA,
-               constDblMat,
+               constDblMat, constRect,
                blockingOptimizations,
                testOperations) where
 
 import Data.List as L
+import Data.Map as M
 
+import Analysis.IndexExpression
 import Blocking
 import IndexExpression
 import Matrix
@@ -40,8 +44,15 @@ maddCBA = matrixAdd c b a
 smulCAlphaA = scalarMultiply c alpha a
 mmulCBA = matrixMultiply c b a
 
+fA = constFltMat "fA" 123 57 57 1
+fB = constFltMat "fB" 123 57 57 1
+fC = constFltMat "fC" 123 57 57 1
+
 constDblMat name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double)
+
+constFltMat name nr nc rs cs =
+  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg single)
 
 constDblMatTemp name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties local double)
@@ -97,3 +108,10 @@ loopIVar stmt =
   case isLoop stmt of
     True -> [iVar $ loopInductionVariable stmt]
     False -> []
+
+dummyRanges :: Map IExpr (IExpr, IExpr)
+dummyRanges = M.fromList [(iVar "i", (iConst 0, iConst 13)),
+                          (iVar "j", (iConst 3, iConst 7)),
+                          (iVar "k", (iConst 0, iConst 3))]
+
+constRect x y xL yL = iRectangle x y xL yL

@@ -5,12 +5,15 @@ module Matrix(Matrix,
               bufferName, locationExpr, sizeExpr,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
-              substituteInIExprs, partitionList,
+              substituteInIExprs, partitionList, accessedRectangle,
               Type,
               single, double,
               isDouble, isSingle,
               arg, local, bufferScope) where
 
+import Data.Map as M hiding (partition)
+
+import Analysis.IndexExpression
 import IndexExpression
 import Scope
 
@@ -56,6 +59,17 @@ sizeExpr m@(Matrix _ _ _ _ _ _) =
     True -> evaluateIExprConstants $ iMul (numRows m) (numCols m)
     False -> evaluateIExprConstants $ iAdd (iMul (numRows m) (rowStride m)) (iMul (numCols m) (colStride m))
 sizeExpr (SubMatrix _ _ _ m _) = sizeExpr m
+
+accessedRectangle :: Map IExpr (IExpr, IExpr) -> Matrix -> Maybe IRectangle
+accessedRectangle iRanges (Matrix _ nr nc _ _ _) =
+  case isConst nr && isConst nc of
+    True -> Just $ iRectangle (iConst 0) (iConst 0) nr nc
+    False -> Nothing
+accessedRectangle iRanges s@(SubMatrix Row r l m _) = do
+  mR <- accessedRectangle iRanges m
+  case isConst r && isConst l of
+    True -> Just $ iRectangle r (yCo mR) l (yLen mR)
+    False -> Nothing
 
 matrixBufferNameAndType (Matrix n _ _ _ _ (Properties _ t)) = (n, t)
 matrixBufferNameAndType (SubMatrix _ _ _ m _) = matrixBufferNameAndType m

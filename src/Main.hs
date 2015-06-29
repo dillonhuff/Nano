@@ -75,7 +75,7 @@ constDblMat name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double)
 -}
 
-
+{-o
 main :: IO ()
 main = do
   bestOp <- search 2 someOp optimizations allCostsOne
@@ -127,7 +127,7 @@ loopIVar stmt =
   case isLoop stmt of
     True -> [iVar $ loopInductionVariable stmt]
     False -> []
-{-
+-}
 main :: IO ()
 main = do
   operations <- sequence $ L.map (applyRandomOptimizations blockingOptimizations) testOperations
@@ -142,4 +142,4 @@ timeImpl op =
   do
     timeResStr <- runTimingCode "costModelTiming" cOp argInfo
     return $ read $ L.head $ L.lines timeResStr
--}
+
