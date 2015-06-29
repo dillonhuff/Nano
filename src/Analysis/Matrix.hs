@@ -14,13 +14,16 @@ matricesOverlap ranges s t =
 
 accessedRegionsOverlap :: Map IExpr (IExpr, IExpr, IExpr) -> Matrix -> Matrix -> Bool
 accessedRegionsOverlap ranges s t =
-  error "accessedRegionsOverlap"
+  case accessOverlap ranges s t of
+    Just b -> b
+    Nothing -> False
 {-  case accessedRegionsOverlapM ranges s t of
     Just 
   let sRegion = accessedRectangle ranges s
       tRegion = accessedRectangle ranges t in
   rectanglesOverlap sRegion tRegion-}
 
-accessedRegion ranges m =
-  error "accessedRegion"
-
+accessOverlap iRanges s t = do
+  sR <- accessedRectangle iRanges s
+  tR <- accessedRectangle iRanges t
+  return $ rectanglesOverlap sR tR

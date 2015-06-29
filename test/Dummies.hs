@@ -112,7 +112,8 @@ loopIVar stmt =
 dummyRanges :: Map IExpr (IExpr, IExpr, IExpr)
 dummyRanges = M.fromList [(iVar "i", (iConst 0, iConst 2, iConst 17)),
                           (iVar "j", (iConst 0, iConst 3, iConst 17)),
-                          (iVar "k", (iConst 0, iConst 1, iConst 8))]
+                          (iVar "k", (iConst 0, iConst 1, iConst 8)),
+                          (iVar "i1", (iConst 0, iConst 6, iConst 9))]
 
 constRect :: Int -> Int -> Int -> Int -> IRectangle
 constRect r1 c1 r2 c2 =

@@ -18,4 +18,5 @@ matricesOverlapTest (s, t) =
 matricesOverlapCases =
   [((a, a), True),
    ((a, b), False),
-   ((rowPart (iVar "k") (iConst 1) a, rowPart (iConst 5) (iConst 1) a), False)]
+   ((rowPart (iVar "k") (iConst 1) a, rowPart (iConst 5) (iConst 1) a), True),
+   ((rowPart (iVar "i1") (iConst 6) a, rowPart (iConst 6) (iConst 4) a), False)]
