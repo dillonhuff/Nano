@@ -25,13 +25,13 @@ reportName (Report n _) = n
 data ReportComponent
   = IntBarPlot String String [(Int, Int)]
   | DblBarPlot String [String] [(String, [Double])]
-  | DblScatterPlot String [(Double, Double)]
+  | DblScatterPlot String String String [(Double, Double)]
   | StrList String [String]
     deriving (Eq, Ord, Show)
 
 intBarPlotComp n seriesName sData = IntBarPlot n seriesName sData
 dblBarPlotComp n titles values = DblBarPlot n titles values
-dblScatterPlotComp title values = DblScatterPlot title values
+dblScatterPlotComp title xTitle yTitle values = DblScatterPlot title xTitle yTitle values
 strListComp n strs = StrList n strs
 
 reportComponentToHtml :: String -> ReportComponent -> IO Html
@@ -43,8 +43,8 @@ reportComponentToHtml filePath (DblBarPlot pName pTitles pValues) = do
   return $ chartHtml normedChartName "alt tag"
   where
     normedChartName = normalizeString pName
-reportComponentToHtml filePath (DblScatterPlot pTitle pValues) = do
-  simpleScatter (filePath ++ "/charts/" ++ normedChartName ++ ".png") pTitle pValues
+reportComponentToHtml filePath (DblScatterPlot pTitle pXTitle pYTitle pValues) = do
+  simpleScatter (filePath ++ "/charts/" ++ normedChartName ++ ".png") pTitle pXTitle pYTitle pValues
   return $ chartHtml normedChartName "alt tag"
   where
     normedChartName = normalizeString pTitle

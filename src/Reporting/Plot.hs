@@ -36,7 +36,9 @@ simpleBar filePath chartTitle titles values = toFile def filePath $ do
     layout_x_axis . laxis_generate .= autoIndexAxis (map fst values)
     plot $ fmap plotBars $ bars titles (addIndexes (map snd values))
 
-simpleScatter :: String -> String -> [(Double, Double)] -> IO ()
-simpleScatter filePath chartTitle values = toFile def filePath $ do
+simpleScatter :: FilePath -> String -> String -> String -> [(Double, Double)] -> IO ()
+simpleScatter filePath chartTitle xTitle yTitle values = toFile def filePath $ do
     layout_title .= chartTitle
+    layout_y_axis . laxis_title .= yTitle
+    layout_x_axis . laxis_title .= xTitle
     plot (points "" values)

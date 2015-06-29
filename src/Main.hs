@@ -134,7 +134,7 @@ main = do
   operations <- sequence $ L.map (applyRandomOptimizations blockingOptimizations) testOperations
   avgCyclesPerRun <- sequence $ L.map timeImpl operations
   let flopCostEstimates = L.map flopCost operations
-      fakePlot = dblScatterPlotComp "Crude flop estimate" $ L.zip avgCyclesPerRun flopCostEstimates in
+      fakePlot = dblScatterPlotComp "Crude flop estimate" "avg cycles per run" "flop cost estimate" $ L.zip avgCyclesPerRun flopCostEstimates in
     writeReportHtml "CrudeFlopEstimate" $ report "CrudeFlopEstimate" [fakePlot]
 
 timeImpl :: [Statement] -> IO Double
