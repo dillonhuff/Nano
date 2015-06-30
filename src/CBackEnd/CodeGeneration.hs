@@ -17,7 +17,7 @@ operationToC funcName stmts =
     bufInfo = bufferInfoList stmts
     tempBufInfo = L.filter (\info -> bufScope info == local) bufInfo
     tempBufferDecls = bufDecls tempBufInfo
-    tempBufAllocation = L.map initializeBuffer tempBufInfo
+    tempBufAllocation = L.map initializeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
     body = tempBufAllocation ++ (L.concatMap toCStmts stmts)
     iVarDecls = inductionVariableDecls stmts
     localVarDecls = iVarDecls ++ tempBufferDecls

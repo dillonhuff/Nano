@@ -11,6 +11,7 @@ module CBackEnd.Syntax(CTopLevelItem,
                     cAssign, cCast, cAdd, cSub, cMul, cDiv, cFuncall, cOr, cLEQ, cIfThenElse, cFor, cWhile,
                     cIntLit, cFloatLit, cDoubleLit,
                     cVar, cArrAcc, cReturn, cSizeOf,
+                    isCPtr,
                     getReferencedType,
                     Pretty(..),
                     BufferInfo,
@@ -160,6 +161,9 @@ cOr e1 e2 = CBinop Or e1 e2
 cLEQ e1 e2 = CBinop LEQ e1 e2
 cSizeOf tp = CSizeOf tp
 cFuncall n args = CFuncall n args
+
+isCPtr (CPtr _) = True
+isCPtr _ = False
 
 data CBinop
   = Plus
