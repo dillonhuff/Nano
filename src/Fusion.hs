@@ -1,5 +1,5 @@
 module Fusion(canFuseIfAdjacent,
-              fuseInnerLoops) where
+              fuseInnerLoops, fuseLoops) where
 
 import Data.List as L
 
