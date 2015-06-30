@@ -17,11 +17,6 @@ accessedRegionsOverlap ranges s t =
   case accessOverlap ranges s t of
     Just b -> b
     Nothing -> False
-{-  case accessedRegionsOverlapM ranges s t of
-    Just 
-  let sRegion = accessedRectangle ranges s
-      tRegion = accessedRectangle ranges t in
-  rectanglesOverlap sRegion tRegion-}
 
 accessOverlap iRanges s t = do
   sR <- accessedRectangle iRanges s

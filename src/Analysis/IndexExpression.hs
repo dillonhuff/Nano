@@ -1,13 +1,18 @@
 module Analysis.IndexExpression(IRectangle, iRectangle,
-                                horizontalRange, verticalRange,
+                                rowRange, colRange,
                                 rectanglesOverlap,
-                                iRange) where
+                                IRange,
+                                iRange,
+                                irStart, irEnd) where
 
 import IndexExpression
 
 data IRange
   = IRange IExpr IExpr
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord)
+
+instance Show IRange where
+  show r = "[" ++ show (irStart r) ++ ", " ++ show (irEnd r) ++ "]"
 
 iRange = IRange
 
@@ -26,14 +31,14 @@ data IRectangle
   = IRectangle IRange IRange
     deriving (Eq, Ord, Show)
 
-iRectangle hRange vRange = IRectangle hRange vRange
+iRectangle rRange cRange = IRectangle rRange cRange
 
-horizontalRange (IRectangle h _) = h
-verticalRange (IRectangle _ v) = v
+rowRange (IRectangle h _) = h
+colRange (IRectangle _ v) = v
 
 rectanglesOverlap r1 r2 =
-  constRangesOverlap (verticalRange r1) (verticalRange r2) &&
-  constRangesOverlap (horizontalRange r1) (horizontalRange r2)
+  constRangesOverlap (rowRange r1) (rowRange r2) &&
+  constRangesOverlap (colRange r1) (colRange r2)
 
 intsOverlap :: Int -> Int -> Int -> Int -> Bool
 intsOverlap s1 e1 s2 e2 =

@@ -64,30 +64,30 @@ accessedRectangle :: Map IExpr (IExpr, IExpr, IExpr) -> Matrix -> Maybe IRectang
 accessedRectangle iRanges (Matrix _ nr nc _ _ _) =
   case isConst nr && isConst nc of
     True -> Just $ iRectangle
-                 (iRange (iConst 0) $ evaluateIExprConstants $ iSub nc (iConst 1))
                  (iRange (iConst 0) $ evaluateIExprConstants $ iSub nr (iConst 1))
+                 (iRange (iConst 0) $ evaluateIExprConstants $ iSub nc (iConst 1))
     False -> Nothing
 accessedRectangle iRanges (SubMatrix s r l m _) = do
   mR <- accessedRectangle iRanges m
-  ar <- accessedRange iRanges r l
+  ar <- accessedRange (irStart $ rowRange mR) (irEnd $ rowRange mR) iRanges r l
+  ac <- accessedRange (irStart $ colRange mR) (irEnd $ colRange mR) iRanges r l
   case s of
-    Row -> Just $ iRectangle (horizontalRange mR) ar
-    Col -> Just $ iRectangle ar (verticalRange mR)
+    Row -> Just $ iRectangle ar (colRange mR)
+    Col -> Just $ iRectangle (rowRange mR) ac
 
-accessedRange iRanges r l =
-  case isConst r && isConst l of
-    True -> Just $ iRange r $ evaluateIExprConstants $ iSub (iAdd r l) (iConst 1)
-    False -> varAccessedRange iRanges r l
+accessedRange l m iRanges v b =
+  case isConst v && isConst b of
+    True -> Just $ iRange (evaluateIExprConstants (iAdd l v)) (evaluateIExprConstants (iSub (iAdd (iAdd l v) b) (iConst 1)))
+    False -> case isConst b && isVar v of
+      True -> varAccessedRange iRanges l v b
+      False -> Nothing
 
-varAccessedRange iRanges r l =
-  case isVar r of
-    True ->
-      case M.lookup r iRanges of
-        Just (s, i, e) -> case l == i && s == iConst 0 of
-          True -> Just $ iRange (iConst 0) $ evaluateIExprConstants $ iAdd (iMul (iDiv e i) i) (iSub i (iConst 1))
-          False -> Nothing
-        Nothing -> error $ "accessedRange: Cannot find " ++ show r ++ " in " ++ show iRanges
-    False -> Nothing
+varAccessedRange iRanges l v b =
+  case M.lookup v iRanges of
+    Just (s, i, e) -> case b == i of
+      True -> Just $ iRange (evaluateIExprConstants $ iAdd l s) (evaluateIExprConstants $ iSub (iAdd (iAdd (iAdd l s) (iMul (iDiv (iSub e s) b) b)) b)  (iConst 1))
+      False -> Nothing
+    Nothing -> error $ "accessedRange: Cannot find " ++ show v ++ " in " ++ show iRanges
 
 matrixBufferNameAndType (Matrix n _ _ _ _ (Properties _ t)) = (n, t)
 matrixBufferNameAndType (SubMatrix _ _ _ m _) = matrixBufferNameAndType m

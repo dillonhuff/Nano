@@ -26,7 +26,13 @@ canInterchange iRanges l r =
       rMatrices = allMatrices r in
   L.and $ L.map (\(s, t) -> not $ matricesOverlap iRanges s t) [(s, t) | s <- lMatrices, t <- rMatrices]
 
-iVarRanges stmts = error "varRanges"
+iVarRanges stmts =
+  M.fromList $ L.concatMap (collectValuesFromStmt collectLoopInds) stmts
+
+collectLoopInds stmt =
+  case isLoop stmt of
+    True -> [(iVar $ loopInductionVariable stmt, (loopStart stmt, loopInc stmt, loopEnd stmt))]
+    False -> []
 
 allMatrices stmt =
   collectFromAllOperands id stmt

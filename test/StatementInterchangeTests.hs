@@ -17,7 +17,9 @@ allStatementInterchangeTests =
 interchangeCases =
   [([matrixAdd fA fB fC], [matrixAdd fA fB fC]),
    (twoMAdds, twoInterchangedMAdds),
-   (twoNonInterchangeableMAdds, twoNonInterchangeableMAdds)]
+   (twoNonInterchangeableMAdds, twoNonInterchangeableMAdds),
+   ([maddABBM4Residual, maddCAAM4Main], [maddCAAM4Main, maddABBM4Residual]),
+   ([maddABBM4Residual, maddCAAM4Residual], [maddABBM4Residual, maddCAAM4Residual])]
 
 twoMAdds =
   [maddABBM4Residual, maddCAAM4Main]
