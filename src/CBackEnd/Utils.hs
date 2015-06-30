@@ -16,7 +16,9 @@ freeBuffer bufInfo = cExprSt (cFuncall "free" [cVar $ bufName bufInfo]) ""
 
 bufSizeExpr bufInfo = cMul (cSizeOf (getReferencedType $ bufType bufInfo)) (bufSize bufInfo)
 
-bufDecls argInfo = L.map (\info -> (bufType info, bufName info)) argInfo
+bufDecls argInfo = L.map (\info -> bufDecl info) argInfo
+
+bufDecl bufInfo = (bufType bufInfo, bufName bufInfo)
 
 setArgToRandValuesCode :: BufferInfo -> CStmt String
 setArgToRandValuesCode argInfo =

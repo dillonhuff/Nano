@@ -6,10 +6,12 @@ module Matrix(Matrix,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
               substituteInIExprs, partitionList, accessedRectangle,
+              setName, setRegister, isRegister,
               Type,
               single, double,
               isDouble, isSingle,
-              arg, local, bufferScope) where
+              arg, local, bufferScope,
+              register, memory) where
 
 import Data.Map as M hiding (partition)
 
@@ -89,7 +91,7 @@ varAccessedRange iRanges l v b =
       False -> Nothing
     Nothing -> error $ "accessedRange: Cannot find " ++ show v ++ " in " ++ show iRanges
 
-matrixBufferNameAndType (Matrix n _ _ _ _ (Properties _ t)) = (n, t)
+matrixBufferNameAndType (Matrix n _ _ _ _ (Properties _ t _)) = (n, t)
 matrixBufferNameAndType (SubMatrix _ _ _ m _) = matrixBufferNameAndType m
 
 numRows (Matrix _ nr _ _ _ _) = nr
@@ -117,6 +119,17 @@ substituteInIExprs target result (SubMatrix s i l m p) =
 partitionList (SubMatrix s i l m p) = (partition s i l) : (partitionList m)
 partitionList _ = []
 
+setName n (Matrix _ nr nc rs rc p) = Matrix n nr nc rs rc p
+setName n (SubMatrix shp v l m p) = SubMatrix shp v l (setName n m) p
+
+setRegister (Matrix n nr nc rs rc (Properties s t l)) =
+  Matrix n nr nc rs rc (Properties local t register)
+setRegister (SubMatrix shp v l m (Properties s t _)) =
+  SubMatrix shp v l (setRegister m) (Properties local t register)
+
+isRegister (Matrix _ _ _ _ _ p) = propMemLocation p == register
+isRegister (SubMatrix _ _ _ _ p) = propMemLocation p == register
+
 data Shape
   = Row
   | Col
@@ -129,13 +142,14 @@ data Partition
 partition s i l = Partition s i l
 
 data Properties
-  = Properties Scope Type
+  = Properties Scope Type MemLocation
     deriving (Eq, Ord, Show)
 
 properties = Properties
 
-propScope (Properties s _) = s
-propType (Properties _ t) = t
+propScope (Properties s _ _) = s
+propType (Properties _ t _) = t
+propMemLocation (Properties _ _ l) = l
 
 data Type
   = Single
@@ -149,3 +163,11 @@ isDouble Double = True
 isDouble _ = False
 
 isSingle t = not $ isDouble t
+
+data MemLocation
+  = Memory
+  | Register
+    deriving (Eq, Ord, Show)
+
+memory = Memory
+register = Register

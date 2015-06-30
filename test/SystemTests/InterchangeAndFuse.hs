@@ -10,9 +10,12 @@ import IndexExpression
 import InterchangeAndFuse
 import Statement
 
-allInterchangeAndFuseTests = TestLabel "All interchange and fuse fuzz tests" $
-                           TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect fusionOpts op) compoundTestOperations
-fusionOpts = interchangeAndFuse:blockingOpts
+allInterchangeAndFuseTests = TestLabel "All interchange and fuse system tests" $
+                           TestList $ L.map
+                                    (\op -> TestCase $ assertOptimizationsCorrect interchangeAndFuseOpts op)
+                                    compoundTestOperations
+
+interchangeAndFuseOpts = interchangeAndFuse:blockingOpts
 
 blockingOpts =
   L.map (\t -> expandStatementsBU t)

@@ -31,4 +31,4 @@ accessedRectangleCases =
    (colPart (iConst 5) (iConst 3) m, Just $ constRect 0 16 5 7),
    (rowPart (iVar "i") (iConst 2) m, Just $ constRect 0 15 0 7)]
 
-m = matrix "A" (iConst 17) (iConst 8) (iConst 1) (iConst 17) (properties arg double)
+m = matrix "A" (iConst 17) (iConst 8) (iConst 1) (iConst 17) (properties arg double memory)

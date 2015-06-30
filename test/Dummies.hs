@@ -49,13 +49,13 @@ fB = constFltMat "fB" 123 57 57 1
 fC = constFltMat "fC" 123 57 57 1
 
 constDblMat name nr nc rs cs =
-  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double)
+  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double memory)
 
 constFltMat name nr nc rs cs =
-  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg single)
+  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg single memory)
 
 constDblMatTemp name nr nc rs cs =
-  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties local double)
+  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties local double memory)
 
 blockingOptimizations =
   L.map (\(f, b) -> blkUniqueVar f b)

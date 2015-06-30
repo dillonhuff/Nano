@@ -1,5 +1,4 @@
 module CBackEnd.CodeGeneration(operationToC,
-                               argBufferDecls,
                                bufferInfoList,
                                inductionVariableDecls) where
 
@@ -27,6 +26,36 @@ operationToC funcName stmts =
     cFunction = cFuncDecl cVoid funcName argDecls (cBlock localVarDecls body)
 
 toCStmts stmt =
+  case not (isLoop stmt) && isScalarOp stmt of
+    True -> toScalarC stmt
+    False -> toCStmtsMOp stmt
+
+isScalarOp :: Statement -> Bool
+isScalarOp stmt = L.all isScalar $ allOperands stmt
+
+toScalarC stmt =
+  case isMatrixAdd stmt of
+    True -> scalarMAddToC stmt
+    False -> case isScalarMultiply stmt of
+      True -> error "scalar scalar multiply"
+      False -> case isMatrixMultiply stmt of
+        True -> error "scalar matrix multiply"
+        False -> case isMatrixTranspose stmt || isMatrixSet stmt of
+          True -> scalarMSetToC stmt
+          False -> error $ "toCStmts: Unsupported statement " ++ show stmt
+
+scalarMSetToC stmt =
+  let b = rightOperand stmt
+      a = operandWritten stmt in
+  [cExprSt (cAssign (matrixLocExpr a) (matrixLocExpr b)) ""]
+
+scalarMAddToC stmt =
+  let c = operandWritten stmt
+      a = leftOperand stmt
+      b = rightOperand stmt in
+  [cExprSt (cAssign (matrixLocExpr c) (cAdd (matrixLocExpr a) (matrixLocExpr b))) ""]
+      
+toCStmtsMOp stmt =
   case isLoop stmt of
     True -> loopToCStmts stmt
     False -> case isMatrixAdd stmt of
@@ -140,12 +169,6 @@ toCType t =
     True -> cDouble
     False -> cFloat
 
-argBufferDecls :: [Statement] -> [(CType, String)]
-argBufferDecls stmts =
-  let allMats = L.nub $ L.concatMap (collectValuesFromStmt $ collectFromAllOperands matrixBufferNameAndType) stmts
-      argBuffers = L.map (\(n, t) -> (cPtr $ toCType t, n)) allMats in
-  argBuffers
-
 inductionVariableDecls :: [Statement] -> [(CType, String)]
 inductionVariableDecls stmts =
   let iNames = L.nub $ L.concatMap (collectValuesFromStmt (\st -> if isLoop st then [loopInductionVariable st] else [])) stmts in
@@ -158,5 +181,11 @@ bufferInfoList stmts =
 
 matrixBufferInfo :: Matrix -> BufferInfo
 matrixBufferInfo m =
-  bufferInfo (bufferName m) (cPtr $ toCType $ dataType m) (iExprToCExpr $ sizeExpr m) (bufferScope m)
+  case isRegister m of
+    True -> bufferInfo (bufferName m) (toCType $ dataType m) (iExprToCExpr $ sizeExpr m) (bufferScope m)
+    False -> bufferInfo (bufferName m) (cPtr $ toCType $ dataType m) (iExprToCExpr $ sizeExpr m) (bufferScope m)
 
+matrixLocExpr m =
+  case isRegister m of
+    True -> cVar $ bufferName m
+    False -> cArrAcc (cVar $ bufferName m) (iExprToCExpr $ locationExpr m)

@@ -6,9 +6,11 @@ import SystemTests.BlockingTests
 import SystemTests.Fusion
 import SystemTests.InterchangeAndFuse
 import SystemTests.MultiBlocking
+import SystemTests.Scalarization
 
 allSystemTests = TestLabel "All sytem tests" $ TestList
                [allInterchangeAndFuseTests,
-                allSystemBlockingTests,
+                allFusionTests,
                 allMultiBlockingTests,
-                allFusionTests]
+                allSystemBlockingTests,
+                allScalarizationTests]

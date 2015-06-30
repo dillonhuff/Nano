@@ -123,4 +123,4 @@ mmulCBlk2MResidual =
   matrixMultiply residualC2M residualA2M b
 
 constDblMat name nr nc rs cs =
-  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double)
+  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double memory)
