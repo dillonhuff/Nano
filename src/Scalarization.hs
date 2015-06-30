@@ -26,9 +26,9 @@ scalarizeStmt stmt =
     False -> case isMatrixTranspose stmt of
       True -> error "scalarize matrix transpose"
       False -> case isMatrixMultiply stmt of
-        True -> error "scalarize matrix multiply"
+        True -> scalarizeMMul stmt
         False -> case isScalarMultiply stmt of
-          True -> error "scalarize scalar multiply"
+          True -> scalarizeSMul stmt
           False -> error $ "scalarizeStmt: Unsupported operation " ++ show stmt
 
 freshRegName :: State (String, Int) String
@@ -49,6 +49,32 @@ scalarizeMAdd stmt =
         r2 = duplicateInRegister r2Name b
         r3 = duplicateInRegister r3Name c in
       return [matrixSet r1 a, matrixSet r2 b, matrixSet r3 c, matrixAdd r3 r1 r2, matrixSet c r3]
+
+scalarizeSMul stmt =
+  let c = operandWritten stmt
+      alpha = leftOperand stmt
+      b = rightOperand stmt in
+  do
+    r1Name <- freshRegName
+    r2Name <- freshRegName
+    r3Name <- freshRegName
+    let r1 = duplicateInRegister r1Name alpha
+        r2 = duplicateInRegister r2Name b
+        r3 = duplicateInRegister r3Name c in
+      return [matrixSet r1 alpha, matrixSet r2 b, matrixSet r3 c, scalarMultiply r3 r1 r2, matrixSet c r3]
+
+scalarizeMMul stmt =
+  let c = operandWritten stmt
+      a = leftOperand stmt
+      b = rightOperand stmt in
+  do
+    r1Name <- freshRegName
+    r2Name <- freshRegName
+    r3Name <- freshRegName
+    let r1 = duplicateInRegister r1Name a
+        r2 = duplicateInRegister r2Name b
+        r3 = duplicateInRegister r3Name c in
+      return [matrixSet r1 a, matrixSet r2 b, matrixSet r3 c, matrixMultiply r3 r1 r2, matrixSet c r3]
 
 duplicateInRegister rName a =
   setName rName $ setRegister a

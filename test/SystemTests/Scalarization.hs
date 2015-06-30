@@ -11,13 +11,16 @@ import Scalarization
 import Statement
 
 allScalarizationTests = TestLabel "All scalarization system tests" $
-                      TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarizationOpts op) [[matrixAdd a b c]] --compoundTestOperations
+                      TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarizationOpts op) compoundTestOperations
 
 scalarizationOpts = (scalarize "r_"):blockingOpts
 
 blockingOpts = 
   L.map (\t -> expandStatementsBU t)
-  [blockScalarMultiplyM (iVar "i1") (iConst 1),
-   blockMatrixMultiplyM (iVar "i2") (iConst 1),
-   blockMatrixAddM (iVar "i3") (iConst 1),
-   blockMatrixAddN (iVar "i4") (iConst 1)]
+  [blockMatrixMultiplyM (iVar "i1") (iConst 1),
+   blockMatrixMultiplyN (iVar "i2") (iConst 1),
+   blockMatrixMultiplyP (iVar "i3") (iConst 1),
+   blockMatrixAddM (iVar "i4") (iConst 1),
+   blockMatrixAddN (iVar "i5") (iConst 1),
+   blockScalarMultiplyM (iVar "i6") (iConst 1),
+   blockScalarMultiplyN (iVar "i7") (iConst 1)]

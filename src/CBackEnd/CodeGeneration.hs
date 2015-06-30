@@ -37,9 +37,9 @@ toScalarC stmt =
   case isMatrixAdd stmt of
     True -> scalarMAddToC stmt
     False -> case isScalarMultiply stmt of
-      True -> error "scalar scalar multiply"
+      True -> scalarSMulToC stmt
       False -> case isMatrixMultiply stmt of
-        True -> error "scalar matrix multiply"
+        True -> scalarMMulToC stmt
         False -> case isMatrixTranspose stmt || isMatrixSet stmt of
           True -> scalarMSetToC stmt
           False -> error $ "toCStmts: Unsupported statement " ++ show stmt
@@ -54,7 +54,19 @@ scalarMAddToC stmt =
       a = leftOperand stmt
       b = rightOperand stmt in
   [cExprSt (cAssign (matrixLocExpr c) (cAdd (matrixLocExpr a) (matrixLocExpr b))) ""]
-      
+
+scalarMMulToC stmt =
+  let c = operandWritten stmt
+      a = leftOperand stmt
+      b = rightOperand stmt in
+  [cExprSt (cAssign (matrixLocExpr c) (cAdd (cMul (matrixLocExpr a) (matrixLocExpr b)) (matrixLocExpr c))) ""]
+
+scalarSMulToC stmt =
+  let c = operandWritten stmt
+      alpha = leftOperand stmt
+      b = rightOperand stmt in
+  [cExprSt (cAssign (matrixLocExpr c) (cMul (matrixLocExpr alpha) (matrixLocExpr b))) ""]
+
 toCStmtsMOp stmt =
   case isLoop stmt of
     True -> loopToCStmts stmt
