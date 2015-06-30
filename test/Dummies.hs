@@ -7,7 +7,7 @@ module Dummies(a, b, c, d, e, f, g, h, i, j, k,
                maddCBA, smulCAlphaA, mmulCBA,
                constDblMat, constRect,
                blockingOptimizations,
-               testOperations) where
+               testOperations, compoundTestOperations) where
 
 import Data.List as L
 import Data.Map as M
@@ -91,6 +91,12 @@ testOperations =
     [matrixAdd tr9c9 a b,
      matrixAdd c tr9c9 c]]
 
+compoundTestOperations =
+  [[matrixAdd a b c],
+   [matrixAdd c c c, matrixAdd a a a],
+   [scalarMultiply a alpha a, matrixMultiply c a b],
+   [scalarMultiply a alpha a, matrixAdd tr9c9 a tr9c9, matrixMultiply c tr9c9 b]]
+  
 blkUniqueVar :: (IExpr -> IExpr -> Statement -> [Statement]) -> IExpr -> [Statement] -> [Statement]
 blkUniqueVar blkFunc blkFactor stmts =
   let v = uniqueVarName stmts in
