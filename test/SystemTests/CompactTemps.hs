@@ -15,7 +15,7 @@ import Statement
 allCompactTempsTests = TestLabel "All scalarization system tests" $
                       TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect compactTempsOpts op) compoundTestOperations
 
-compactTempsOpts = (scalarize "r_"):compactTemps:preprocessingOpts ++ [fuseInnerLoops]
+compactTempsOpts = (scalarize "r_"):compactTemps:preprocessingOpts
 --compactTempsOpts = (scalarize "r_"):preprocessingOpts
 
 preprocessingOpts =

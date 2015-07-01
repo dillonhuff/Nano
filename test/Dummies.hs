@@ -94,6 +94,7 @@ testOperations =
 compoundTestOperations =
   [[matrixAdd a b c],
    [matrixAdd c c c, matrixAdd a a a],
+   [scalarMultiply tr9c9 alpha c, matrixAdd a tr9c9 tr9c9],
    [scalarMultiply a alpha a, matrixMultiply c a b],
    [scalarMultiply a alpha a, matrixAdd tr9c9 a a, matrixMultiply c tr9c9 b],
    [scalarMultiply a alpha a, matrixTranspose tr9c9 a, matrixMultiply c tr9c9 tr9c9]]
