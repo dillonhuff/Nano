@@ -95,7 +95,7 @@ blockSMulM indVar blkFactor stmt =
     residual = applyToOperands (\m -> if not (isScalar m) then rowPart rs rl m else m) stmt
 
 blockSMulN indVar blkFactor stmt =
-  case numRows (operandWritten residual) == iConst 0 of
+  case numCols (operandWritten residual) == iConst 0 of
     True -> [mainLoop]
     False -> [mainLoop, residual]
   where
@@ -123,7 +123,7 @@ blockMMulM indVar blkFactor stmt =
     residual = matrixMultiply resC resA b
 
 blockMMulN indVar blkFactor stmt =
-  case numRows (operandWritten residual) == iConst 0 of
+  case numCols (operandWritten residual) == iConst 0 of
     True -> [mainLoop]
     False -> [mainLoop, residual]
   where
@@ -140,7 +140,7 @@ blockMMulN indVar blkFactor stmt =
     residual = matrixMultiply resC a resB
 
 blockMMulP indVar blkFactor stmt =
-  case numRows (operandWritten residual) == iConst 0 of
+  case numCols (leftOperand residual) == iConst 0 of
     True -> [mainLoop]
     False -> [mainLoop, residual]
   where
