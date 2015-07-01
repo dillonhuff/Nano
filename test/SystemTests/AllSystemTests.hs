@@ -1,9 +1,8 @@
 module SystemTests.AllSystemTests(allSystemTests) where
-
 import Test.HUnit
 
 import SystemTests.BlockingTests
-import SystemTests.CompactTempsTests
+import SystemTests.CompactTemps
 import SystemTests.Fusion
 import SystemTests.InterchangeAndFuse
 import SystemTests.MultiBlocking

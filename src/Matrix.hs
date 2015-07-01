@@ -2,7 +2,7 @@ module Matrix(Matrix,
               matrix,
               rowPart, colPart,
               isMatrix, isVector, isScalar,
-              bufferName, locationExpr, sizeExpr,
+              bufferName, locationExpr, sizeExpr, matProperties,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
               substituteInIExprs, partitionList, accessedRectangle,
@@ -45,13 +45,13 @@ isMatrix m =
 underlyingMatrix (SubMatrix _ _ _ m _) = m
 underlyingMatrix m = m
 
-replaceSupermatrix target result s@(SubMatrix _ _ _ m _) =
+replaceSupermatrix target result s@(SubMatrix shp v b m p) =
   case s == target of
     True -> result
-    False -> replaceSupermatrix target result m
+    False -> SubMatrix shp v b (replaceSupermatrix target result m) p
 replaceSupermatrix target result m =
   case m == target of
-    True -> error "replaceSupermatrix"
+    True -> result
     False -> m
 
 smallestSubsumingPartition m n@(Matrix _ _ _ _ _ _) =

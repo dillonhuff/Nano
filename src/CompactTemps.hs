@@ -9,14 +9,14 @@ import Statement
 
 compactTemps stmts =
   let sspReplacementPairs = computeReplacements stmts in
-  L.foldr (\(ssp, newTemp) -> replaceSSPWith ssp newTemp) stmts sspReplacementPairs
+  L.foldr (\(newTemp, ssp) -> replaceSSPWith newTemp ssp) stmts sspReplacementPairs
 
 computeReplacements :: [Statement] -> [(Matrix, Matrix)]
 computeReplacements stmts =
   let allUnderlyingMats = L.nub $ L.concatMap (collectFromAllOperands underlyingMatrix) stmts
       allUnderlyingTempMats = L.filter (\m -> bufferScope m == local) allUnderlyingMats
       ssps = L.map (\m -> computeSSP m stmts) allUnderlyingTempMats in
-  L.map (\(l, r) -> (l, fromJust r)) $ L.filter sndIsJust $ L.zip allUnderlyingTempMats ssps
+  L.map newUnderlyingMat $ L.map (\(l, r) -> (l, fromJust r)) $ L.filter sndIsJust $ L.zip allUnderlyingTempMats ssps
 
 sndIsJust (l, r) =
   case r of
@@ -37,3 +37,7 @@ smallestSubsumingPartitionLR m n =
     Nothing -> case smallestSubsumingPartition n m of
       Just b -> Just b
       Nothing -> Nothing
+
+newUnderlyingMat :: (Matrix, Matrix) -> (Matrix, Matrix)
+newUnderlyingMat (m, ssp) =
+  (m, matrix (bufferName m) (numRows ssp) (numCols ssp) (rowStride ssp) (colStride ssp) (matProperties ssp))
