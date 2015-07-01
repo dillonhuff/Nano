@@ -6,7 +6,7 @@ module Matrix(Matrix,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
               substituteInIExprs, partitionList, accessedRectangle,
-              setName, setRegister, isRegister,
+              setName, setRegister, isRegister, underlyingMatrix,
               Type,
               single, double,
               isDouble, isSingle,
@@ -40,6 +40,9 @@ isVector m =
 
 isMatrix m =
   not (isScalar m) && not (isVector m)
+
+underlyingMatrix (SubMatrix _ _ _ m _) = m
+underlyingMatrix m = m
 
 matProperties (Matrix _ _ _ _ _ p) = p
 matProperties (SubMatrix _ _ _ _ p) = p
