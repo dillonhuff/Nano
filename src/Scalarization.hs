@@ -24,7 +24,7 @@ scalarizeStmt stmt =
   case isMatrixAdd stmt of
     True -> scalarizeMAdd stmt
     False -> case isMatrixTranspose stmt of
-      True -> error "scalarize matrix transpose"
+      True -> scalarizeTrans stmt
       False -> case isMatrixMultiply stmt of
         True -> scalarizeMMul stmt
         False -> case isScalarMultiply stmt of
@@ -76,5 +76,13 @@ scalarizeMMul stmt =
         r3 = duplicateInRegister r3Name c in
       return [matrixSet r1 a, matrixSet r2 b, matrixSet r3 c, matrixMultiply r3 r1 r2, matrixSet c r3]
 
+scalarizeTrans stmt =
+  let a = operandWritten stmt
+      b = rightOperand stmt in
+  do
+    r1Name <- freshRegName
+    let r1 = duplicateInRegister r1Name b in
+      return [matrixSet r1 b, matrixSet a r1]
+  
 duplicateInRegister rName a =
   setName rName $ setRegister a

@@ -23,4 +23,6 @@ blockingOpts =
    blockMatrixAddM (iVar "i4") (iConst 1),
    blockMatrixAddN (iVar "i5") (iConst 1),
    blockScalarMultiplyM (iVar "i6") (iConst 1),
-   blockScalarMultiplyN (iVar "i7") (iConst 1)]
+   blockScalarMultiplyN (iVar "i7") (iConst 1),
+   blockMatrixTransposeM (iVar "i8") (iConst 1),
+   blockMatrixTransposeN (iVar "i9") (iConst 1)]

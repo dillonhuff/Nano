@@ -174,7 +174,7 @@ blockTransM indVar blkFactor stmt =
     residual = matrixTranspose resA resB
 
 blockTransN indVar blkFactor stmt =
-  case numRows (operandWritten residual) == iConst 0 of
+  case numCols (operandWritten residual) == iConst 0 of
     True -> [mainLoop]
     False -> [mainLoop, residual]
   where
