@@ -61,6 +61,8 @@ applyToOperands :: (Matrix -> Matrix) -> Statement -> Statement
 applyToOperands f (MatrixAdd c a b) = MatrixAdd (f c) (f a) (f b)
 applyToOperands f (ScalarMultiply a alpha b) = ScalarMultiply (f a) (f alpha) (f b)
 applyToOperands f (MatrixMultiply c a b) = MatrixMultiply (f c) (f a) (f b)
+applyToOperands f (MatrixTranspose a b) = MatrixTranspose (f a) (f b)
+applyToOperands f l@(Loop _ _ _ _ _) = l
 
 collectFromAllOperands :: (Matrix -> a) -> Statement -> [a]
 collectFromAllOperands f (MatrixMultiply c a b) = [f c, f a, f b]

@@ -7,6 +7,7 @@ module Matrix(Matrix,
               properties, dataType, matrixBufferNameAndType,
               substituteInIExprs, partitionList, accessedRectangle,
               setName, setRegister, isRegister, underlyingMatrix,
+              replaceSupermatrix, smallestSubsumingPartition,
               Type,
               single, double,
               isDouble, isSingle,
@@ -44,6 +45,26 @@ isMatrix m =
 underlyingMatrix (SubMatrix _ _ _ m _) = m
 underlyingMatrix m = m
 
+replaceSupermatrix target result s@(SubMatrix _ _ _ m _) =
+  case s == target of
+    True -> result
+    False -> replaceSupermatrix target result m
+replaceSupermatrix target result m =
+  case m == target of
+    True -> error "replaceSupermatrix"
+    False -> m
+
+smallestSubsumingPartition m n@(Matrix _ _ _ _ _ _) =
+  case underlyingMatrix m == n of
+    True -> Just n
+    False -> Nothing
+smallestSubsumingPartition m n =
+  case m == n of
+    True -> Just $ m
+    False -> smallestSubsumingPartition m (peelPartition n)
+
+peelPartition (SubMatrix _ _ _ m _) = m
+    
 matProperties (Matrix _ _ _ _ _ p) = p
 matProperties (SubMatrix _ _ _ _ p) = p
 
