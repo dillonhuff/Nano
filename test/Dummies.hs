@@ -7,13 +7,15 @@ module Dummies(a, b, c, d, e, f, g, h, i, j, k,
                maddCBA, smulCAlphaA, mmulCBA,
                constDblMat, constRect,
                blockingOptimizations,
-               testOperations, compoundTestOperations) where
+               testOperations, compoundTestOperations,
+               preprocessingOpts, preprocessMMulOpts, preprocessTransOpts) where
 
 import Data.List as L
 import Data.Map as M
 
 import Analysis.IndexExpression
 import Blocking
+import Fusion
 import IndexExpression
 import Matrix
 import Statement
@@ -126,3 +128,40 @@ dummyRanges = M.fromList [(iVar "i", (iConst 0, iConst 2, iConst 15)),
 constRect :: Int -> Int -> Int -> Int -> IRectangle
 constRect r1 c1 r2 c2 =
   iRectangle (iRange (iConst r1) (iConst c1)) (iRange (iConst r2) (iConst c2))
+
+preprocessingOpts =
+  L.intersperse fuseInnerLoops $ 
+  L.map (\t -> expandStatementsBU t)
+  [blockMatrixMultiplyP (iVar "i3") (iConst 1),
+   
+
+   blockMatrixAddN (iVar "i5") (iConst 1),
+   blockMatrixMultiplyN (iVar "i2") (iConst 1),
+   blockScalarMultiplyN (iVar "i7") (iConst 1),
+   blockMatrixTransposeN (iVar "i9") (iConst 1),
+
+   blockMatrixAddM (iVar "i4") (iConst 1),
+   blockMatrixMultiplyM (iVar "i1") (iConst 1),
+   blockScalarMultiplyM (iVar "i6") (iConst 1),
+   blockMatrixTransposeM (iVar "i8") (iConst 1)]
+
+
+preprocessMMulOpts =
+  L.intersperse fuseInnerLoops $
+  L.map (\t -> expandStatementsBU t)
+  [blockMatrixMultiplyN (iVar "i7") (iConst 1),
+   
+   blockMatrixMultiplyP (iVar "i4") (iConst 1),
+   blockScalarMultiplyN (iVar "i3") (iConst 1),
+   
+   blockMatrixMultiplyM (iVar "i2") (iConst 1),
+   blockScalarMultiplyM (iVar "i1") (iConst 1)]
+
+preprocessTransOpts =
+  L.intersperse fuseInnerLoops $
+  L.map (\t -> expandStatementsBU t)
+  [blockMatrixTransposeN (iVar "i1") (iConst 1),
+   blockMatrixAddN (iVar "i2") (iConst 1),
+   
+   blockMatrixTransposeM (iVar "i3") (iConst 1),
+   blockMatrixAddM (iVar "i4") (iConst 1)]
