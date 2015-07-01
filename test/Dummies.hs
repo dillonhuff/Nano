@@ -94,9 +94,9 @@ testOperations =
 compoundTestOperations =
   [[matrixAdd a b c],
    [matrixAdd c c c, matrixAdd a a a],
-   [scalarMultiply a alpha a, matrixMultiply c a b]]
---   [scalarMultiply a alpha a, matrixAdd tr9c9 a tr9c9, matrixMultiply c tr9c9 b]]
---   [scalarMultiply a alpha a, matrixTranspose tr9c9 a, matrixMultiply c tr9c9 tr9c9]]
+   [scalarMultiply a alpha a, matrixMultiply c a b],
+   [scalarMultiply a alpha a, matrixAdd tr9c9 a a, matrixMultiply c tr9c9 b],
+   [scalarMultiply a alpha a, matrixTranspose tr9c9 a, matrixMultiply c tr9c9 tr9c9]]
   
 blkUniqueVar :: (IExpr -> IExpr -> Statement -> [Statement]) -> IExpr -> [Statement] -> [Statement]
 blkUniqueVar blkFunc blkFactor stmts =

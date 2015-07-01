@@ -156,7 +156,7 @@ void simple_add(int m, int n,
   int i, j;
   for (i = 0; i < m; i++)	{
     for (j = 0; j < n; j++)	{
-      C(i, j) = B(i, j) + A(i, j);
+      C(i, j) = A(i, j) + B(i, j);
     }
   }
 }

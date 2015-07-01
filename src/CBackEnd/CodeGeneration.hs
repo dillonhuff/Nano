@@ -28,7 +28,7 @@ operationToC funcName stmts =
 toCStmts stmt =
   case not (isLoop stmt) && isScalarOp stmt of
     True -> toScalarC stmt
-    False -> toCStmtsMOp stmt
+    _ -> toCStmtsMOp stmt
 
 isScalarOp :: Statement -> Bool
 isScalarOp stmt = L.all isScalar $ allOperands stmt
