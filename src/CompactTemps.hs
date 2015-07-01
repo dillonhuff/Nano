@@ -9,7 +9,7 @@ import Statement
 
 compactTemps stmts =
   let sspReplacementPairs = computeReplacements stmts in
-  L.foldr (\(newTemp, ssp) -> replaceSSPWith newTemp ssp) stmts sspReplacementPairs
+  L.foldr (\(ssp, newTemp) -> replaceSSPWith ssp newTemp) stmts sspReplacementPairs
 
 computeReplacements :: [Statement] -> [(Matrix, Matrix)]
 computeReplacements stmts =

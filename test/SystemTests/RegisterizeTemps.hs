@@ -28,4 +28,3 @@ registerizeTests =
 registerizeTempsOpts = (scalarize "r_"):registerizeTemps:compactTemps:preprocessingOpts
 registerizeMMulOpts = (scalarize "r_"):registerizeTemps:compactTemps:preprocessMMulOpts
 registerizeTransOpts = (scalarize "r_"):registerizeTemps:compactTemps:fuseInnerLoops:preprocessTransOpts
-

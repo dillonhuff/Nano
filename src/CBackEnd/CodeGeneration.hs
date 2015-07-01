@@ -18,7 +18,8 @@ operationToC funcName stmts =
     tempBufInfo = L.filter (\info -> bufScope info == local) bufInfo
     tempBufferDecls = bufDecls tempBufInfo
     tempBufAllocation = L.map initializeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
-    body = tempBufAllocation ++ (L.concatMap toCStmts stmts)
+    tempBufFreeing = L.map freeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
+    body = tempBufAllocation ++ (L.concatMap toCStmts stmts) ++ tempBufFreeing
     iVarDecls = inductionVariableDecls stmts
     localVarDecls = iVarDecls ++ tempBufferDecls
     argInfo = L.filter (\info -> bufScope info == arg) bufInfo
@@ -42,7 +43,7 @@ toScalarC stmt =
         True -> scalarMMulToC stmt
         False -> case isMatrixTranspose stmt || isMatrixSet stmt of
           True -> scalarMSetToC stmt
-          False -> error $ "toCStmts: Unsupported statement " ++ show stmt
+          False -> error $ "toScalarC: Unsupported statement " ++ show stmt
 
 scalarMSetToC stmt =
   let b = rightOperand stmt
