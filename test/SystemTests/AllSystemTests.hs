@@ -6,6 +6,7 @@ import SystemTests.CompactTemps
 import SystemTests.Fusion
 import SystemTests.InterchangeAndFuse
 import SystemTests.MultiBlocking
+import SystemTests.RegisterizeTemps
 import SystemTests.Scalarization
 
 allSystemTests = TestLabel "All sytem tests" $ TestList
@@ -13,5 +14,6 @@ allSystemTests = TestLabel "All sytem tests" $ TestList
                 allFusionTests,
                 allInterchangeAndFuseTests,
                 allMultiBlockingTests,
+                allRegisterizeTempsTests,
                 allSystemBlockingTests,
                 allScalarizationTests]

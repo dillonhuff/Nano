@@ -40,4 +40,4 @@ smallestSubsumingPartitionLR m n =
 
 newUnderlyingMat :: (Matrix, Matrix) -> (Matrix, Matrix)
 newUnderlyingMat (m, ssp) =
-  (m, matrix (bufferName m) (numRows ssp) (numCols ssp) (rowStride ssp) (colStride ssp) (matProperties ssp))
+  (ssp, matrix (bufferName m) (numRows ssp) (numCols ssp) (rowStride ssp) (colStride ssp) (matProperties ssp))

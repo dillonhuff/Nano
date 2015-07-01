@@ -48,7 +48,7 @@ scalarizeMAdd stmt =
     let r1 = duplicateInRegister r1Name a
         r2 = duplicateInRegister r2Name b
         r3 = duplicateInRegister r3Name c in
-      return [matrixSet r1 a, matrixSet r2 b, matrixSet r3 c, matrixAdd r3 r1 r2, matrixSet c r3]
+      return [matrixSet r1 a, matrixSet r2 b, matrixAdd r3 r1 r2, matrixSet c r3]
 
 scalarizeSMul stmt =
   let c = operandWritten stmt
@@ -61,7 +61,7 @@ scalarizeSMul stmt =
     let r1 = duplicateInRegister r1Name alpha
         r2 = duplicateInRegister r2Name b
         r3 = duplicateInRegister r3Name c in
-      return [matrixSet r1 alpha, matrixSet r2 b, matrixSet r3 c, scalarMultiply r3 r1 r2, matrixSet c r3]
+      return [matrixSet r1 alpha, matrixSet r2 b, scalarMultiply r3 r1 r2, matrixSet c r3]
 
 scalarizeMMul stmt =
   let c = operandWritten stmt
