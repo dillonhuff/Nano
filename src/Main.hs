@@ -10,11 +10,13 @@ import CBackEnd.Timing
 import CBackEnd.TimingHarness
 import CompactTemps
 import CostModel.Flops
+import CostModel.FlopsPlusTempAllocs
 import Dummies
 import Fusion
 import Fuzz
 import IndexExpression
 import Matrix
+import Operations
 import RegisterizeTemps
 import Reporting.Report
 import Scalarization
@@ -23,7 +25,7 @@ import Statement
 
 main :: IO ()
 main = do
-  bestOp <- search 2 someOp optimizations (\op -> return $ flopCost op)
+  bestOp <- search 6 (ddotsmul 16) optimizations (\op -> return $ flopsPlusTempAllocs op)
   putStrLn $ "Cost = " ++ (show $ fst bestOp) ++ "\n" ++
              (prettyPrint 0 $ fst $ operationToC "testOp" $ snd bestOp)
 
@@ -39,8 +41,8 @@ blockingOptimizations :: [[Statement] -> [Statement]]
 blockingOptimizations =
   L.map (\(f, b) -> blkUniqueVar f b)
   [(blockMatrixAddM, iConst 1),
-   (blockMatrixAddN, iConst 1),
    (blockScalarMultiplyM, iConst 1),
+   (blockMatrixAddN, iConst 1),
    (blockScalarMultiplyN, iConst 1),
    (blockMatrixMultiplyM, iConst 1),
    (blockMatrixMultiplyN, iConst 1),
@@ -49,49 +51,17 @@ blockingOptimizations =
    (blockMatrixTransposeM, iConst 1),
    (blockMatrixTransposeN, iConst 1)]
 
-someOp = [matrixAdd tr13c4 g h,
-          scalarMultiply tr13c4 alpha tr13c4,
-          matrixMultiply k tr13c4 i]
+someOp = [scalarMultiply tx alpha x,
+          matrixAdd y tx y]
 
-{-
-someOp = [matrixAdd tr13c4 g h,
-          scalarMultiply tr13c4 alpha tr13c4,
-          matrixMultiply k tr13c4 i]
-
-allCostsOne stmts =
-  let (opC, argInfo) = operationToC "testOp" stmts in
-  do
-    timeResStr <- runTimingCode "mainTiming" opC argInfo
-    return $ read $ L.head $ L.lines timeResStr
-
-
-
-blkUniqueVar :: (IExpr -> IExpr -> Statement -> [Statement]) -> IExpr -> [Statement] -> [Statement]
-blkUniqueVar blkFunc blkFactor stmts =
-  let v = uniqueVarName stmts in
-  expandStatementsBU (blkFunc v blkFactor) stmts
-
-uniqueVarName stmts =
-  let vs = uniqueVars stmts in
-  case vs of
-    [] -> iVar "i"
-    (v:rest) ->iVar $ (varName v) ++ "_unique"
-
-uniqueVars stmts = L.nub $ L.concatMap (collectValuesFromStmt loopIVar) stmts
-
-loopIVar stmt =
-  case isLoop stmt of
-    True -> [iVar $ loopInductionVariable stmt]
-    False -> []
--}
-
-{-
 timeImpl :: [Statement] -> IO Double
 timeImpl op =
   let (cOp, argInfo) = operationToC "testingCostModel" op in
   do
     timeResStr <- runTimingCode "costModelTiming" cOp argInfo
     return $ read $ L.head $ L.lines timeResStr
+
+{-
 
 main :: IO ()
 main = do

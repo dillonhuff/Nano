@@ -29,7 +29,9 @@ scalarizeStmt stmt =
         True -> scalarizeMMul stmt
         False -> case isScalarMultiply stmt of
           True -> scalarizeSMul stmt
-          False -> error $ "scalarizeStmt: Unsupported operation " ++ show stmt
+          False -> case isMatrixSet stmt of
+            True -> scalarizeTrans stmt
+            False -> error $ "scalarizeStmt: Unsupported operation " ++ show stmt
 
 freshRegName :: State (String, Int) String
 freshRegName = do

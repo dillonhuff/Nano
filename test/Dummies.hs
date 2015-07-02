@@ -1,11 +1,11 @@
 module Dummies(a, b, c, d, e, f, g, h, i, j, k,
-               x, y, z, p,
+               x, y, z, p, tx,
                alpha,
                tr9c9, tr13c4,
                fA, fB, fC,
                dummyRanges, blkUniqueVar, uniqueVarName,
                maddCBA, smulCAlphaA, mmulCBA,
-               constDblMat, constRect,
+               constDblMat, constRect, constDblMatTemp,
                blockingOptimizations,
                testOperations, compoundTestOperations,
                preprocessingOpts, preprocessMMulOpts, preprocessTransOpts) where
@@ -41,6 +41,8 @@ alpha = constDblMat "alpha" 1 1 1 1
 
 tr9c9 = constDblMatTemp "tr9c9" 9 9 1 9
 tr13c4 = constDblMatTemp "tr13c4" 13 4 1 13
+
+tx = constDblMatTemp "tx" 16 1 1 1
 
 maddCBA = matrixAdd c b a
 smulCAlphaA = scalarMultiply c alpha a
