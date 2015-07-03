@@ -15,9 +15,19 @@ scalarize u uniqueVarPrefix stmts =
 
 tryToScalarize :: Int -> Statement -> State (String, Int) [Statement]
 tryToScalarize u stmt =
-  case not (isLoop stmt) && isScalarOp u stmt of
-    True -> scalarizeStmt stmt
-    False -> return [stmt]
+  case opcode stmt of
+{-    BRDC -> case (isRegisterizeable u $ operandWritten stmt) &&
+                 (isScalar $ operandRead 0 stmt) of
+              True -> registerizeBroadcast stmt
+              False -> return [stmt]-}
+    EMUL ->
+      case isScalarOp u stmt of
+        True -> registerizeEMUL u stmt
+        False -> return [stmt]
+    _ ->
+      case not (isLoop stmt) && isScalarOp u stmt of
+        True -> scalarizeStmt stmt
+        False -> return [stmt]
 
 scalarizeStmt :: Statement -> State (String, Int) [Statement]
 scalarizeStmt stmt =
@@ -39,6 +49,14 @@ freshRegName = do
   put $ (prefix, i + 1)
   return $ prefix ++ show i
 
+{-registerizeBroadcast stmt =
+  let a = operandWritten stmt
+      b = operandRead 0 stmt in
+  do
+    r1Name <- freshRegName
+    let r1 = duplicateInRegister r1Name b in
+      return [matrixSet r1 b, broadcast a r1]-}
+  
 scalarizeMAdd stmt =
   let c = operandWritten stmt
       a = leftOperand stmt
@@ -51,6 +69,19 @@ scalarizeMAdd stmt =
         r2 = duplicateInRegister r2Name b
         r3 = duplicateInRegister r3Name c in
       return [matrixSet r1 a, matrixSet r2 b, matrixAdd r3 r1 r2, matrixSet c r3]
+
+registerizeEMUL u stmt = 
+  let c = operandWritten stmt
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt in
+  do
+    r1Name <- freshRegName
+    r2Name <- freshRegName
+    r3Name <- freshRegName
+    let r1 = duplicateInRegister r1Name a
+        r2 = duplicateInRegister r2Name b
+        r3 = duplicateInRegister r3Name c in
+      return [matrixSet r1 a, matrixSet r2 b, elemWiseMultiply r3 r1 r2, matrixSet c r3]
 
 scalarizeSMul stmt =
   let c = operandWritten stmt

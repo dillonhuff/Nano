@@ -14,16 +14,16 @@ smulToBroadcast u uniqueVarPrefix stmts =
 tryToScalarize :: Int -> Statement -> State (String, Int) [Statement]
 tryToScalarize u stmt =
   case opcode stmt == SMUL && isRegisterizeable u (operandRead 0 stmt) of
-    True -> scalarizeSMul stmt
+    True -> scalarizeSMul u stmt
     False -> return [stmt]
 
-scalarizeSMul stmt =
+scalarizeSMul u stmt =
   let c = operandWritten stmt
       alpha = leftOperand stmt
       b = rightOperand stmt in
   do
     r1Name <- freshRegName
-    let r1 = duplicateInRegister r1Name alpha in
+    let r1 = matrix r1Name (numRows $ operandWritten stmt) (numCols $ operandWritten stmt) (iConst 1) (iConst 1) (properties local (dataType $ operandRead 0 stmt) register) in
       return [broadcast r1 alpha, elemWiseMultiply c r1 b]
 
 duplicateInRegister rName a =
