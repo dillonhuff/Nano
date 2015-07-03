@@ -27,7 +27,9 @@ toAVXIntrinsic stmt =
   case opcode stmt of
     EADD -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_pd" stmt)) ""]
     MSET -> avxSet stmt
-    _ -> error "Unsupported opcode" --[cExprSt (cAssign (regWName stmt) (regFuncall "whoa!" stmt)) ""]
+    BRDC -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_sd" [matRExpr 0 stmt])) ""]
+    EMUL -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_pd" stmt)) ""]
+    _ -> error $ "Unsupported opcode " ++ show stmt --[cExprSt (cAssign (regWName stmt) (regFuncall "whoa!" stmt)) ""]
 
 avxSet stmt =
   case isRegister $ operandWritten stmt of

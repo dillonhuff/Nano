@@ -1,5 +1,6 @@
 module Statement(Statement,
                  matrixMultiply, matrixTranspose, matrixAdd, loop, scalarMultiply, matrixSet,
+                 broadcast, elemWiseMultiply,
                  isMatrixAdd, isMatrixTranspose, isMatrixMultiply, isLoop, isScalarMultiply, isMatrixSet,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody, opcode,
                  operandWritten, leftOperand, rightOperand, allOperands, operandsRead,
@@ -21,6 +22,8 @@ data Statement
   | Loop String IExpr IExpr IExpr [Statement]
     deriving (Eq, Ord, Show)
 
+broadcast a b = Instr BRDC a [b]
+elemWiseMultiply c a b = Instr EMUL c [a, b]
 matrixSet a b = Instr MSET a [b]
 matrixAdd c a b = Instr EADD c [a, b]
 matrixMultiply c a b = Instr MMUL c [a, b, c]
@@ -113,4 +116,5 @@ data OpCode
   | MSET
   | TRAN
   | LOOP
+  | BRDC
     deriving (Eq, Ord, Show)

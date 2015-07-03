@@ -21,7 +21,6 @@ pullLoads stmt =
       initInvOps = initialInvOps i b
       allLoopInvOperands = loopInvariantOperands i b initInvOps
       (invStmts, bodyStmts) = L.foldr (partitionBody allLoopInvOperands) ([], []) b in
---  error $ "Loop inv operands " ++ show allLoopInvOperands ++ "\nin loop \n" ++ show stmt
   case bodyStmts of
     [] -> error $ "Entire body is invariant: " ++ show invStmts ++ "\n" ++ show stmt
     _ -> invStmts ++ [loop (loopInductionVariable stmt) (loopStart stmt) (loopInc stmt) (loopEnd stmt) bodyStmts]
@@ -32,7 +31,6 @@ initialInvOps i b =
       allWrittenMats = L.map underlyingMatrix allOpsWritten
       initialIOps = L.nub $ L.filter (\op -> not (L.elem (underlyingMatrix op) allWrittenMats || partitionedBy i op)) allOps in
   initialIOps
---  error $ "Initial inv ops: " ++ show initialIOps ++ "\n in loop \n" ++ show b
   
 partitionBody :: [Matrix] -> Statement -> ([Statement], [Statement]) -> ([Statement], [Statement])
 partitionBody loopInvOps stmt (loopInv, body) =
