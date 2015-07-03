@@ -9,6 +9,7 @@ import Data.List as L
 import System.Random.Shuffle
 import Test.HUnit
 
+import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Core
 import CBackEnd.CodeGeneration.Function
 import CBackEnd.SanityCheck
@@ -42,13 +43,13 @@ applyOptimizations :: [[Statement] -> [Statement]] -> [Statement] -> [Statement]
 applyOptimizations [] stmts = stmts
 applyOptimizations (r:rest) stmts = r $ applyOptimizations rest stmts
 
-assertRandomOptimizationsCorrect codeGenFunc possibleOptimizations operation = do
+assertRandomOptimizationsCorrect varDeclFunc codeGenFunc possibleOptimizations operation = do
   transformsToApply <- selectTransforms possibleOptimizations
-  assertOptimizationsCorrect codeGenFunc transformsToApply operation
+  assertOptimizationsCorrect varDeclFunc codeGenFunc transformsToApply operation
 
-assertOptimizationsCorrect codeGenFunc transformsToApply operation =
-  let (transformedOp, _) = operationToC codeGenFunc "transformedOp" $ applyOptimizations transformsToApply operation
-      (regularOp, argInfo) = operationToC toCStmtsFunction "op" operation in
+assertOptimizationsCorrect varDeclFunc codeGenFunc transformsToApply operation =
+  let (transformedOp, _) = operationToC varDeclFunc codeGenFunc "transformedOp" $ applyOptimizations transformsToApply operation
+      (regularOp, argInfo) = operationToC scalarVarDecls toCStmtsFunction "op" operation in
     do
       scRes <- runSanityCheck "fuzzTest" regularOp transformedOp argInfo
       assertEqual (failMessageInfo transformedOp regularOp argInfo) scRes "true\n"

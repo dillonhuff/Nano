@@ -4,6 +4,7 @@ import Data.List as L
 import Test.HUnit
 
 import Blocking
+import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Function
 import Dummies
 import Fuzz
@@ -13,7 +14,7 @@ import Statement
 
 allInterchangeAndFuseTests = TestLabel "All interchange and fuse system tests" $
                            TestList $ L.map
-                                    (\op -> TestCase $ assertOptimizationsCorrect toCStmtsFunction interchangeAndFuseOpts op)
+                                    (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls toCStmtsFunction interchangeAndFuseOpts op)
                                     compoundTestOperations
 
 interchangeAndFuseOpts = interchangeAndFuse:blockingOpts

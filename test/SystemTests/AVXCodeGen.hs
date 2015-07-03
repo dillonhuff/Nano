@@ -16,7 +16,7 @@ allAVXCodeGenTests =
   TestList $ avxTestCases
 
 avxTestCases =
-  [ltc "vector add" toAVX avxOpts [matrixAdd x y z]]
+  [ltc "vector add" avxVarDecls toAVX avxOpts [matrixAdd x y z]]
 
 avxOpts =
   L.map (\t -> expandStatementsBU t)
