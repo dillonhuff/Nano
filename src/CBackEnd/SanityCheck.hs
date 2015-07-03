@@ -2,7 +2,7 @@ module CBackEnd.SanityCheck(runSanityCheck) where
 
 import Data.List as L
 
-import CBackEnd.CodeGeneration
+import CBackEnd.CodeGeneration.Core
 import CBackEnd.Syntax
 import CBackEnd.SanityCheckHarness
 import CBackEnd.Utils

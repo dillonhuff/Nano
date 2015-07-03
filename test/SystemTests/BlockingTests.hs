@@ -4,7 +4,7 @@ import Data.List as L
 import Test.HUnit
 
 import Blocking
-import CBackEnd.CodeGeneration
+import CBackEnd.CodeGeneration.Core
 import CBackEnd.SanityCheck
 import CBackEnd.SanityCheckHarness
 import Dummies

@@ -3,7 +3,7 @@ module Main(main) where
 import Data.List as L
 
 import Blocking
-import CBackEnd.CodeGeneration
+import CBackEnd.CodeGeneration.Core
 import CBackEnd.SanityCheck
 import CBackEnd.Syntax
 import CBackEnd.Timing

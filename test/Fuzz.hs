@@ -9,7 +9,7 @@ import Data.List as L
 import System.Random.Shuffle
 import Test.HUnit
 
-import CBackEnd.CodeGeneration
+import CBackEnd.CodeGeneration.Core
 import CBackEnd.SanityCheck
 import CBackEnd.Syntax
 import Statement

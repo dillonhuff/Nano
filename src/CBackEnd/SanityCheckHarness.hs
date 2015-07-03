@@ -4,7 +4,7 @@ module CBackEnd.SanityCheckHarness(sanityCheckHarness,
 
 import Data.List as L
 
-import CBackEnd.CodeGeneration
+import CBackEnd.CodeGeneration.Core
 import CBackEnd.Syntax
 import CBackEnd.Utils
 

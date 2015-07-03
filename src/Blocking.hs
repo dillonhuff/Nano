@@ -45,19 +45,19 @@ blockScalarMultiplyN indVar blkFactor stmt =
 
 blockMatrixMultiplyM :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyM indVar blkFactor stmt =
-  case isMatrixMultiply stmt of
+  case isMatrixMultiply stmt && numRows (operandWritten stmt) > blkFactor of
     True -> blockMMulM indVar blkFactor stmt
     False -> [stmt]
 
 blockMatrixMultiplyN :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyN indVar blkFactor stmt =
-  case isMatrixMultiply stmt of
+  case isMatrixMultiply stmt && numCols (operandWritten stmt) > blkFactor of
     True -> blockMMulN indVar blkFactor stmt
     False -> [stmt]
 
 blockMatrixMultiplyP :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyP indVar blkFactor stmt =
-  case isMatrixMultiply stmt of
+  case isMatrixMultiply stmt && numCols (leftOperand stmt) > blkFactor of
     True -> blockMMulP indVar blkFactor stmt
     False -> [stmt]
 

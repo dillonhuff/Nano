@@ -1,6 +1,6 @@
-module CBackEnd.CodeGeneration(operationToC,
-                               bufferInfoList,
-                               inductionVariableDecls) where
+module CBackEnd.CodeGeneration.Core(operationToC,
+                                    bufferInfoList,
+                                    inductionVariableDecls) where
 
 import Data.List as L
 
@@ -202,3 +202,4 @@ matrixLocExpr m =
   case isRegister m of
     True -> cVar $ bufferName m
     False -> cArrAcc (cVar $ bufferName m) (iExprToCExpr $ locationExpr m)
+
