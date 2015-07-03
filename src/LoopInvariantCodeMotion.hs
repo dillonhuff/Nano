@@ -19,9 +19,9 @@ pullLoads stmt =
   let i = iVar $ loopInductionVariable stmt
       b = loopBody stmt
       initInvOps = initialInvOps i b
-      allLoopInvOperands = loopInvariantOperands b initInvOps
+      allLoopInvOperands = loopInvariantOperands i b initInvOps
       (invStmts, bodyStmts) = L.foldr (partitionBody allLoopInvOperands) ([], []) b in
---  error $ "Loop inv operands " ++ show allLoopInvOperands
+--  error $ "Loop inv operands " ++ show allLoopInvOperands ++ "\nin loop \n" ++ show stmt
   case bodyStmts of
     [] -> error $ "Entire body is invariant: " ++ show invStmts ++ "\n" ++ show stmt
     _ -> invStmts ++ [loop (loopInductionVariable stmt) (loopStart stmt) (loopInc stmt) (loopEnd stmt) bodyStmts]
@@ -32,6 +32,7 @@ initialInvOps i b =
       allWrittenMats = L.map underlyingMatrix allOpsWritten
       initialIOps = L.nub $ L.filter (\op -> not (L.elem (underlyingMatrix op) allWrittenMats || partitionedBy i op)) allOps in
   initialIOps
+--  error $ "Initial inv ops: " ++ show initialIOps ++ "\n in loop \n" ++ show b
   
 partitionBody :: [Matrix] -> Statement -> ([Statement], [Statement]) -> ([Statement], [Statement])
 partitionBody loopInvOps stmt (loopInv, body) =
@@ -39,20 +40,20 @@ partitionBody loopInvOps stmt (loopInv, body) =
     True -> (stmt:loopInv, body)
     False -> (loopInv, stmt:body)
 
-loopInvariantOperands stmts current =
-  let newInvOps = nextLoopInvOps stmts current in
+loopInvariantOperands i stmts current =
+  let newInvOps = nextLoopInvOps i stmts current in
   case newInvOps == current of
     True -> current
-    False -> loopInvariantOperands stmts newInvOps
+    False -> loopInvariantOperands i stmts newInvOps
 
-nextLoopInvOps stmts current =
+nextLoopInvOps i stmts current =
   let allOps = L.concatMap (collectValuesFromStmt allOperands) stmts
       possibleNewOperands = L.filter (\op -> not $ L.elem op current) allOps in
-  L.foldr (addIfInvariant stmts) current possibleNewOperands
+  L.foldr (addIfInvariant i stmts) current possibleNewOperands
 
-addIfInvariant stmts operand knownInvOps =
+addIfInvariant i stmts operand knownInvOps =
   let allWriteLocs = L.filter (\stmt -> (not $ isLoop stmt) && operandWritten stmt == operand) stmts in
-  case L.all (\stmt -> L.all (\m -> L.elem m knownInvOps) $ operandsRead stmt) allWriteLocs of
+  case L.all (\stmt -> (L.all (\m -> L.elem m knownInvOps) $ operandsRead stmt) && (not $ partitionedBy i operand)) allWriteLocs of
     True -> operand:knownInvOps
     False -> knownInvOps
 
