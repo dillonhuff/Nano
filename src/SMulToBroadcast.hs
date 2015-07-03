@@ -3,6 +3,7 @@ module SMulToBroadcast(smulToBroadcast) where
 import Control.Monad.State
 import Data.List as L
 
+import Analysis.Matrix
 import IndexExpression
 import Matrix
 import Statement
@@ -15,17 +16,6 @@ tryToScalarize u stmt =
   case opcode stmt == SMUL && isRegisterizeable u (operandRead 0 stmt) of
     True -> scalarizeSMul stmt
     False -> return [stmt]
-
-isScalarOp :: Int -> Statement -> Bool
-isScalarOp u stmt = L.all (isRegisterizeable u) $ allOperands stmt
-
-isRegisterizeable i op =
-  case i == 1 of
-    True -> isScalar op
-    False ->
-      case let u = iConst i in (numRows op == u && numCols op == (iConst 1)) || (numCols op == u && numRows op == (iConst 1)) of
-        True -> True
-        False -> False
 
 scalarizeSMul stmt =
   let c = operandWritten stmt

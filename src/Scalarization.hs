@@ -3,6 +3,8 @@ module Scalarization(scalarize) where
 import Control.Monad.State
 import Data.List as L
 
+import Analysis.Matrix
+import Analysis.Statement
 import IndexExpression
 import Matrix
 import Statement
@@ -16,17 +18,6 @@ tryToScalarize u stmt =
   case not (isLoop stmt) && isScalarOp u stmt of
     True -> scalarizeStmt stmt
     False -> return [stmt]
-
-isScalarOp :: Int -> Statement -> Bool
-isScalarOp u stmt = L.all (isRegisterizeable u) $ allOperands stmt
-
-isRegisterizeable i op =
-  case i == 1 of
-    True -> isScalar op
-    False ->
-      case let u = iConst i in (numRows op == u && numCols op == (iConst 1)) || (numCols op == u && numRows op == (iConst 1)) of
-        True -> True
-        False -> False
 
 scalarizeStmt :: Statement -> State (String, Int) [Statement]
 scalarizeStmt stmt =

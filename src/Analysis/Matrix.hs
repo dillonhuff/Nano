@@ -1,4 +1,5 @@
-module Analysis.Matrix(matricesOverlap) where
+module Analysis.Matrix(matricesOverlap,
+                       isRegisterizeable) where
 
 import Data.Map as M
 
@@ -22,3 +23,11 @@ accessOverlap iRanges s t = do
   sR <- accessedRectangle iRanges s
   tR <- accessedRectangle iRanges t
   return $ rectanglesOverlap sR tR
+
+isRegisterizeable i op =
+  case i == 1 of
+    True -> isScalar op
+    False ->
+      case let u = iConst i in (numRows op == u && numCols op == (iConst 1)) || (numCols op == u && numRows op == (iConst 1)) of
+        True -> True
+        False -> False
