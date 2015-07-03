@@ -12,8 +12,8 @@ import IndexExpression
 import Matrix
 import Statement
 
-operationToC :: String -> [Statement] -> (CTopLevelItem String, [BufferInfo])
-operationToC funcName stmts =
+operationToC :: (Statement -> [CStmt String]) -> String -> [Statement] -> (CTopLevelItem String, [BufferInfo])
+operationToC codeGenFunc funcName stmts =
   (cFunction, argInfo) 
   where    
     bufInfo = bufferInfoList stmts
@@ -21,20 +21,12 @@ operationToC funcName stmts =
     tempBufferDecls = bufDecls tempBufInfo
     tempBufAllocation = L.map initializeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
     tempBufFreeing = L.map freeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
-    body = tempBufAllocation ++ (L.concatMap toCStmts stmts) ++ tempBufFreeing
+    body = tempBufAllocation ++ (L.concatMap codeGenFunc stmts) ++ tempBufFreeing
     iVarDecls = inductionVariableDecls stmts
     localVarDecls = iVarDecls ++ tempBufferDecls
     argInfo = L.filter (\info -> bufScope info == arg) bufInfo
     argDecls = L.map (\info -> (bufType info, bufName info)) argInfo
     cFunction = cFuncDecl cVoid funcName argDecls (cBlock localVarDecls body)
-
-toCStmts stmt =
-  case not (isLoop stmt) && isScalarOp stmt of
-    True -> toScalarC stmt
-    False -> toCStmtsFunction stmt
-
-isScalarOp :: Statement -> Bool
-isScalarOp stmt = L.all isScalar $ allOperands stmt
 
 toCType :: Type -> CType
 toCType t =

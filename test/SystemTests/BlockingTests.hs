@@ -5,6 +5,7 @@ import Test.HUnit
 
 import Blocking
 import CBackEnd.CodeGeneration.Core
+import CBackEnd.CodeGeneration.Function
 import CBackEnd.SanityCheck
 import CBackEnd.SanityCheckHarness
 import Dummies
@@ -85,8 +86,8 @@ blockTransCases =
 
 testBlocking blkFunc (blkFactor, stmt) =
   let blockedStmt = blkFunc (iVar "i") blkFactor stmt
-      (cBlocked, _) = operationToC "blocked" blockedStmt
-      (cUnBlocked, unBlockedArgs) = operationToC "unblocked" [stmt] in
+      (cBlocked, _) = operationToC toCStmtsFunction "blocked" blockedStmt
+      (cUnBlocked, unBlockedArgs) = operationToC toCStmtsFunction "unblocked" [stmt] in
   do
     scRes <- runSanityCheck "blockingTest" cUnBlocked cBlocked unBlockedArgs
     return $ scRes == "true\n"

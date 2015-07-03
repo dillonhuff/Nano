@@ -4,6 +4,7 @@ import Data.List as L
 import Test.HUnit
 
 import Blocking
+import CBackEnd.CodeGeneration.Scalar
 import Dummies
 import Fuzz
 import IndexExpression
@@ -11,7 +12,7 @@ import Scalarization
 import Statement
 
 allScalarizationTests = TestLabel "All scalarization system tests" $
-                      TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarizationOpts op) compoundTestOperations
+                      TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect toScalarC scalarizationOpts op) compoundTestOperations
 
 scalarizationOpts = (scalarize "r_"):blockingOpts
 
