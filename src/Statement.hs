@@ -21,14 +21,17 @@ data Statement
   | MatrixAdd Matrix Matrix Matrix
   | MatrixSet Matrix Matrix
   | Loop String IExpr IExpr IExpr [Statement]
+  | Instr OpCode Matrix [Matrix]
     deriving (Eq, Ord, Show)
 
-matrixSet = MatrixSet
+matrixSet a b = Instr MSET a [b]
 matrixAdd = MatrixAdd
 loop = Loop
 matrixMultiply = MatrixMultiply
 matrixTranspose = MatrixTranspose
 scalarMultiply = ScalarMultiply
+
+opcode (Instr c _ _) = c
 
 expandStatementsBUM :: (Monad m) => (Statement -> m [Statement]) -> [Statement] -> m [Statement]
 expandStatementsBUM f stmts = liftM L.concat $ sequence $ L.map (expandStatementBUM f) stmts
@@ -72,6 +75,7 @@ collectFromAllOperands f (ScalarMultiply c a b) = [f c, f a, f b]
 collectFromAllOperands f (MatrixTranspose a b) = [f a, f b]
 collectFromAllOperands f (MatrixSet a b) = [f a, f b]
 collectFromAllOperands f (Loop _ _ _ _ body) = L.concatMap (collectFromAllOperands f) body
+collectFromAllOperands f i = L.map f $ allOperands i
 
 collectFromStmt :: (Statement -> a) -> Statement -> [a]
 collectFromStmt f s@(Loop _ _ _ _ body) = (f s) : (L.concatMap (collectFromStmt f) body)
@@ -83,8 +87,10 @@ collectValuesFromStmt f s = L.concat $ collectFromStmt f s
 isScalarMultiply (ScalarMultiply _ _ _) = True
 isScalarMultiply _ = False
 
-isMatrixSet (MatrixSet _ _) = True
-isMatrixSet _ = False
+isMatrixSet i = opcode i == MSET
+
+{-isMatrixSet (Instr _ _  _) = True
+isMatrixSet _ = False-}
 
 isMatrixAdd (MatrixAdd _ _ _) = True
 isMatrixAdd _ = False
@@ -109,22 +115,26 @@ operandWritten (MatrixMultiply c _ _) = c
 operandWritten (ScalarMultiply a _ _) = a
 operandWritten (MatrixTranspose a _) = a
 operandWritten (MatrixSet a _) = a
+operandWritten (Instr _ w _) = w
 
 operandsRead (MatrixAdd _ a b) = [a, b]
 operandsRead (MatrixMultiply _ a b) = [a, b]
 operandsRead (ScalarMultiply _ a b) = [a, b]
 operandsRead (MatrixTranspose _ b) = [b]
 operandsRead (MatrixSet _ b) = [b]
+operandsRead (Instr _ _ args) = args
 
 leftOperand (MatrixAdd _ a _) = a
 leftOperand (MatrixMultiply _ a _) = a
 leftOperand (ScalarMultiply _ a _) = a
+leftOperand i@(Instr _ _ _) = operandRead 1 i
 
 rightOperand (MatrixAdd _ _ b) = b
 rightOperand (MatrixMultiply _ _ b) = b
 rightOperand (ScalarMultiply _ _ b) = b
 rightOperand (MatrixTranspose _ b) = b
 rightOperand (MatrixSet _ b) = b
+rightOperand i@(Instr _ _ _) = operandRead 0 i
 
 allOperands stmt = L.nub $ allOperandsWithRepeats stmt
 
@@ -133,4 +143,16 @@ allOperandsWithRepeats (MatrixMultiply c a b) = [c, a, b]
 allOperandsWithRepeats (MatrixTranspose a b) = [a, b]
 allOperandsWithRepeats (ScalarMultiply a alpha b) = [a, alpha, b]
 allOperandsWithRepeats (MatrixSet a b) = [a, b]
+allOperandsWithRepeats (Instr _ w args) = w:args
 allOperandsWithRepeats (Loop _ _ _ _ _) = []
+
+operandRead n (Instr _ _ args) = args !! n
+
+data OpCode
+  = MMUL
+  | SMUL
+  | EMUL
+  | EADD
+  | MSET
+  | TRAN
+    deriving (Eq, Ord, Show)
