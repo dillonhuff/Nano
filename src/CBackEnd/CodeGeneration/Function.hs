@@ -2,6 +2,7 @@ module CBackEnd.CodeGeneration.Function(toCStmtsFunction) where
 
 import Data.List as L
 
+import CBackEnd.CodeGeneration.Common
 import CBackEnd.Syntax
 import IndexExpression
 import Matrix
@@ -9,7 +10,7 @@ import Statement
 
 toCStmtsFunction stmt =
   case isLoop stmt of
-    True -> loopToCStmts stmt
+    True -> loopToCStmts toCStmtsFunction stmt
     False -> case isMatrixAdd stmt of
       True -> matrixAddToCStmts stmt
       False -> case isScalarMultiply stmt of
@@ -21,15 +22,6 @@ toCStmtsFunction stmt =
             False -> case isMatrixSet stmt of
               True -> matrixSetToCStmts stmt
               False -> error $ "toCStmts: Unsupported statement " ++ show stmt
-
-loopToCStmts l =
-  [cFor s e i b ""]
-  where
-    v = iExprToCExpr $ iVar $ loopInductionVariable l
-    s = cAssign v (iExprToCExpr $ loopStart l)
-    e = cLEQ v (iExprToCExpr $ loopEnd l)
-    i = cAssign v (cAdd v (iExprToCExpr $ loopInc l))
-    b = cBlock [] $ L.concatMap toCStmtsFunction $ loopBody l
 
 matrixAddToCStmts madd =
   let c = operandWritten madd in

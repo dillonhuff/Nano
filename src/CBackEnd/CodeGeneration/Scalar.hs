@@ -1,5 +1,6 @@
 module CBackEnd.CodeGeneration.Scalar(toScalarC) where
 
+import CBackEnd.CodeGeneration.Common
 import CBackEnd.Syntax
 import CBackEnd.Utils
 import IndexExpression
@@ -7,15 +8,17 @@ import Matrix
 import Statement
 
 toScalarC stmt =
-  case isMatrixAdd stmt of
-    True -> scalarMAddToC stmt
-    False -> case isScalarMultiply stmt of
-      True -> scalarSMulToC stmt
-      False -> case isMatrixMultiply stmt of
-        True -> scalarMMulToC stmt
-        False -> case isMatrixTranspose stmt || isMatrixSet stmt of
-          True -> scalarMSetToC stmt
-          False -> error $ "toScalarC: Unsupported statement " ++ show stmt
+  case isLoop stmt of
+    True -> loopToCStmts toScalarC stmt
+    False -> case isMatrixAdd stmt of
+      True -> scalarMAddToC stmt
+      False -> case isScalarMultiply stmt of
+        True -> scalarSMulToC stmt
+        False -> case isMatrixMultiply stmt of
+          True -> scalarMMulToC stmt
+          False -> case isMatrixTranspose stmt || isMatrixSet stmt of
+            True -> scalarMSetToC stmt
+            False -> error $ "toScalarC: Unsupported statement " ++ show stmt
 
 scalarMSetToC stmt =
   let b = rightOperand stmt

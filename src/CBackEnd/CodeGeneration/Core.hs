@@ -36,7 +36,6 @@ toCStmts stmt =
 isScalarOp :: Statement -> Bool
 isScalarOp stmt = L.all isScalar $ allOperands stmt
 
-
 toCType :: Type -> CType
 toCType t =
   case isDouble t of
