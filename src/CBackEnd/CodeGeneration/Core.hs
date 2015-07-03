@@ -15,18 +15,28 @@ import Statement
 operationToC :: (Statement -> [CStmt String]) -> String -> [Statement] -> (CTopLevelItem String, [BufferInfo])
 operationToC codeGenFunc funcName stmts =
   (cFunction, argInfo) 
-  where    
+  where
+    localVarDecls = scalarVarDecls stmts
+    bufInfo = bufferInfoList stmts
+    argInfo = L.filter (\info -> bufScope info == arg) bufInfo
+    argDecls = L.map (\info -> (bufType info, bufName info)) argInfo
+    cFunction = cFuncDecl cVoid funcName argDecls (cBlock localVarDecls $ funcBody codeGenFunc stmts)
+
+scalarVarDecls stmts = localVarDecls
+  where
     bufInfo = bufferInfoList stmts
     tempBufInfo = L.filter (\info -> bufScope info == local) bufInfo
     tempBufferDecls = bufDecls tempBufInfo
+    iVarDecls = inductionVariableDecls stmts
+    localVarDecls = iVarDecls ++ tempBufferDecls
+
+funcBody codeGenFunc stmts = body
+  where
+    bufInfo = bufferInfoList stmts
+    tempBufInfo = L.filter (\info -> bufScope info == local) bufInfo
     tempBufAllocation = L.map initializeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
     tempBufFreeing = L.map freeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
     body = tempBufAllocation ++ (L.concatMap codeGenFunc stmts) ++ tempBufFreeing
-    iVarDecls = inductionVariableDecls stmts
-    localVarDecls = iVarDecls ++ tempBufferDecls
-    argInfo = L.filter (\info -> bufScope info == arg) bufInfo
-    argDecls = L.map (\info -> (bufType info, bufName info)) argInfo
-    cFunction = cFuncDecl cVoid funcName argDecls (cBlock localVarDecls body)
 
 toCType :: Type -> CType
 toCType t =

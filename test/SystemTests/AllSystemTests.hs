@@ -1,6 +1,7 @@
 module SystemTests.AllSystemTests(allSystemTests) where
 import Test.HUnit
 
+import SystemTests.AVXCodeGen
 import SystemTests.BlockingTests
 import SystemTests.CompactTemps
 import SystemTests.Fusion
@@ -11,7 +12,8 @@ import SystemTests.RegisterizeTemps
 import SystemTests.Scalarization
 
 allSystemTests = TestLabel "All sytem tests" $ TestList
-               [allCompactTempsTests,
+               [allAVXCodeGenTests,
+                allCompactTempsTests,
                 allFusionTests,
                 allInterchangeAndFuseTests,
                 allLoopInvariantCodeMotionTests,

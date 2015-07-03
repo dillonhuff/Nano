@@ -89,6 +89,7 @@ loopBody (Loop _ _ _ _ b) = b
 operandWritten (Instr _ w _) = w
 
 operandsRead (Instr _ _ args) = args
+operandRead n (Instr _ _ args) = args !! n
 
 leftOperand i@(Instr _ _ _) = operandRead 0 i
 
@@ -100,8 +101,6 @@ allOperands stmt = L.nub $ allOperandsWithRepeats stmt
 
 allOperandsWithRepeats (Instr _ w args) = w:args
 allOperandsWithRepeats (Loop _ _ _ _ _) = []
-
-operandRead n (Instr _ _ args) = args !! n
 
 data OpCode
   = MMUL
