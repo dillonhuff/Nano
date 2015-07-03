@@ -36,7 +36,7 @@ initialInvOps i b =
   
 partitionBody :: [Matrix] -> Statement -> ([Statement], [Statement]) -> ([Statement], [Statement])
 partitionBody loopInvOps stmt (loopInv, body) =
-  case L.all (\m -> L.elem m loopInvOps) $ allOperands stmt of
+  case (not $ isLoop stmt) && (L.all (\m -> L.elem m loopInvOps) $ allOperands stmt) of
     True -> (stmt:loopInv, body)
     False -> (loopInv, stmt:body)
 
