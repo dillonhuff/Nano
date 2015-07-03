@@ -1,6 +1,9 @@
 module LoopInvariantCodeMotion(pullCodeOutOfLoops) where
 
+import Data.List as L
+
 import IndexExpression
+import Matrix
 import Statement
 
 pullCodeOutOfLoops stmts =
@@ -14,5 +17,44 @@ pullCodeOutOfLoop stmt =
 
 pullLoads stmt =
   let i = iVar $ loopInductionVariable stmt
-      b = loopBody stmt in
-  error "pullLoads"
+      b = loopBody stmt
+      initInvOps = initialInvOps i b
+      allLoopInvOperands = loopInvariantOperands b initInvOps
+      (invStmts, bodyStmts) = L.foldr (partitionBody allLoopInvOperands) ([], []) b in
+--  error $ "Loop inv operands " ++ show allLoopInvOperands
+  case bodyStmts of
+    [] -> error $ "Entire body is invariant: " ++ show invStmts ++ "\n" ++ show stmt
+    _ -> invStmts ++ [loop (loopInductionVariable stmt) (loopStart stmt) (loopInc stmt) (loopEnd stmt) bodyStmts]
+
+initialInvOps i b =
+  let allOpsWritten = allOperandsWritten b
+      allOps = L.concatMap (collectValuesFromStmt allOperands) b
+      allWrittenMats = L.map underlyingMatrix allOpsWritten
+      initialIOps = L.nub $ L.filter (\op -> not (L.elem (underlyingMatrix op) allWrittenMats || partitionedBy i op)) allOps in
+  initialIOps
+  
+partitionBody :: [Matrix] -> Statement -> ([Statement], [Statement]) -> ([Statement], [Statement])
+partitionBody loopInvOps stmt (loopInv, body) =
+  case L.all (\m -> L.elem m loopInvOps) $ allOperands stmt of
+    True -> (stmt:loopInv, body)
+    False -> (loopInv, stmt:body)
+
+loopInvariantOperands stmts current =
+  let newInvOps = nextLoopInvOps stmts current in
+  case newInvOps == current of
+    True -> current
+    False -> loopInvariantOperands stmts newInvOps
+
+nextLoopInvOps stmts current =
+  let allOps = L.concatMap (collectValuesFromStmt allOperands) stmts
+      possibleNewOperands = L.filter (\op -> not $ L.elem op current) allOps in
+  L.foldr (addIfInvariant stmts) current possibleNewOperands
+
+addIfInvariant stmts operand knownInvOps =
+  let allWriteLocs = L.filter (\stmt -> (not $ isLoop stmt) && operandWritten stmt == operand) stmts in
+  case L.all (\stmt -> L.all (\m -> L.elem m knownInvOps) $ operandsRead stmt) allWriteLocs of
+    True -> operand:knownInvOps
+    False -> knownInvOps
+
+allOperandsWritten stmts =
+  L.nub $ L.concatMap (collectValuesFromStmt (\stmt -> if isLoop stmt then [] else [operandWritten stmt])) stmts

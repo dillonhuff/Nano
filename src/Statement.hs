@@ -2,7 +2,7 @@ module Statement(Statement,
                  matrixMultiply, matrixTranspose, matrixAdd, loop, scalarMultiply, matrixSet,
                  isMatrixAdd, isMatrixTranspose, isMatrixMultiply, isLoop, isScalarMultiply, isMatrixSet,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody,
-                 operandWritten, leftOperand, rightOperand, allOperands,
+                 operandWritten, leftOperand, rightOperand, allOperands, operandsRead,
                  expandStatementBU, expandStatementsBU, expandStatementBUM, expandStatementsBUM,
                  applyToOperands, applyToStatementBU, applyToLoopBodiesBU,
                  collectFromAllOperands,
@@ -109,6 +109,12 @@ operandWritten (MatrixMultiply c _ _) = c
 operandWritten (ScalarMultiply a _ _) = a
 operandWritten (MatrixTranspose a _) = a
 operandWritten (MatrixSet a _) = a
+
+operandsRead (MatrixAdd _ a b) = [a, b]
+operandsRead (MatrixMultiply _ a b) = [a, b]
+operandsRead (ScalarMultiply _ a b) = [a, b]
+operandsRead (MatrixTranspose _ b) = [b]
+operandsRead (MatrixSet _ b) = [b]
 
 leftOperand (MatrixAdd _ a _) = a
 leftOperand (MatrixMultiply _ a _) = a

@@ -4,7 +4,9 @@ module IndexExpression(IExpr,
                        isConst, isVar, ieToConst,
                        constVal, varName,
                        subIExpr, subIExprForVar,
-                       iExprToCExpr) where
+                       iExprToCExpr, containsSubExpr) where
+
+import Data.List as L
 
 import CBackEnd.Syntax
 
@@ -109,3 +111,13 @@ iExprToCExpr (IVar n) = cVar n
 iExprToCExpr (IConst i) = cIntLit i
 iExprToCExpr (IAdd l r) = cAdd (iExprToCExpr l) (iExprToCExpr r)
 iExprToCExpr (IMul l r) = cMul (iExprToCExpr l) (iExprToCExpr r)
+
+containsSubExpr subExpr i =
+  case subExpr == i of
+    True -> True
+    False -> L.any (containsSubExpr subExpr) $ iOperands i
+
+iOperands (IAdd l r) = [l, r]
+iOperands (IMul l r) = [l, r]
+iOperands (IDiv l r) = [l, r]
+iOperands _ = []

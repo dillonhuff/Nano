@@ -7,7 +7,7 @@ module Matrix(Matrix,
               properties, dataType, matrixBufferNameAndType,
               substituteInIExprs, partitionList, accessedRectangle,
               setName, setRegister, isRegister, underlyingMatrix,
-              replaceSupermatrix, smallestSubsumingPartition,
+              replaceSupermatrix, smallestSubsumingPartition, partitionedBy,
               Type,
               single, double,
               isDouble, isSingle,
@@ -153,6 +153,11 @@ setRegister (SubMatrix shp v l m (Properties s t _)) =
 
 isRegister (Matrix _ _ _ _ _ p) = propMemLocation p == register
 isRegister (SubMatrix _ _ _ _ p) = propMemLocation p == register
+
+partitionedBy i (Matrix _ nr nc rs cs _) =
+  containsSubExpr i nr || containsSubExpr i nc || containsSubExpr i rs || containsSubExpr i cs
+partitionedBy i (SubMatrix _ v b m p) =
+  (containsSubExpr i v || containsSubExpr i b) || partitionedBy i m
 
 data Shape
   = Row
