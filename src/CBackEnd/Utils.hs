@@ -2,11 +2,14 @@ module CBackEnd.Utils(initializeBuffer, freeBuffer,
                       bufSizeExpr,
                       bufDecls,
                       setArgToRandValuesCode,
-                      compileAndRunC, mainFunc) where
+                      compileAndRunC, mainFunc,
+                      matrixLocExpr) where
 
 import Data.List as L
 
 import CBackEnd.Syntax
+import IndexExpression
+import Matrix
 import System.Settings
 import System.Utils
 
@@ -47,3 +50,9 @@ mainFunc harnessFuncs resultFilePath =
     body = [cExprSt (cAssign (cVar "data_file") (cFuncall "fopen" [cVar ("\"" ++ resultFilePath ++ "\""), cVar "\"w\""])) ""] ++
            harnessCalls ++
            [cExprSt (cFuncall "fclose" [cVar "data_file"]) "", cReturn (cIntLit 0) ""]
+
+matrixLocExpr m =
+  case isRegister m of
+    True -> cVar $ bufferName m
+    False -> cArrAcc (cVar $ bufferName m) (iExprToCExpr $ locationExpr m)
+

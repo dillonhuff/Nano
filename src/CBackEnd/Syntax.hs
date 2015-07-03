@@ -8,7 +8,7 @@ module CBackEnd.Syntax(CTopLevelItem,
                     CExpr,
                     cExprSt, cBlockSt,
                     CType,
-                    cAssign, cCast, cAdd, cSub, cMul, cDiv, cFuncall, cOr, cLEQ, cIfThenElse, cFor, cWhile,
+                    cAssign, cCast, cAddr, cAdd, cSub, cMul, cDiv, cFuncall, cOr, cLEQ, cIfThenElse, cFor, cWhile,
                     cIntLit, cFloatLit, cDoubleLit,
                     cVar, cArrAcc, cReturn, cSizeOf,
                     isCPtr,
@@ -129,6 +129,7 @@ data CExpr
   | CAssign CExpr CExpr
   | CSizeOf CType
   | CCast CType CExpr
+  | CAddr CExpr
     deriving (Eq, Ord)
 
 instance Show CExpr where
@@ -143,10 +144,12 @@ showExpr (CDoubleLit d) = show d
 showExpr (CFloatLit f) = show f
 showExpr (CSizeOf tp) = "sizeof(" ++ show tp ++ ")"
 showExpr (CAssign l r) = show l ++ " = " ++ show r
+showExpr (CAddr e) = "&(" ++ show e ++ ")"
 showExpr (CFuncall n args) =
   n ++ "(" ++ (L.concat $ L.intersperse ", " $ L.map show args) ++ ")"
 
 cCast t e = CCast t e
+cAddr e = CAddr e
 cAssign = CAssign
 cIntLit = CIntLit
 cFloatLit = CFloatLit

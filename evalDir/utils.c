@@ -116,7 +116,7 @@ void copy_double(int m, int n,
   int i, j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) {
-      B(i, j) = A(i, j);
+      A(i, j) = B(i, j);
     }
   }
 }
@@ -129,7 +129,7 @@ void copy_float(int m, int n,
   int i, j;
   for (i = 0; i < m; i++) {
     for (j = 0; j < n; j++) {
-      B(i, j) = A(i, j);
+      A(i, j) = B(i, j);
     }
   }
 }
