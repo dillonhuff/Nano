@@ -13,8 +13,9 @@ runSanityCheck :: FilePath -> CTopLevelItem String -> CTopLevelItem String -> [B
 runSanityCheck testName scFunc testFunc argInfo =
   let scHarness = sanityCheckHarness (cFuncName scFunc) (cFuncName testFunc) argInfo
       scHeader = cInclude "\"utils.h\""
+      avxHeader = cInclude "<immintrin.h>"
       scMain = mainFunc ["sanity_check"] (dataFileName testName)
-      codeItems = [scHeader, scFunc, testFunc, scHarness, scMain] in
+      codeItems = [avxHeader, scHeader, scFunc, testFunc, scHarness, scMain] in
   do
     compileAndRunC testName codeItems
     readFileShowingContents $ dataFileName testName

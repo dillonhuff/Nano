@@ -3,21 +3,30 @@ module Scalarization(scalarize) where
 import Control.Monad.State
 import Data.List as L
 
+import IndexExpression
 import Matrix
 import Statement
 
-scalarize :: String -> [Statement] -> [Statement]
-scalarize uniqueVarPrefix stmts =
-  evalState (expandStatementsBUM tryToScalarize stmts) (uniqueVarPrefix, 0)
+scalarize :: Int -> String -> [Statement] -> [Statement]
+scalarize u uniqueVarPrefix stmts =
+  evalState (expandStatementsBUM (tryToScalarize u) stmts) (uniqueVarPrefix, 0)
 
-tryToScalarize :: Statement -> State (String, Int) [Statement]
-tryToScalarize stmt =
-  case not (isLoop stmt) && isScalarOp stmt of
+tryToScalarize :: Int -> Statement -> State (String, Int) [Statement]
+tryToScalarize u stmt =
+  case not (isLoop stmt) && isScalarOp u stmt of
     True -> scalarizeStmt stmt
     False -> return [stmt]
 
-isScalarOp :: Statement -> Bool
-isScalarOp stmt = L.all isScalar $ allOperands stmt
+isScalarOp :: Int -> Statement -> Bool
+isScalarOp u stmt = L.all (isRegisterizeable u) $ allOperands stmt
+
+isRegisterizeable i op =
+  case i == 1 of
+    True -> isScalar op
+    False ->
+      case let u = iConst i in (numRows op == u && numCols op == (iConst 1)) || (numCols op == u && numRows op == (iConst 1)) of
+        True -> True
+        False -> False
 
 scalarizeStmt :: Statement -> State (String, Int) [Statement]
 scalarizeStmt stmt =

@@ -1,5 +1,6 @@
 module CBackEnd.CodeGeneration.Common(loopToCStmts,
-                                      scalarVarDecls,
+                                      scalarVarDecls, inductionVariableDecls,
+                                      matToCExpr,
                                       bufferInfoList) where
 
 import Data.List as L
@@ -49,3 +50,8 @@ matrixBufferInfo m =
   case isRegister m of
     True -> bufferInfo (bufferName m) (toCType $ dataType m) (iExprToCExpr $ sizeExpr m) (bufferScope m)
     False -> bufferInfo (bufferName m) (cPtr $ toCType $ dataType m) (iExprToCExpr $ sizeExpr m) (bufferScope m)
+
+matToCExpr m =
+  case isRegister m of
+    True -> cAddr (cVar $ bufferName m)
+    False -> cAdd (cVar $ bufferName m) (iExprToCExpr $ evaluateIExprConstants $ locationExpr m)

@@ -15,7 +15,7 @@ import Statement
 allScalarizationTests = TestLabel "All scalarization system tests" $
                       TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls toScalarC scalarizationOpts op) compoundTestOperations
 
-scalarizationOpts = (scalarize "r_"):blockingOpts
+scalarizationOpts = (scalarize 1 "r_"):blockingOpts
 
 blockingOpts = 
   L.map (\t -> expandStatementsBU t)

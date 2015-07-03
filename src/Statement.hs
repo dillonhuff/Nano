@@ -1,12 +1,14 @@
 module Statement(Statement,
                  matrixMultiply, matrixTranspose, matrixAdd, loop, scalarMultiply, matrixSet,
                  isMatrixAdd, isMatrixTranspose, isMatrixMultiply, isLoop, isScalarMultiply, isMatrixSet,
-                 loopStart, loopEnd, loopInc, loopInductionVariable, loopBody,
+                 loopStart, loopEnd, loopInc, loopInductionVariable, loopBody, opcode,
                  operandWritten, leftOperand, rightOperand, allOperands, operandsRead,
                  expandStatementBU, expandStatementsBU, expandStatementBUM, expandStatementsBUM,
                  applyToOperands, applyToStatementBU, applyToLoopBodiesBU,
                  collectFromAllOperands,
-                 collectFromStmt, collectValuesFromStmt) where
+                 collectFromStmt, collectValuesFromStmt,
+                 operandRead,
+                 OpCode(..)) where
 
 import Control.Monad
 import Data.List as L
@@ -89,6 +91,7 @@ loopBody (Loop _ _ _ _ b) = b
 operandWritten (Instr _ w _) = w
 
 operandsRead (Instr _ _ args) = args
+
 operandRead n (Instr _ _ args) = args !! n
 
 leftOperand i@(Instr _ _ _) = operandRead 0 i

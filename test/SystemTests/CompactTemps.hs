@@ -26,6 +26,6 @@ compactTests =
    ltc "scalar multiply then matrix multiply" scalarVarDecls toScalarC compactMMulOpts [scalarMultiply tr9c9 alpha a, matrixMultiply c tr9c9 b],
    ltc "matrix transpose then matrix add" scalarVarDecls toScalarC compactTransOpts [matrixTranspose tr9c9 a, matrixAdd c b tr9c9]]
 
-compactTempsOpts = (scalarize "r_"):compactTemps:preprocessingOpts
-compactMMulOpts = (scalarize "r_"):compactTemps:preprocessMMulOpts
-compactTransOpts = (scalarize "r_"):compactTemps:fuseInnerLoops:preprocessTransOpts
+compactTempsOpts = (scalarize 1 "r_"):compactTemps:preprocessingOpts
+compactMMulOpts = (scalarize 1 "r_"):compactTemps:preprocessMMulOpts
+compactTransOpts = (scalarize 1 "r_"):compactTemps:fuseInnerLoops:preprocessTransOpts

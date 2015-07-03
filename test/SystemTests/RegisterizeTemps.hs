@@ -27,6 +27,6 @@ registerizeTests =
    ltc "scalar multiply then matrix multiply" scalarVarDecls toScalarC registerizeMMulOpts [scalarMultiply tr9c9 alpha a, matrixMultiply c tr9c9 b],
    ltc "matrix transpose then matrix multiply" scalarVarDecls toScalarC registerizeTransOpts [matrixTranspose tr9c9 a, matrixAdd c b tr9c9]]
 
-registerizeTempsOpts = (scalarize "r_"):registerizeTemps:compactTemps:preprocessingOpts
-registerizeMMulOpts = (scalarize "r_"):registerizeTemps:compactTemps:preprocessMMulOpts
-registerizeTransOpts = (scalarize "r_"):registerizeTemps:compactTemps:fuseInnerLoops:preprocessTransOpts
+registerizeTempsOpts = (scalarize 1 "r_"):registerizeTemps:compactTemps:preprocessingOpts
+registerizeMMulOpts = (scalarize 1 "r_"):registerizeTemps:compactTemps:preprocessMMulOpts
+registerizeTransOpts = (scalarize 1 "r_"):registerizeTemps:compactTemps:fuseInnerLoops:preprocessTransOpts

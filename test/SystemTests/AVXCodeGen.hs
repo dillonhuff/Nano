@@ -8,6 +8,7 @@ import CBackEnd.CodeGeneration.AVX
 import Dummies
 import Fuzz
 import IndexExpression
+import Scalarization
 import Statement
 import TestUtils
 
@@ -18,6 +19,8 @@ allAVXCodeGenTests =
 avxTestCases =
   [ltc "vector add" avxVarDecls toAVX avxOpts [matrixAdd x y z]]
 
-avxOpts =
+avxOpts = (scalarize 8 "r_"):avxBlocking
+
+avxBlocking =
   L.map (\t -> expandStatementsBU t)
   [blockMatrixAddM (iVar "i1") (iConst 8)]

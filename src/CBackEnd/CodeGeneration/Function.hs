@@ -123,8 +123,3 @@ matrixSetToCStmts mset =
       args = [m, n,
               matToCExpr a, aRS, aCS,
               matToCExpr b, bRS, bCS]
-  
-matToCExpr m =
-  case isRegister m of
-    True -> cAddr (cVar $ bufferName m)
-    False -> cAdd (cVar $ bufferName m) (iExprToCExpr $ evaluateIExprConstants $ locationExpr m)

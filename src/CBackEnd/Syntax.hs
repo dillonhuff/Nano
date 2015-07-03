@@ -9,7 +9,7 @@ module CBackEnd.Syntax(CTopLevelItem,
                     cExprSt, cBlockSt,
                     CType,
                     cAssign, cCast, cAddr, cAdd, cSub, cMul, cDiv, cFuncall, cOr, cLEQ, cIfThenElse, cFor, cWhile,
-                    cIntLit, cFloatLit, cDoubleLit,
+                    cIntLit, cFloatLit, cDoubleLit, cM256Reg,
                     cVar, cArrAcc, cReturn, cSizeOf,
                     isCPtr,
                     getReferencedType,
@@ -52,6 +52,7 @@ data CType
   | CDouble
   | CFILE
   | CPtr CType
+  | CM256Reg
   | CVoid
     deriving (Eq, Ord)
 
@@ -63,6 +64,7 @@ instance Show CType where
   show CFILE = "FILE"
   show (CPtr t) = show t ++ "*"
   show CVoid = "void"
+  show CM256Reg = "__m256"
 
 getReferencedType (CPtr tp) = tp
 getReferencedType other = error $ "trying to get referenced type of " ++ show other
@@ -74,6 +76,7 @@ cDouble = CDouble
 cFILE = CFILE
 cVoid = CVoid
 cPtr t = CPtr t
+cM256Reg = CM256Reg
 
 data CBlock a
   = CBlock [(CType, String)] [CStmt a]

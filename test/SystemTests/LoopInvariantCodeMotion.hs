@@ -28,5 +28,5 @@ licmTests =
    ltc "scalar multiply then matrix multiply" scalarVarDecls toScalarC licmMMulOpts [scalarMultiply tr9c9 alpha a, matrixMultiply c tr9c9 b],
    ltc "dotmul" scalarVarDecls toScalarC licmMMulOpts [matrixMultiply alpha p x, scalarMultiply y alpha y]]
 
-licmTempsOpts = pullCodeOutOfLoops:(scalarize "r_"):compactTemps:preprocessingOpts
-licmMMulOpts = pullCodeOutOfLoops:(scalarize "r_"):compactTemps:preprocessMMulOpts
+licmTempsOpts = pullCodeOutOfLoops:(scalarize 1 "r_"):compactTemps:preprocessingOpts
+licmMMulOpts = pullCodeOutOfLoops:(scalarize 1 "r_"):compactTemps:preprocessMMulOpts
