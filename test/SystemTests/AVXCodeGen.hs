@@ -19,8 +19,8 @@ allAVXCodeGenTests =
 avxTestCases =
   [ltc "vector add" avxVarDecls toAVX avxOpts [matrixAdd x y z]]
 
-avxOpts = (scalarize 8 "r_"):avxBlocking
+avxOpts = (scalarize 4 "r_"):avxBlocking
 
 avxBlocking =
   L.map (\t -> expandStatementsBU t)
-  [blockMatrixAddM (iVar "i1") (iConst 8)]
+  [blockMatrixAddM (iVar "i1") (iConst 4)]
