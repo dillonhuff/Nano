@@ -1,4 +1,4 @@
-module Scalarization(scalarize) where
+module Registerization(registerize) where
 
 import Control.Monad.State
 import Data.List as L
@@ -9,12 +9,12 @@ import IndexExpression
 import Matrix
 import Statement
 
-scalarize :: Int -> String -> [Statement] -> [Statement]
-scalarize u uniqueVarPrefix stmts =
-  evalState (expandStatementsBUM (tryToScalarize u) stmts) (uniqueVarPrefix, 0)
+registerize :: Int -> String -> [Statement] -> [Statement]
+registerize u uniqueVarPrefix stmts =
+  evalState (expandStatementsBUM (tryToRegisterize u) stmts) (uniqueVarPrefix, 0)
 
-tryToScalarize :: Int -> Statement -> State (String, Int) [Statement]
-tryToScalarize u stmt =
+tryToRegisterize :: Int -> Statement -> State (String, Int) [Statement]
+tryToRegisterize u stmt =
   case opcode stmt of
 {-    BRDC -> case (isRegisterizeable u $ operandWritten stmt) &&
                  (isScalar $ operandRead 0 stmt) of
@@ -26,22 +26,22 @@ tryToScalarize u stmt =
         False -> return [stmt]
     _ ->
       case not (isLoop stmt) && isScalarOp u stmt of
-        True -> scalarizeStmt stmt
+        True -> registerizeStmt stmt
         False -> return [stmt]
 
-scalarizeStmt :: Statement -> State (String, Int) [Statement]
-scalarizeStmt stmt =
+registerizeStmt :: Statement -> State (String, Int) [Statement]
+registerizeStmt stmt =
   case isMatrixAdd stmt of
-    True -> scalarizeMAdd stmt
+    True -> registerizeMAdd stmt
     False -> case isMatrixTranspose stmt of
-      True -> scalarizeTrans stmt
+      True -> registerizeTrans stmt
       False -> case isMatrixMultiply stmt of
-        True -> scalarizeMMul stmt
+        True -> registerizeMMul stmt
         False -> case isScalarMultiply stmt of
-          True -> scalarizeSMul stmt
+          True -> registerizeSMul stmt
           False -> case isMatrixSet stmt of
-            True -> scalarizeTrans stmt
-            False -> error $ "scalarizeStmt: Unsupported operation " ++ show stmt
+            True -> registerizeTrans stmt
+            False -> error $ "registerizeStmt: Unsupported operation " ++ show stmt
 
 freshRegName :: State (String, Int) String
 freshRegName = do
@@ -57,7 +57,7 @@ freshRegName = do
     let r1 = duplicateInRegister r1Name b in
       return [matrixSet r1 b, broadcast a r1]-}
   
-scalarizeMAdd stmt =
+registerizeMAdd stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt
       b = operandRead 1 stmt in
@@ -83,7 +83,7 @@ registerizeEMUL u stmt =
         r3 = duplicateInRegister r3Name c in
       return [matrixSet r1 a, matrixSet r2 b, elemWiseMultiply r3 r1 r2, matrixSet c r3]
 
-scalarizeSMul stmt =
+registerizeSMul stmt =
   let c = operandWritten stmt
       alpha = operandRead 0 stmt
       b = operandRead 1 stmt in
@@ -96,7 +96,7 @@ scalarizeSMul stmt =
         r3 = duplicateInRegister r3Name c in
       return [matrixSet r1 alpha, matrixSet r2 b, scalarMultiply r3 r1 r2, matrixSet c r3]
 
-scalarizeMMul stmt =
+registerizeMMul stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt
       b = operandRead 1 stmt in
@@ -109,7 +109,7 @@ scalarizeMMul stmt =
         r3 = duplicateInRegister r3Name c in
       return [matrixSet r1 a, matrixSet r2 b, matrixSet r3 c, matrixMultiply r3 r1 r2, matrixSet c r3]
 
-scalarizeTrans stmt =
+registerizeTrans stmt =
   let a = operandWritten stmt
       b = operandRead 0 stmt in
   do

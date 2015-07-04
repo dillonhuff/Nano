@@ -8,7 +8,7 @@ import System.Settings
 
 runCommandStrict :: String -> IO ()
 runCommandStrict str = do
-  putStrLn $ str
+  putStrLn $ "\n" ++ str
   cmdHandle <- runCommand str
   waitForProcess cmdHandle
   return ()

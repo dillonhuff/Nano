@@ -9,13 +9,13 @@ import CBackEnd.CodeGeneration.Scalar
 import Dummies
 import Fuzz
 import IndexExpression
-import Scalarization
+import Registerization
 import Statement
 
 allScalarizationTests = TestLabel "All scalarization system tests" $
                       TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls toScalarC scalarizationOpts op) compoundTestOperations
 
-scalarizationOpts = (scalarize 1 "r_"):blockingOpts
+scalarizationOpts = (registerize 1 "r_"):blockingOpts
 
 blockingOpts = 
   L.map (\t -> expandStatementsBU t)

@@ -19,7 +19,7 @@ import Matrix
 import Operations
 import RegisterizeTemps
 import Reporting.Report
-import Scalarization
+import Registerization
 import Search.Exhaustive
 import Statement
 
