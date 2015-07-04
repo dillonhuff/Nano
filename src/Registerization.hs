@@ -15,33 +15,22 @@ registerize u uniqueVarPrefix stmts =
 
 tryToRegisterize :: Int -> Statement -> State (String, Int) [Statement]
 tryToRegisterize u stmt =
-  case opcode stmt of
-{-    BRDC -> case (isRegisterizeable u $ operandWritten stmt) &&
-                 (isScalar $ operandRead 0 stmt) of
-              True -> registerizeBroadcast stmt
-              False -> return [stmt]-}
-    EMUL ->
-      case isScalarOp u stmt of
-        True -> registerizeEMUL u stmt
-        False -> return [stmt]
-    _ ->
-      case not (isLoop stmt) && isScalarOp u stmt of
-        True -> registerizeStmt stmt
-        False -> return [stmt]
+  case isLoop stmt of
+    True -> return [stmt]
+    False -> case isScalarOp u stmt of
+      True -> registerizeStmt u stmt
+      False -> return [stmt]
 
-registerizeStmt :: Statement -> State (String, Int) [Statement]
-registerizeStmt stmt =
-  case isMatrixAdd stmt of
-    True -> registerizeMAdd stmt
-    False -> case isMatrixTranspose stmt of
-      True -> registerizeTrans stmt
-      False -> case isMatrixMultiply stmt of
-        True -> registerizeMMul stmt
-        False -> case isScalarMultiply stmt of
-          True -> registerizeSMul stmt
-          False -> case isMatrixSet stmt of
-            True -> registerizeTrans stmt
-            False -> error $ "registerizeStmt: Unsupported operation " ++ show stmt
+registerizeStmt :: Int -> Statement -> State (String, Int) [Statement]
+registerizeStmt u stmt =
+  case opcode stmt of
+    EADD -> registerizeMAdd stmt
+    SMUL -> registerizeSMul stmt
+    TRAN -> registerizeTrans stmt
+    MMUL -> registerizeMMul stmt
+    MSET -> registerizeTrans stmt
+    EMUL -> registerizeEMUL u stmt
+    _ -> error $ "registerizeStmt: Unsupported operation " ++ show stmt
 
 freshRegName :: State (String, Int) String
 freshRegName = do
@@ -49,52 +38,27 @@ freshRegName = do
   put $ (prefix, i + 1)
   return $ prefix ++ show i
 
-{-registerizeBroadcast stmt =
-  let a = operandWritten stmt
-      b = operandRead 0 stmt in
+registerizeSymmetric op u stmt =
+  let c = operandWritten stmt
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt in
   do
     r1Name <- freshRegName
-    let r1 = duplicateInRegister r1Name b in
-      return [matrixSet r1 b, broadcast a r1]-}
+    r2Name <- freshRegName
+    r3Name <- freshRegName
+    let r1 = duplicateInRegister r1Name a
+        r2 = duplicateInRegister r2Name b
+        r3 = duplicateInRegister r3Name c in
+      return [matrixSet r1 a, matrixSet r2 b, op r3 r1 r2, matrixSet c r3]
   
 registerizeMAdd stmt =
-  let c = operandWritten stmt
-      a = operandRead 0 stmt
-      b = operandRead 1 stmt in
-  do
-    r1Name <- freshRegName
-    r2Name <- freshRegName
-    r3Name <- freshRegName
-    let r1 = duplicateInRegister r1Name a
-        r2 = duplicateInRegister r2Name b
-        r3 = duplicateInRegister r3Name c in
-      return [matrixSet r1 a, matrixSet r2 b, matrixAdd r3 r1 r2, matrixSet c r3]
+  registerizeSymmetric matrixAdd 1 stmt
 
-registerizeEMUL u stmt = 
-  let c = operandWritten stmt
-      a = operandRead 0 stmt
-      b = operandRead 1 stmt in
-  do
-    r1Name <- freshRegName
-    r2Name <- freshRegName
-    r3Name <- freshRegName
-    let r1 = duplicateInRegister r1Name a
-        r2 = duplicateInRegister r2Name b
-        r3 = duplicateInRegister r3Name c in
-      return [matrixSet r1 a, matrixSet r2 b, elemWiseMultiply r3 r1 r2, matrixSet c r3]
+registerizeEMUL u stmt =
+  registerizeSymmetric elemWiseMultiply 1 stmt
 
 registerizeSMul stmt =
-  let c = operandWritten stmt
-      alpha = operandRead 0 stmt
-      b = operandRead 1 stmt in
-  do
-    r1Name <- freshRegName
-    r2Name <- freshRegName
-    r3Name <- freshRegName
-    let r1 = duplicateInRegister r1Name alpha
-        r2 = duplicateInRegister r2Name b
-        r3 = duplicateInRegister r3Name c in
-      return [matrixSet r1 alpha, matrixSet r2 b, scalarMultiply r3 r1 r2, matrixSet c r3]
+  registerizeSymmetric scalarMultiply 1 stmt
 
 registerizeMMul stmt =
   let c = operandWritten stmt
