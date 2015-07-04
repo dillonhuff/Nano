@@ -57,7 +57,7 @@ blockMatrixMultiplyN indVar blkFactor stmt =
 
 blockMatrixMultiplyP :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyP indVar blkFactor stmt =
-  case isMatrixMultiply stmt && numCols (leftOperand stmt) > blkFactor of
+  case isMatrixMultiply stmt && numCols (operandRead 0 stmt) > blkFactor of
     True -> blockMMulP indVar blkFactor stmt
     False -> [stmt]
 
@@ -111,8 +111,8 @@ blockMMulM indVar blkFactor stmt =
     False -> [mainLoop, residual]
   where
     c = operandWritten stmt
-    a = leftOperand stmt
-    b = rightOperand stmt
+    a = operandRead 0 stmt
+    b = operandRead 1 stmt
     mainC = rowPart indVar blkFactor c
     mainA = rowPart indVar blkFactor a
     mainMul = matrixMultiply mainC mainA b
@@ -128,8 +128,8 @@ blockMMulN indVar blkFactor stmt =
     False -> [mainLoop, residual]
   where
     c = operandWritten stmt
-    a = leftOperand stmt
-    b = rightOperand stmt
+    a = operandRead 0 stmt
+    b = operandRead 1 stmt
     mainC = colPart indVar blkFactor c
     mainB = colPart indVar blkFactor b
     mainMul = matrixMultiply mainC a mainB
@@ -140,13 +140,13 @@ blockMMulN indVar blkFactor stmt =
     residual = matrixMultiply resC a resB
 
 blockMMulP indVar blkFactor stmt =
-  case numCols (leftOperand residual) == iConst 0 of
+  case numCols (operandRead 0 residual) == iConst 0 of
     True -> [mainLoop]
     False -> [mainLoop, residual]
   where
     c = operandWritten stmt
-    a = leftOperand stmt
-    b = rightOperand stmt
+    a = operandRead 0 stmt
+    b = operandRead 1 stmt
     mainA = colPart indVar blkFactor a
     mainB = rowPart indVar blkFactor b
     (rsA, rlA) = computeResidual blkFactor (numCols a)
@@ -163,7 +163,7 @@ blockTransM indVar blkFactor stmt =
     False -> [mainLoop, residual]
   where
     a = operandWritten stmt
-    b = rightOperand stmt
+    b = operandRead 0 stmt
     mainA = rowPart indVar blkFactor a
     mainB = colPart indVar blkFactor b
     (rs, rl) = computeResidual blkFactor (numRows a)
@@ -179,7 +179,7 @@ blockTransN indVar blkFactor stmt =
     False -> [mainLoop, residual]
   where
     a = operandWritten stmt
-    b = rightOperand stmt
+    b = operandRead 0 stmt
     mainA = colPart indVar blkFactor a
     mainB = rowPart indVar blkFactor b
     (rs, rl) = computeResidual blkFactor (numCols a)
