@@ -3,7 +3,7 @@ module Statement(Statement,
                  broadcast, elemWiseMultiply,
                  isMatrixAdd, isMatrixTranspose, isMatrixMultiply, isLoop, isScalarMultiply, isMatrixSet,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody, opcode,
-                 operandWritten, leftOperand, rightOperand, allOperands, operandsRead,
+                 operandWritten, allOperands, operandsRead,
                  expandStatementBU, expandStatementsBU, expandStatementBUM, expandStatementsBUM,
                  applyToOperands, applyToStatementBU, applyToLoopBodiesBU,
                  collectFromAllOperands,
@@ -96,12 +96,6 @@ operandWritten (Instr _ w _) = w
 operandsRead (Instr _ _ args) = args
 
 operandRead n (Instr _ _ args) = args !! n
-
-leftOperand i@(Instr _ _ _) = operandRead 0 i
-
-rightOperand i@(Instr TRAN _ _) = operandRead 0 i
-rightOperand i@(Instr MSET _ _) = operandRead 0 i
-rightOperand i@(Instr _ _ _) = operandRead 1 i
 
 allOperands stmt = L.nub $ allOperandsWithRepeats stmt
 

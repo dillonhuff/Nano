@@ -19,8 +19,8 @@ tryToScalarize u stmt =
 
 scalarizeSMul u stmt =
   let c = operandWritten stmt
-      alpha = leftOperand stmt
-      b = rightOperand stmt in
+      alpha = operandRead 0 stmt
+      b = operandRead 1 stmt in
   do
     r1Name <- freshRegName
     let r1 = matrix r1Name (numRows $ operandWritten stmt) (numCols $ operandWritten stmt) (iConst 1) (iConst 1) (properties local (dataType $ operandRead 0 stmt) register) in

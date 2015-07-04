@@ -20,7 +20,7 @@ stmtCost stmt =
 
 opCost stmt =
   case isMatrixMultiply stmt of
-    True -> constProd [numRows $ operandWritten stmt, numCols $ operandWritten stmt, numCols $ leftOperand stmt]
+    True -> constProd [numRows $ operandWritten stmt, numCols $ operandWritten stmt, numCols $ operandRead 0 stmt]
     False -> constProd [numRows $ operandWritten stmt, numCols $ operandWritten stmt]
 
 constProd [] = 1.0
