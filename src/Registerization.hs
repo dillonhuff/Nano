@@ -71,7 +71,11 @@ registerizeMMul stmt =
     let r1 = duplicateInRegister r1Name a
         r2 = duplicateInRegister r2Name b
         r3 = duplicateInRegister r3Name c in
-      return [matrixSet r1 a, matrixSet r2 b, matrixSet r3 c, matrixMultiply r3 r1 r2, matrixSet c r3]
+      return [matrixSet r1 a,
+              matrixSet r2 b,
+              matrixSet r3 c,
+              matrixMultiply r3 r1 r2,
+              matrixSet c r3]
 
 registerizeTrans stmt =
   let a = operandWritten stmt
