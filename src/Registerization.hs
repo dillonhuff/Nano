@@ -1,4 +1,5 @@
-module Registerization(registerize) where
+module Registerization(registerize,
+                       registerizeBelow) where
 
 import Control.Monad.State
 import Data.List as L
@@ -21,6 +22,18 @@ tryToRegisterize u stmt =
       True -> registerizeStmt u stmt
       False -> return [stmt]
 
+registerizeBelow :: Int -> String -> [Statement] -> [Statement]
+registerizeBelow u uniqueVarPrefix stmts =
+  evalState (expandStatementsBUM (tryToRegisterizeBelow u) stmts) (uniqueVarPrefix, 0)
+
+tryToRegisterizeBelow :: Int -> Statement -> State (String, Int) [Statement]
+tryToRegisterizeBelow u stmt =
+  case isLoop stmt of
+    True -> return [stmt]
+    False -> case isScalarOpBelow u stmt of
+      True -> registerizeStmt u stmt
+      False -> return [stmt]
+
 registerizeStmt :: Int -> Statement -> State (String, Int) [Statement]
 registerizeStmt u stmt =
   case opcode stmt of
@@ -30,6 +43,7 @@ registerizeStmt u stmt =
     MMUL -> registerizeMMul stmt
     MSET -> registerizeTrans stmt
     EMUL -> registerizeEMUL u stmt
+    BRDC -> return [stmt]
     _ -> error $ "registerizeStmt: Unsupported operation " ++ show stmt
 
 freshRegName :: State (String, Int) String

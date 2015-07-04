@@ -1,5 +1,6 @@
 module Analysis.Matrix(matricesOverlap,
-                       isRegisterizeable) where
+                       isRegisterizeable,
+                       isRegisterizeableBelow) where
 
 import Data.Map as M
 
@@ -29,5 +30,13 @@ isRegisterizeable i op =
     True -> isScalar op
     False ->
       case let u = iConst i in (numRows op == u && numCols op == (iConst 1)) || (numCols op == u && numRows op == (iConst 1)) of
+        True -> True
+        False -> False
+
+isRegisterizeableBelow i op =
+  case i == 1 of
+    True -> isScalar op
+    False ->
+      case let u = iConst i in (numRows op < u && numCols op == (iConst 1)) || (numCols op == u && numRows op < (iConst 1)) of
         True -> True
         False -> False

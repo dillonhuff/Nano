@@ -16,7 +16,7 @@ avxVarDecls stmts = decls
     tempBufferDecls = bufDecls $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
     regs = L.filter (\info -> not $ isCPtr $ bufType info) tempBufInfo
     regDecls = L.map (\info -> (cM256Reg, bufName info)) regs
-    decls = iVarDecls ++ regDecls
+    decls = iVarDecls ++ regDecls ++ tempBufferDecls
   
 toAVX stmt =
   case opcode stmt of
