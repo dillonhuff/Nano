@@ -21,24 +21,24 @@ toScalarC stmt =
             False -> error $ "toScalarC: Unsupported statement " ++ show stmt
 
 scalarMSetToC stmt =
-  let b = rightOperand stmt
+  let b = operandRead 0 stmt
       a = operandWritten stmt in
   [cExprSt (cAssign (matrixLocExpr a) (matrixLocExpr b)) ""]
 
 scalarMAddToC stmt =
   let c = operandWritten stmt
-      a = leftOperand stmt
-      b = rightOperand stmt in
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt in
   [cExprSt (cAssign (matrixLocExpr c) (cAdd (matrixLocExpr a) (matrixLocExpr b))) ""]
 
 scalarMMulToC stmt =
   let c = operandWritten stmt
-      a = leftOperand stmt
-      b = rightOperand stmt in
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt in
   [cExprSt (cAssign (matrixLocExpr c) (cAdd (cMul (matrixLocExpr a) (matrixLocExpr b)) (matrixLocExpr c))) ""]
 
 scalarSMulToC stmt =
   let c = operandWritten stmt
-      alpha = leftOperand stmt
-      b = rightOperand stmt in
+      alpha = operandRead 0 stmt
+      b = operandRead 1 stmt in
   [cExprSt (cAssign (matrixLocExpr c) (cMul (matrixLocExpr alpha) (matrixLocExpr b))) ""]

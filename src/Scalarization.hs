@@ -59,8 +59,8 @@ freshRegName = do
   
 scalarizeMAdd stmt =
   let c = operandWritten stmt
-      a = leftOperand stmt
-      b = rightOperand stmt in
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt in
   do
     r1Name <- freshRegName
     r2Name <- freshRegName
@@ -85,8 +85,8 @@ registerizeEMUL u stmt =
 
 scalarizeSMul stmt =
   let c = operandWritten stmt
-      alpha = leftOperand stmt
-      b = rightOperand stmt in
+      alpha = operandRead 0 stmt
+      b = operandRead 1 stmt in
   do
     r1Name <- freshRegName
     r2Name <- freshRegName
@@ -98,8 +98,8 @@ scalarizeSMul stmt =
 
 scalarizeMMul stmt =
   let c = operandWritten stmt
-      a = leftOperand stmt
-      b = rightOperand stmt in
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt in
   do
     r1Name <- freshRegName
     r2Name <- freshRegName
@@ -111,7 +111,7 @@ scalarizeMMul stmt =
 
 scalarizeTrans stmt =
   let a = operandWritten stmt
-      b = rightOperand stmt in
+      b = operandRead 0 stmt in
   do
     r1Name <- freshRegName
     let r1 = duplicateInRegister r1Name b in

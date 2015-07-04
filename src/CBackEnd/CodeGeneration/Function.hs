@@ -29,8 +29,8 @@ matrixAddToCStmts madd =
     True -> [cExprSt (cFuncall "simple_add" args) ""]
     False -> [cExprSt (cFuncall "simple_add_float" args) ""]
   where
-    a = leftOperand madd
-    b = rightOperand madd
+    a = operandRead 0 madd
+    b = operandRead 1 madd
     c = operandWritten madd
     m = iExprToCExpr $ numRows c
     n = iExprToCExpr $ numCols c
@@ -51,8 +51,8 @@ matrixMultiplyToCStmts madd =
     True -> [cExprSt (cFuncall "simple_mmul" args) ""]
     False -> [cExprSt (cFuncall "simple_mmul_float" args) ""]
   where
-    a = leftOperand madd
-    b = rightOperand madd
+    a = operandRead 0 madd
+    b = operandRead 1 madd
     c = operandWritten madd
     m = iExprToCExpr $ numRows c
     n = iExprToCExpr $ numCols c
@@ -74,8 +74,8 @@ scalarMultiplyToCStmts madd =
     True -> [cExprSt (cFuncall "simple_smul" args) ""]
     False -> [cExprSt (cFuncall "simple_smul_float" args) ""]
   where
-    a = leftOperand madd
-    b = rightOperand madd
+    a = operandRead 0 madd
+    b = operandRead 1 madd
     c = operandWritten madd
     m = iExprToCExpr $ numRows c
     n = iExprToCExpr $ numCols c
@@ -88,14 +88,14 @@ scalarMultiplyToCStmts madd =
             matToCExpr b, bRS, bCS,
             matToCExpr c, cRS, cCS]
 
-matrixTransposeToCStmts madd =
-  let a = operandWritten madd in
+matrixTransposeToCStmts trans =
+  let a = operandWritten trans in
   case isDouble $ dataType a of
     True -> [cExprSt (cFuncall "simple_trans" args) ""]
     False -> [cExprSt (cFuncall "simple_trans_float" args) ""]
     where
-      a = operandWritten madd
-      b = rightOperand madd
+      a = operandWritten trans
+      b = operandRead 0 trans
       m = iExprToCExpr $ numRows a
       n = iExprToCExpr $ numCols a
       aRS = iExprToCExpr $ rowStride a
@@ -113,7 +113,7 @@ matrixSetToCStmts mset =
     False -> [cExprSt (cFuncall "copy_float" args) ""]
     where
       a = operandWritten mset
-      b = rightOperand mset
+      b = operandRead 0 mset
       m = iExprToCExpr $ numRows a
       n = iExprToCExpr $ numCols a
       aRS = iExprToCExpr $ rowStride a
