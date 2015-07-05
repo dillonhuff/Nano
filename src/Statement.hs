@@ -25,6 +25,7 @@ data Statement
 instance Show Statement where
   show (Instr MSET a [b]) = "\n" ++ show a ++ " = " ++ show b
   show (Instr EADD c [a, b]) = "\n" ++ show c ++ " = " ++ show a ++ " + " ++ show b
+  show (Instr other w args) = "\n" ++ show other ++ " " ++ show w ++ " " ++ show args
   show (Loop v s b e body) = "for " ++ v ++ " " ++ show s ++ ":" ++ show b ++ ":" ++ show e ++ " " ++ (L.concatMap show body) ++ "\nend"
 
 broadcast a b = Instr BRDC a [b]

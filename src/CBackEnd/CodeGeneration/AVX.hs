@@ -26,18 +26,45 @@ toAVX stmt =
     _ -> toAVXIntrinsic stmt
 
 toAVXIntrinsic stmt =
-  case opcode stmt of
-    EADD -> if fits_mm256_add_pd stmt then [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_pd" stmt)) ""] else error $ "toAVXIntrinsic " ++ show stmt
-    MSET -> avxSet stmt
-    BRDC -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_sd" [matRExpr 0 stmt])) ""]
-    EMUL -> if fits_mm256_mul_pd stmt then [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_pd" stmt)) ""] else error $ "toAVXIntrinsic " ++ show stmt
-    _ -> error $ "Unsupported opcode " ++ show stmt
+  firstToMatch avxInstructions stmt
 
 fits_mm256_add_pd stmt =
   opcode stmt == EADD && allInRegister stmt && allVectorLEQ 4 stmt && allType double stmt
 
 fits_mm256_mul_pd stmt =
   opcode stmt == EMUL && allInRegister stmt && allVectorLEQ 4 stmt && allType double stmt
+
+fits_mm256_broadcast_sd stmt =
+  opcode stmt == BRDC && isRegister (operandWritten stmt) &&
+  not (isRegister (operandRead 0 stmt)) && isScalar (operandRead 0 stmt)
+
+fits_assign stmt =
+  opcode stmt == MSET && allInRegister stmt
+
+fits_mm256_loadu_pd stmt =
+  opcode stmt == MSET && allType double stmt &&
+  isRegister (operandWritten stmt) &&
+  isRegisterizeable 4 (operandWritten stmt) &&
+  not (isRegister $ operandRead 0 stmt)
+
+fits_mm256_storeu_pd stmt =
+  opcode stmt == MSET && allType double stmt &&
+  isRegister (operandRead 0 stmt) &&
+  isRegisterizeable 4 (operandRead 0 stmt) &&
+  not (isRegister $ operandWritten stmt)
+
+fits_mm256_maskload_pd stmt =
+  opcode stmt == MSET && allType double stmt &&
+  isRegister (operandWritten stmt) &&
+  isRegisterizeableBelow 4 (operandWritten stmt) &&
+  not (isRegister $ operandRead 0 stmt)
+
+fits_mm256_maskstore_pd stmt =
+  opcode stmt == MSET && allType double stmt &&
+  isRegister (operandRead 0 stmt) &&
+  isRegisterizeableBelow 4 (operandRead 0 stmt) &&
+  not (isRegister $ operandWritten stmt)
+
 
 allInRegister stmt = L.all isRegister $ allOperands stmt
 
@@ -51,28 +78,6 @@ allVectorLT n stmt =
   (L.all isVector $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) < n) $ allOperands stmt)
 
 allType t stmt = L.all (\m -> dataType m == t) $ allOperands stmt
-
-avxSet stmt =
-  case isRegister $ operandWritten stmt of
-    True -> case isRegister $ operandRead 0 stmt of
-      True -> [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""]
-      False -> avxLoad stmt
-    False -> avxStore stmt
-
--- This is datatype dependent. Instruction selection needs to be refactored to rely more on pattern matching
-avxLoad stmt =
-  case isRegisterizeable 4 $ operandRead 0 stmt of
-    True -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_load_pd" [matRExpr 0 stmt])) ""]
-    False -> case isRegisterizeableBelow 4 $ operandRead 0 stmt of
-      True -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_pd" [matRExpr 0 stmt, mask $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]
-      False -> error $ "avxLoad: Unsupported stmt " ++ show stmt
-
-avxStore stmt = --[cExprSt (cFuncall "_mm256_store_pd" [matWExpr stmt, matRExpr 0 stmt]) ""]
-  case isRegisterizeable 4 $ operandWritten stmt of
-    True -> [cExprSt (cFuncall "_mm256_store_pd" [matWExpr stmt, matRExpr 0 stmt]) ""]
-    False -> case isRegisterizeableBelow 4 $ operandWritten stmt of
-      True -> [cExprSt (cFuncall "_mm256_maskstore_pd" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]) ""]
-      False -> error $ "avxStore: Unsupported stmt " ++ show stmt
 
 regWName stmt = regName $ operandWritten stmt
 regName op = cVar $ bufferName op
@@ -90,3 +95,18 @@ mask n =
 -- Also datatype depenent
 maskArgs n =
   (L.replicate (2*(4 - n)) (cIntLit 0)) ++ (L.replicate (2*n) (cIntLit (-1)))
+
+firstToMatch :: [(Statement -> Bool, Statement -> [CStmt String])] -> Statement -> [CStmt String]
+firstToMatch [] stmt = error $ "firstToMatch: no matches for " ++ show stmt
+firstToMatch ((cond, f):rest) stmt =
+  if cond stmt then f stmt else firstToMatch rest stmt
+
+avxInstructions =
+  [(fits_mm256_add_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_pd" stmt)) ""]),
+   (fits_mm256_mul_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_pd" stmt)) ""]),
+   (fits_mm256_broadcast_sd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_sd" [matRExpr 0 stmt])) ""]),
+   (fits_mm256_loadu_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_loadu_pd" [matRExpr 0 stmt])) ""]),
+   (fits_mm256_storeu_pd, \stmt -> [cExprSt (cFuncall "_mm256_storeu_pd" [matWExpr stmt, matRExpr 0 stmt]) ""]),
+   (fits_mm256_maskload_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_pd" [matRExpr 0 stmt, mask $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]),
+   (fits_mm256_maskstore_pd, \stmt -> [cExprSt (cFuncall "_mm256_maskstore_pd" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]) ""]),
+   (fits_assign, \stmt -> [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""])]
