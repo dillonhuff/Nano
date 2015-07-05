@@ -100,4 +100,7 @@ registerizeTrans stmt =
       return [matrixSet r1 b, matrixSet a r1]
   
 duplicateInRegister rName a =
-  setName rName $ setRegister a
+  setName rName $ mkRegister a
+
+mkRegister m =
+  setRegister $ matrix (bufferName m) (numRows m) (numCols m) (rowStride m) (colStride m) (matProperties m)

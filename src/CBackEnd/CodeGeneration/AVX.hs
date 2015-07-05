@@ -27,11 +27,27 @@ toAVX stmt =
 
 toAVXIntrinsic stmt =
   case opcode stmt of
-    EADD -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_pd" stmt)) ""]
+    EADD -> if fits_mm256_add_pd stmt then [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_pd" stmt)) ""] else error $ "toAVXIntrinsic " ++ show stmt
     MSET -> avxSet stmt
     BRDC -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_sd" [matRExpr 0 stmt])) ""]
     EMUL -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_pd" stmt)) ""]
     _ -> error $ "Unsupported opcode " ++ show stmt
+
+fits_mm256_add_pd stmt =
+  opcode stmt == EADD && allInRegister stmt && allVectorEQ 4 stmt && allType double stmt
+
+allInRegister stmt = L.all isRegister $ allOperands stmt
+
+allVectorLEQ n stmt =
+  (L.all isVector $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) <= n) $ allOperands stmt)
+
+allVectorEQ n stmt =
+  (L.all isVector $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) == n) $ allOperands stmt)
+
+allVectorLT n stmt =
+  (L.all isVector $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) < n) $ allOperands stmt)
+
+allType t stmt = L.all (\m -> dataType m == t) $ allOperands stmt
 
 avxSet stmt =
   case isRegister $ operandWritten stmt of

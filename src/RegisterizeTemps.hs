@@ -7,7 +7,6 @@ import Analysis.Matrix
 import Matrix
 import Statement
 
-
 registerizeTemps u stmts =
   registerizeTempsWith (isRegisterizeable u) stmts
   
@@ -22,5 +21,8 @@ registerizeTempsWith f stmts =
 tryToRegisterizeWith :: (Matrix -> Bool) -> Matrix -> [Statement] -> [Statement]
 tryToRegisterizeWith registerizeableCondition m stmts =
   case registerizeableCondition m of
-    True -> expandStatementsBU (\st -> [applyToOperands (replaceSupermatrix m (setRegister m)) st]) stmts
+    True -> expandStatementsBU (\st -> [applyToOperands (replaceSupermatrix m (mkRegister m)) st]) stmts
     False -> stmts
+
+mkRegister m =
+  setRegister $ matrix (bufferName m) (numRows m) (numCols m) (rowStride m) (colStride m) (matProperties m)
