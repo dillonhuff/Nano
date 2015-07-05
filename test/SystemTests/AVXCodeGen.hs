@@ -15,6 +15,7 @@ import Operations
 import Registerization
 import RegisterizeTemps
 import SMulToBroadcast
+import SplitTemps
 import Statement
 import TestUtils
 
@@ -25,7 +26,9 @@ allAVXCodeGenTests =
 avxTestCases =
   [ltc "vector add" avxVarDecls toAVX avxOpts [matrixAdd x y z],
    ltc "vector smul" avxVarDecls toAVX avxOpts [scalarMultiply x alpha x],
-   ltc "daxpy" avxVarDecls toAVX avxOpts (daxpy 16)]
+   ltc "daxpy" avxVarDecls toAVX avxOpts (daxpy 16),
+   ltc "matrix add even" avxVarDecls toAVX avxOptsSMulAdd [matrixAdd m1 m2 m3],
+   ltc "matrix add uneven" avxVarDecls toAVX avxOptsSMulAdd [matrixAdd n1 n2 n3]]
 
 avxOpts = pullCodeOutOfLoops:(registerize 4 "r_"):(smulToBroadcast 1 "sm"):(registerizeTemps 4):compactTemps:fuseInnerLoops:avxBlocking
 
@@ -34,3 +37,20 @@ avxBlocking =
   L.map (\t -> expandStatementsBU t)
   [blockMatrixAddM (iVar "i1") (iConst 4),
    blockScalarMultiplyM (iVar "i2") (iConst 4)]
+
+avxOptsSMulAdd = (registerizeBelow 4 "k_"):(registerize 4 "r_"):(smulToBroadcast 1 "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
+
+avxBlockingSMulAdd =
+  L.map (\t -> expandStatementsBU t)
+  [blockMatrixAddN (iVar "i3") (iConst 4),
+   blockScalarMultiplyN (iVar "i4") (iConst 4),
+   blockMatrixAddM (iVar "i1") (iConst 1),
+   blockScalarMultiplyM (iVar "i2") (iConst 1)]
+
+m1 = constDblMat "M1" 8 8 8 1
+m2 = constDblMat "M2" 8 8 8 1
+m3 = constDblMat "M3" 8 8 8 1
+
+n1 = constDblMat "N1" 9 9 9 1
+n2 = constDblMat "N2" 9 9 9 1
+n3 = constDblMat "N3" 9 9 9 1

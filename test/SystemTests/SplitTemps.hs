@@ -26,8 +26,8 @@ allSplitTempsTests =
 
 renameTempsCases =
   [ltc "daxpy 19" avxVarDecls toAVX avxOptsDAXPY (daxpy 19),
-   ltc "smul add" avxVarDecls toAVX avxOptsSMulAdd [scalarMultiply tr9c9 alpha c, matrixAdd a tr9c9 a],
-   ltc "fused smul add" avxVarDecls toAVX avxOptsSMulAddFuse [scalarMultiply tr9c9 alpha c, matrixAdd a tr9c9 a]]
+   ltc "smul add" avxVarDecls toAVX avxOptsSMulAdd [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1],
+   ltc "fused smul add" avxVarDecls toAVX avxOptsSMulAddFuse [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1]]
 
 avxOptsSMulAddFuse =
   (registerizeBelow 4 "k_"):
@@ -50,7 +50,11 @@ avxBlockingDAXPY =
 
 avxBlockingSMulAdd =
   L.map (\t -> expandStatementsBU t)
-  [blockMatrixAddN (iVar "i3") (iConst 4),
-   blockScalarMultiplyN (iVar "i4") (iConst 4),
-   blockMatrixAddM (iVar "i1") (iConst 1),
-   blockScalarMultiplyM (iVar "i2") (iConst 1)]
+  [blockMatrixAddN (iVar "i3") (iConst 1),
+   blockScalarMultiplyN (iVar "i4") (iConst 1),
+   blockMatrixAddM (iVar "i1") (iConst 4),
+   blockScalarMultiplyM (iVar "i2") (iConst 4)]
+
+m1 = constDblMat "m1" 9 9 1 9
+m2 = constDblMat "m2" 9 9 1 9
+m3 = constDblMat "m3" 9 9 1 9
