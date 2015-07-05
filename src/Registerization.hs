@@ -9,6 +9,7 @@ import Analysis.Statement
 import IndexExpression
 import Matrix
 import Statement
+import Utils
 
 registerize :: Int -> String -> [Statement] -> [Statement]
 registerize u uniqueVarPrefix stmts =
@@ -35,13 +36,14 @@ tryToRegisterizeBelow u stmt =
       False -> return [stmt]
 
 registerizeStmt :: Int -> Statement -> State (String, Int) [Statement]
-registerizeStmt u stmt =
+registerizeStmt i stmt =
+  let u = iConst i in
   case opcode stmt of
-    EADD -> registerizeMAdd stmt
-    SMUL -> registerizeSMul stmt
-    TRAN -> registerizeTrans stmt
-    MMUL -> registerizeMMul stmt
-    MSET -> registerizeTrans stmt
+    EADD -> registerizeMAdd u stmt
+    SMUL -> registerizeSMul u stmt
+    TRAN -> registerizeTrans u stmt
+    MMUL -> registerizeMMul u stmt
+    MSET -> registerizeTrans u stmt
     EMUL -> registerizeEMUL u stmt
     BRDC -> return [stmt]
     _ -> error $ "registerizeStmt: Unsupported operation " ++ show stmt
@@ -60,21 +62,21 @@ registerizeSymmetric op u stmt =
     r1Name <- freshRegName
     r2Name <- freshRegName
     r3Name <- freshRegName
-    let r1 = duplicateInRegister r1Name a
-        r2 = duplicateInRegister r2Name b
-        r3 = duplicateInRegister r3Name c in
+    let r1 = duplicateInRegister u r1Name a
+        r2 = duplicateInRegister u r2Name b
+        r3 = duplicateInRegister u r3Name c in
       return [matrixSet r1 a, matrixSet r2 b, op r3 r1 r2, matrixSet c r3]
   
-registerizeMAdd stmt =
-  registerizeSymmetric matrixAdd 1 stmt
+registerizeMAdd u stmt =
+  registerizeSymmetric matrixAdd u stmt
 
 registerizeEMUL u stmt =
-  registerizeSymmetric elemWiseMultiply 1 stmt
+  registerizeSymmetric elemWiseMultiply u stmt
 
-registerizeSMul stmt =
-  registerizeSymmetric scalarMultiply 1 stmt
+registerizeSMul u stmt =
+  registerizeSymmetric scalarMultiply u stmt
 
-registerizeMMul stmt =
+registerizeMMul u stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt
       b = operandRead 1 stmt in
@@ -82,25 +84,30 @@ registerizeMMul stmt =
     r1Name <- freshRegName
     r2Name <- freshRegName
     r3Name <- freshRegName
-    let r1 = duplicateInRegister r1Name a
-        r2 = duplicateInRegister r2Name b
-        r3 = duplicateInRegister r3Name c in
+    let r1 = duplicateInRegister u r1Name a
+        r2 = duplicateInRegister u r2Name b
+        r3 = duplicateInRegister u r3Name c in
       return [matrixSet r1 a,
               matrixSet r2 b,
               matrixSet r3 c,
               matrixMultiply r3 r1 r2,
               matrixSet c r3]
 
-registerizeTrans stmt =
+registerizeTrans u stmt =
   let a = operandWritten stmt
       b = operandRead 0 stmt in
   do
     r1Name <- freshRegName
-    let r1 = duplicateInRegister r1Name b in
+    let r1 = duplicateInRegister u r1Name b in
       return [matrixSet r1 b, matrixSet a r1]
   
-duplicateInRegister rName a =
-  setName rName $ mkRegister a
-
-mkRegister m =
-  setRegister $ matrix (bufferName m) (numRows m) (numCols m) (rowStride m) (colStride m) (matProperties m)
+{-
+mkRegister u m =
+  case isRowVector m of
+    True -> setRegister $ matrix (bufferName m) (iConst 1) u (rowStride m) (colStride m) (matProperties m)
+    False -> setRegister $ matrix (bufferName m) u (iConst 1) (rowStride m) (colStride m) (matProperties m)
+-}
+{-
+mkRegister u m =
+  setRegister $ matrix (bufferName m) (if numRows m == u then u else iConst 1) (if numCols m == u then u else iConst 1) (rowStride m) (colStride m) (matProperties m)
+-}

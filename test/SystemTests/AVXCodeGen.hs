@@ -30,7 +30,7 @@ avxTestCases =
    ltc "matrix add even" avxVarDecls toAVX avxOptsSMulAdd [matrixAdd m1 m2 m3],
    ltc "matrix add uneven" avxVarDecls toAVX avxOptsSMulAdd [matrixAdd n1 n2 n3]]
 
-avxOpts = pullCodeOutOfLoops:(registerize 4 "r_"):(smulToBroadcast 1 "sm"):(registerizeTemps 4):compactTemps:fuseInnerLoops:avxBlocking
+avxOpts = pullCodeOutOfLoops:(registerize 4 "r_"):(smulToBroadcast "sm"):(registerizeTemps 4):compactTemps:fuseInnerLoops:avxBlocking
 
 avxBlocking =
   L.intersperse fuseInnerLoops $
@@ -38,7 +38,7 @@ avxBlocking =
   [blockMatrixAddM (iVar "i1") (iConst 4),
    blockScalarMultiplyM (iVar "i2") (iConst 4)]
 
-avxOptsSMulAdd = (registerizeBelow 4 "k_"):(registerize 4 "r_"):(smulToBroadcast 1 "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
+avxOptsSMulAdd = (registerizeBelow 4 "k_"):(registerize 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
 
 avxBlockingSMulAdd =
   L.map (\t -> expandStatementsBU t)

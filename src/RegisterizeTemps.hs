@@ -4,25 +4,26 @@ module RegisterizeTemps(registerizeTemps,
 import Data.List as L
 
 import Analysis.Matrix
+import IndexExpression
 import Matrix
 import Statement
+import Utils
 
 registerizeTemps u stmts =
-  registerizeTempsWith (isRegisterizeable u) stmts
+  registerizeTempsWith u (isRegisterizeable u) stmts
   
 registerizeTempsBelow u stmts =
-  registerizeTempsWith (isRegisterizeableBelow u) stmts
+  registerizeTempsWith u (isRegisterizeableBelow u) stmts
 
-registerizeTempsWith f stmts =
+registerizeTempsWith u f stmts =
   let allUnderlyingMats = L.nub $ L.concatMap (collectFromAllOperands underlyingMatrix) stmts
       allUnderlyingTempMats = L.filter (\m -> bufferScope m == local) allUnderlyingMats in
-  L.foldr (tryToRegisterizeWith f) stmts allUnderlyingTempMats
+  L.foldr (tryToRegisterizeWith (iConst u) f) stmts allUnderlyingTempMats
   
-tryToRegisterizeWith :: (Matrix -> Bool) -> Matrix -> [Statement] -> [Statement]
-tryToRegisterizeWith registerizeableCondition m stmts =
+tryToRegisterizeWith :: IExpr -> (Matrix -> Bool) -> Matrix -> [Statement] -> [Statement]
+tryToRegisterizeWith u registerizeableCondition m stmts =
   case registerizeableCondition m of
-    True -> expandStatementsBU (\st -> [applyToOperands (replaceSupermatrix m (mkRegister m)) st]) stmts
+    True -> expandStatementsBU (\st -> [applyToOperands (replaceSupermatrix m (mkRegister u m)) st]) stmts
     False -> stmts
 
-mkRegister m =
-  setRegister $ matrix (bufferName m) (numRows m) (numCols m) (rowStride m) (colStride m) (matProperties m)
+{-setRegister $ matrix (bufferName m) (if numRows m /= iConst 1 then u else iConst 1) (if numCols m /= iConst 1 then u else iConst 1) (rowStride m) (colStride m) (matProperties m)-}
