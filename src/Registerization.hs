@@ -55,6 +55,24 @@ freshRegName = do
   return $ prefix ++ show i
 
 registerizeSymmetric op u stmt =
+  do
+    r1 <- toRegister u $ operandRead 0 stmt
+    r2 <- toRegister u $ operandRead 1 stmt
+    r3 <- toRegister u $ operandWritten stmt
+    return [matrixSet r1 (operandRead 0 stmt), matrixSet r2 (operandRead 1 stmt), op r3 r1 r2, matrixSet (operandWritten stmt) r3]
+
+toRegister u m =
+  case isRegister m of
+    True -> return m
+    False -> do
+      rName <- freshRegName
+      return $ duplicateInRegister u rName m
+  
+{-    let r1 = duplicateInRegister u r1Name a
+        r2 = duplicateInRegister u r2Name b
+        r3 = duplicateInRegister u r3Name c in-}
+
+{-
   let c = operandWritten stmt
       a = operandRead 0 stmt
       b = operandRead 1 stmt in
@@ -65,7 +83,7 @@ registerizeSymmetric op u stmt =
     let r1 = duplicateInRegister u r1Name a
         r2 = duplicateInRegister u r2Name b
         r3 = duplicateInRegister u r3Name c in
-      return [matrixSet r1 a, matrixSet r2 b, op r3 r1 r2, matrixSet c r3]
+      return [matrixSet r1 a, matrixSet r2 b, op r3 r1 r2, matrixSet c r3]-}
   
 registerizeMAdd u stmt =
   registerizeSymmetric matrixAdd u stmt
@@ -100,7 +118,7 @@ registerizeTrans u stmt =
     r1Name <- freshRegName
     let r1 = duplicateInRegister u r1Name b in
       return [matrixSet r1 b, matrixSet a r1]
-  
+
 {-
 mkRegister u m =
   case isRowVector m of

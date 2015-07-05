@@ -25,6 +25,34 @@ accessOverlap iRanges s t = do
   tR <- accessedRectangle iRanges t
   return $ rectanglesOverlap sR tR
 
+isRegisterizeable u op =
+  case u == 1 of
+    True -> isScalar op
+    False ->
+      case ((constVal $ numRows op) == u && (constVal $ numCols op) == 1)  ||
+           ((constVal $ numCols op) == u && (constVal $ numRows op) == 1) of
+        True -> True
+        False -> False
+
+isRegisterizeableBelow u op =
+  case u == 1 of
+    True -> isScalar op
+    False ->
+      case ((constVal $ numRows op) < u && (constVal $ numCols op) == 1)  ||
+           ((constVal $ numCols op) < u && (constVal $ numRows op) == 1) of
+        True -> True
+        False -> False
+
+{-
+isRegisterizeableBelow i op =
+  case i == 1 of
+    True -> isScalar op
+    False ->
+      case let u = iConst i in (numRows op < u && numCols op == (iConst 1)) || (numCols op == u && numRows op < (iConst 1)) of
+        True -> True
+        False -> False
+-}
+{-
 isRegisterizeable i op =
   case i == 1 of
     True -> isScalar op
@@ -40,3 +68,4 @@ isRegisterizeableBelow i op =
       case let u = iConst i in (numRows op < u && numCols op == (iConst 1)) || (numCols op == u && numRows op < (iConst 1)) of
         True -> True
         False -> False
+-}

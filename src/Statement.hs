@@ -20,7 +20,12 @@ import Matrix
 data Statement
   = Instr OpCode Matrix [Matrix]
   | Loop String IExpr IExpr IExpr [Statement]
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord)
+
+instance Show Statement where
+  show (Instr MSET a [b]) = "\n" ++ show a ++ " = " ++ show b
+  show (Instr EADD c [a, b]) = "\n" ++ show c ++ " = " ++ show a ++ " + " ++ show b
+  show (Loop v s b e body) = "for " ++ v ++ " " ++ show s ++ ":" ++ show b ++ ":" ++ show e ++ " " ++ (L.concatMap show body) ++ "\nend"
 
 broadcast a b = Instr BRDC a [b]
 elemWiseMultiply c a b = Instr EMUL c [a, b]

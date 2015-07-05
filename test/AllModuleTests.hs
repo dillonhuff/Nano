@@ -8,6 +8,7 @@ import BlockingTests
 import FusionTests
 import IndexExpressionTests
 import MatrixTests
+import RegisterizationTests
 import StatementInterchangeTests
 
 allModuleTests = TestLabel "All module tests" $ TestList
@@ -16,5 +17,5 @@ allModuleTests = TestLabel "All module tests" $ TestList
                 allBlockingTests,
                 allFusionTests,
                 IndexExpressionTests.allIndexExpressionTests,
-                MatrixTests.allMatrixTests,                
+                MatrixTests.allMatrixTests,
                 allStatementInterchangeTests]

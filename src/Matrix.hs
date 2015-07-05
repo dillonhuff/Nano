@@ -23,7 +23,17 @@ import Scope
 data Matrix
   = Matrix String IExpr IExpr IExpr IExpr Properties
   | SubMatrix Shape IExpr IExpr Matrix Properties
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord)
+
+instance Show Matrix where
+  show (Matrix n nr nc rs cs p) = n ++ "[" ++
+                                  show nr ++ " " ++
+                                  show nc ++ " " ++
+                                  show rs ++ " " ++
+                                  show cs ++ "]" ++
+                                  show p
+  show (SubMatrix s v b m p) = show s ++ " " ++
+                               show v ++ " " ++ show v ++ " " ++ show b ++ " (" ++ show m ++ ") " ++ show p
 
 matrix = Matrix
 
@@ -178,7 +188,10 @@ partition s i l = Partition s i l
 
 data Properties
   = Properties Scope Type MemLocation
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord)
+
+instance Show Properties where
+  show (Properties s t m) = "{" ++ show s ++ " " ++ show t ++ " " ++ show m ++ "}"
 
 properties = Properties
 
@@ -189,7 +202,11 @@ propMemLocation (Properties _ _ l) = l
 data Type
   = Single
   | Double
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord)
+
+instance Show Type where
+  show Single = "S"
+  show Double = "D"
 
 single = Single
 double = Double
@@ -202,7 +219,11 @@ isSingle t = not $ isDouble t
 data MemLocation
   = Memory
   | Register
-    deriving (Eq, Ord, Show)
+    deriving (Eq, Ord)
+
+instance Show MemLocation where
+  show Memory = "M"
+  show Register = "R"
 
 memory = Memory
 register = Register
