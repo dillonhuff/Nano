@@ -5,7 +5,7 @@
 #define C(i,j) c[ (i)*c_row_stride + (j)*c_col_stride ]
 
 void *alloc(size_t size)	{
-	return (void *) malloc(size);
+  return (void *) malloc(size);
 }
 
 void pack_double(double* a, double* b,
@@ -92,8 +92,8 @@ void *alloc_aligned_16(size_t size) {
   void *memptr;
   // Horrible error handling
   if (posix_memalign(&memptr, 16, size))	{
-  	printf("FAILED TO ALLOCATE\n");
-  	return (void *) -1;
+    printf("FAILED TO ALLOCATE\n");
+    return (void *) -1;
   }
   return (void *) memptr;
 }
@@ -102,8 +102,8 @@ void *alloc_aligned_32(size_t size) {
   void *memptr;
   // Horrible error handling
   if (posix_memalign(&memptr, 32, size))	{
-  	printf("FAILED TO ALLOCATE\n");
-  	return (void *) -1;
+    printf("FAILED TO ALLOCATE\n");
+    return (void *) -1;
   }
   return (void *) memptr;
 }
@@ -166,14 +166,14 @@ void simple_mmul(int m, int n, int k,
 	double *b, int b_row_stride, int b_col_stride,
 	double *c, int c_row_stride, int c_col_stride)	{
 
-	int i, j, p;
-	for (i = 0; i < m; i++)	{
-		for (j = 0; j < n; j++)	{
-			for (p = 0; p < k; p++)	{
-				C(i, j) += A(i, p) * B(p, j);
-			}
-		}
-	}
+  int i, j, p;
+  for (i = 0; i < m; i++)	{
+    for (j = 0; j < n; j++)	{
+      for (p = 0; p < k; p++)	{
+	C(i, j) += A(i, p) * B(p, j);
+      }
+    }
+  }
 }
 
 void simple_trans(int m, int n,
@@ -202,12 +202,12 @@ void simple_smul(int m, int n,
 		 double *scalar,
 		 double *a, int a_row_stride, int a_col_stride,
 		 double *b, int b_row_stride, int b_col_stride) {
-	int i, j;
-	for (i = 0; i < m; i++)	{
-		for (j = 0; j < n; j++)	{
-			B(i, j) = A(i, j) * *scalar;
-		}
-	}
+  int i, j;
+  for (i = 0; i < m; i++)	{
+    for (j = 0; j < n; j++)	{
+      B(i, j) = A(i, j) * *scalar;
+    }
+  }
 }
 
 void simple_trsml(int m, int n,
@@ -283,24 +283,24 @@ float diff_buffer_float(int size, float *buf1, float *buf2) {
 }
 
 double diff_mats(int m, int n, double *a, int a_row_stride, int a_col_stride, double *b, int b_row_stride, int b_col_stride)	{
-	int i, j;
-	double diff = 0.0;
-	for (i = 0; i < m; i++)	{
-		for (j = 0; j < n; j++)	{
-			diff += fabs(A(i, j) - B(i, j));
-		}
-	}
-	return diff;
+  int i, j;
+  double diff = 0.0;
+  for (i = 0; i < m; i++)	{
+    for (j = 0; j < n; j++)	{
+      diff += fabs(A(i, j) - B(i, j));
+    }
+  }
+  return diff;
 }
 
 void test_mats_diff(int m, int n, double *a, int a_row_stride, int a_col_stride, double *b, int b_row_stride, int b_col_stride, char *test_name)	{
-	double diff = diff_mats(m, n, a, a_row_stride, a_col_stride, b, b_row_stride, b_col_stride);
-	// Should really have a tolerance but for now this will do
-	if (diff != 0.0)	{
-		printf("\n\nERROR in %s: diff = %f\n\n", test_name, diff);
-	} else {
-		printf("%s PASSED\n", test_name);
-	}
+  double diff = diff_mats(m, n, a, a_row_stride, a_col_stride, b, b_row_stride, b_col_stride);
+  // Should really have a tolerance but for now this will do
+  if (diff != 0.0)	{
+    printf("\n\nERROR in %s: diff = %f\n\n", test_name, diff);
+  } else {
+    printf("%s PASSED\n", test_name);
+  }
 }
 
 void copy_buffer(int size, double *src, double *dest) {
@@ -318,64 +318,68 @@ void copy_buffer_float(int size, float *src, float *dest) {
 }
 
 void print_buffer(int size, double *buf)	{
-	int i;
-	for (i = 0; i < size; i++)	{
-		printf("%.0f ", buf[i]);
-	}
-	printf("\n");
+  int i;
+  for (i = 0; i < size; i++)	{
+    printf("%.0f ", buf[i]);
+  }
+  printf("\n");
 }
 
 int test_buffer_diff(int size, double *a, double *b)	{
-	double diff = diff_buffer(size, a, b);
-	// Should really have a tolerance but for now this will do
-	if (diff != 0.0)	{
-	  printf("Error: diff = %f\n", diff);
-	  return 1;
-	} else {
-	  return 0;
-	}
+  double diff = diff_buffer(size, a, b);
+  // Should really have a tolerance but for now this will do
+  if (diff != 0.0)	{
+    printf("Error: diff = %f\n", diff);
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 int test_buffer_diff_float(int size, float *a, float *b)	{
-	float diff = diff_buffer_float(size, a, b);
-	// Should really have a tolerance but for now this will do
-	if (diff != 0.0)	{
-	  return 1;
-	} else {
-	  return 0;
-	}
+  float diff = diff_buffer_float(size, a, b);
+  // Should really have a tolerance but for now this will do
+  if (diff != 0.0)	{
+    return 1;
+  } else {
+    return 0;
+  }
 }
 
 void print_mat(int m, int n, double *a, int a_row_stride, int a_col_stride)	{
-	int i, j;
-	for (i = 0; i < m; i++)	{
-		for (j = 0; j < n; j++)	{
-			printf("%.2f ", A(i, j));
-		}
-		printf("\n");
-	}
-	printf("\n");
+  int i, j;
+  for (i = 0; i < m; i++)	{
+    for (j = 0; j < n; j++)	{
+      printf("%.2f ", A(i, j));
+    }
+    printf("\n");
+  }
+  printf("\n");
 }
 
-void print_mat_float(int m, int n, float* a, int a_row_stride, int a_col_stride)	{
-	int i, j;
-	for (i = 0; i < m; i++)	{
-		for (j = 0; j < n; j++)	{
-			printf("%f ", A(i, j));
-		}
-		printf("\n");
-	}
-	printf("\n");
+void print_mat_float(int m, int n, float* a, int a_row_stride, int a_col_stride) {
+  int i, j;
+  for (i = 0; i < m; i++)	{
+    for (j = 0; j < n; j++)	{
+      printf("%f ", A(i, j));
+    }
+    printf("\n");
+  }
+  printf("\n");
 }
 
-void reset_values(int size, double *a, double *b, double *c, double *c_copy)	{	rand_doubles(size, a);	rand_doubles(size, b);	rand_doubles(size, c);	copy_buffer(size, c, c_copy);}
+void reset_values(int size, double *a, double *b, double *c, double *c_copy) {
+  rand_doubles(size, a);
+  rand_doubles(size, b);
+  rand_doubles(size, c);
+  copy_buffer(size, c, c_copy);
+}
 
-unsigned long long rdtsc()
-{
-   unsigned long long int x;
-   unsigned a, d;
+unsigned long long rdtsc() {
+  unsigned long long int x;
+  unsigned a, d;
 
-   __asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
+  __asm__ volatile("rdtsc" : "=a" (a), "=d" (d));
 
-   return ((unsigned long long)a) | (((unsigned long long)d) << 32);
+  return ((unsigned long long)a) | (((unsigned long long)d) << 32);
 }

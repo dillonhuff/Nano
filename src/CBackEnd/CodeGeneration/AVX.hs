@@ -2,9 +2,11 @@ module CBackEnd.CodeGeneration.AVX(avxVarDecls, toAVX) where
 
 import Data.List as L
 
+import Analysis.Matrix
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.Syntax
 import CBackEnd.Utils
+import IndexExpression
 import Matrix
 import Statement
 
@@ -38,7 +40,13 @@ avxSet stmt =
       False -> avxLoad stmt
     False -> avxStore stmt
 
-avxLoad stmt = [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_load_pd" [matRExpr 0 stmt])) ""]
+-- This is datatype dependent. Instruction selection needs to be factored to rely more on pattern matching
+avxLoad stmt =
+  case isRegisterizeable 4 $ operandRead 0 stmt of
+    True -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_load_pd" [matRExpr 0 stmt])) ""]
+    False -> case isRegisterizeableBelow 4 $ operandRead 0 stmt of
+      True -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_pd" [matRExpr 0 stmt, mask $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]
+      False -> error $ "avxLoad: Unsupported stmt " ++ show stmt
 
 avxStore stmt = [cExprSt (cFuncall "_mm256_store_pd" [matWExpr stmt, matRExpr 0 stmt]) ""]
 
@@ -51,3 +59,10 @@ matRExpr n stmt =
   case isRegister $ operandRead n stmt of
     True -> cVar $ bufferName $ operandRead n stmt
     False -> matToCExpr $ operandRead n stmt
+
+mask n =
+  cFuncall "_mm256_set_epi32" $ maskArgs n
+
+-- Also datatype depenent
+maskArgs n =
+  (L.replicate (2*(4 - n)) (cIntLit 0)) ++ (L.replicate (2*n) (cIntLit (-1)))
