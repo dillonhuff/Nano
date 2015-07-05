@@ -89,6 +89,9 @@ matRExpr n stmt =
     True -> cVar $ bufferName $ operandRead n stmt
     False -> matToCExpr $ operandRead n stmt
 
+fc n args = [cExprSt (cFuncall n args) ""]
+afc lname fname args = [cExprSt (cAssign (cVar lname) (cFuncall fname args)) ""]
+
 mask n =
   cFuncall "_mm256_set_epi32" $ maskArgs n
 
@@ -106,7 +109,7 @@ avxInstructions =
    (fits_mm256_mul_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_pd" stmt)) ""]),
    (fits_mm256_broadcast_sd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_sd" [matRExpr 0 stmt])) ""]),
    (fits_mm256_loadu_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_loadu_pd" [matRExpr 0 stmt])) ""]),
-   (fits_mm256_storeu_pd, \stmt -> [cExprSt (cFuncall "_mm256_storeu_pd" [matWExpr stmt, matRExpr 0 stmt]) ""]),
+   (fits_mm256_storeu_pd, \stmt -> fc "_mm256_storeu_pd" [matWExpr stmt, matRExpr 0 stmt]),
    (fits_mm256_maskload_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_pd" [matRExpr 0 stmt, mask $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]),
-   (fits_mm256_maskstore_pd, \stmt -> [cExprSt (cFuncall "_mm256_maskstore_pd" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]) ""]),
+   (fits_mm256_maskstore_pd, \stmt -> fc "_mm256_maskstore_pd" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]),
    (fits_assign, \stmt -> [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""])]
