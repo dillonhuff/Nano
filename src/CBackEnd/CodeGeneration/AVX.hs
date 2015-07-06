@@ -65,6 +65,28 @@ fits_mm256_maskstore_pd stmt =
   isRegisterizeableBelow 4 (operandRead 0 stmt) &&
   not (isRegister $ operandWritten stmt)
 
+fits_mm256_setzero_pd stmt =
+  opcode stmt == ZERO && allType double stmt &&
+  isRegister (operandWritten stmt) &&
+  (isRegisterizeableBelow 4 (operandWritten stmt) || isRegisterizeable 4 (operandWritten stmt))
+
+fits_accum4 stmt =
+  opcode stmt == ACCU && allType double stmt &&
+  isRegister (operandWritten stmt) && isRegister (operandRead 1 stmt) &&
+  isRegisterizeable 1 (operandWritten stmt) && isRegisterizeable 4 (operandRead 1 stmt)
+
+accum4 stmt =
+  let c = operandWritten stmt
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt
+      t4 = cFuncall "_mm256_hadd_pd" [cVar $ bufferName b, cFuncall "_mm256_setzero_pd" []]
+      t5 = cFuncall "_mm256_permute4x64_pd" [t4, cVar "0b11011000"]
+      t6 = cFuncall "_mm256_hadd_pd" [t5, cFuncall "_mm256_setzero_pd" []]
+      t7 = cFuncall "_mm256_add_pd" [t6, cVar $ bufferName a] in
+  [cExprSt (cAssign (cVar $ bufferName c) t7) ""]
+
+fc n args = [cExprSt (cFuncall n args) ""]
+afc lname fname args = [cExprSt (cAssign (cVar lname) (cFuncall fname args)) ""]
 
 allInRegister stmt = L.all isRegister $ allOperands stmt
 
@@ -89,8 +111,6 @@ matRExpr n stmt =
     True -> cVar $ bufferName $ operandRead n stmt
     False -> matToCExpr $ operandRead n stmt
 
-fc n args = [cExprSt (cFuncall n args) ""]
-afc lname fname args = [cExprSt (cAssign (cVar lname) (cFuncall fname args)) ""]
 
 mask n =
   cFuncall "_mm256_set_epi32" $ maskArgs n
@@ -107,9 +127,11 @@ firstToMatch ((cond, f):rest) stmt =
 avxInstructions =
   [(fits_mm256_add_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_pd" stmt)) ""]),
    (fits_mm256_mul_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_pd" stmt)) ""]),
+   (fits_mm256_setzero_pd, \stmt -> afc (bufferName $ operandWritten stmt) "_mm256_setzero_pd" []),
    (fits_mm256_broadcast_sd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_sd" [matRExpr 0 stmt])) ""]),
    (fits_mm256_loadu_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_loadu_pd" [matRExpr 0 stmt])) ""]),
    (fits_mm256_storeu_pd, \stmt -> fc "_mm256_storeu_pd" [matWExpr stmt, matRExpr 0 stmt]),
    (fits_mm256_maskload_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_pd" [matRExpr 0 stmt, mask $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]),
    (fits_mm256_maskstore_pd, \stmt -> fc "_mm256_maskstore_pd" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]),
+   (fits_accum4, \stmt -> accum4 stmt),
    (fits_assign, \stmt -> [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""])]

@@ -57,5 +57,5 @@ n1 = constDblMat "N1" 9 9 9 1
 n2 = constDblMat "N2" 9 9 9 1
 n3 = constDblMat "N3" 9 9 9 1
 
-x1 = constDblMat "x" 1 9 1 1
-y1 = constDblMat "y" 9 1 1 1
+x1 = constDblMat "x" 1 8 1 1
+y1 = constDblMat "y" 8 1 1 1

@@ -46,6 +46,7 @@ registerizeStmt i stmt =
     MSET -> registerizeTrans u stmt
     EMUL -> registerizeEMUL u stmt
     BRDC -> return [stmt]
+    ZERO -> return [stmt]
     _ -> error $ "registerizeStmt: Unsupported operation " ++ show stmt
 
 freshRegName :: State (String, Int) String

@@ -1,7 +1,8 @@
 module Blocking(blockMatrixAddM, blockMatrixAddN,
                 blockMatrixTransposeM, blockMatrixTransposeN,
                 blockScalarMultiplyM, blockScalarMultiplyN,
-                blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP) where
+                blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP,
+                blockedLoop) where
 
 import IndexExpression
 import Matrix

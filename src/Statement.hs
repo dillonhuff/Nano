@@ -1,6 +1,6 @@
 module Statement(Statement,
                  matrixMultiply, matrixTranspose, matrixAdd, loop, scalarMultiply, matrixSet,
-                 broadcast, elemWiseMultiply,
+                 broadcast, elemWiseMultiply, setZero, accumulate,
                  isMatrixAdd, isMatrixTranspose, isMatrixMultiply, isLoop, isScalarMultiply, isMatrixSet,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody, opcode,
                  operandWritten, allOperands, operandsRead,
@@ -28,6 +28,8 @@ instance Show Statement where
   show (Instr other w args) = "\n" ++ show other ++ " " ++ show w ++ " " ++ show args
   show (Loop v s b e body) = "for " ++ v ++ " " ++ show s ++ ":" ++ show b ++ ":" ++ show e ++ " " ++ (L.concatMap show body) ++ "\nend"
 
+accumulate c a b = Instr ACCU c [a, b]
+setZero a = Instr ZERO a []
 broadcast a b = Instr BRDC a [b]
 elemWiseMultiply c a b = Instr EMUL c [a, b]
 matrixSet a b = Instr MSET a [b]
@@ -117,4 +119,6 @@ data OpCode
   | TRAN
   | LOOP
   | BRDC
+  | ZERO
+  | ACCU
     deriving (Eq, Ord, Show)
