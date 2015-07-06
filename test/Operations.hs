@@ -22,10 +22,10 @@ constDblColVec name nr =
 constDblColVecT name nr =
   constDblMatTemp name nr 1 1 1
 
-constDblRowVec name nr =
-  constDblMat name nr 1 1 1
+constDblRowVec name nc =
+  constDblMat name 1 nc 1 1
 
-constDblRowVecT name nr =
-  constDblMatTemp name nr 1 1 1
+constDblRowVecT name nc =
+  constDblMatTemp name 1 nc 1 1
 
 

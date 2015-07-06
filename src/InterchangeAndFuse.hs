@@ -13,8 +13,10 @@ tryToInterchangeAndFuse iRanges (l1:stmts) =
     Just (l2, stmtsBetween, rest) -> 
       case canFuseIfAdjacent l1 l2 && (L.and $ L.map (\stmt -> canInterchange iRanges stmt l2) stmtsBetween) of
         True -> tryToInterchangeAndFuse iRanges ((fuseLoops l1 l2):(stmtsBetween ++ rest))
-        False -> l1 : (tryToInterchangeAndFuse iRanges (stmtsBetween ++ [l2] ++ rest))
-    Nothing -> l1:stmts
+        False -> case canFuseIfAdjacent l1 l2 && (L.and $ L.map (\stmt -> canInterchange iRanges stmt l1) stmtsBetween) of
+          True -> tryToInterchangeAndFuse iRanges (stmtsBetween ++ (fuseLoops l1 l2):rest)
+          False -> l1 : (tryToInterchangeAndFuse iRanges (stmtsBetween ++ [l2] ++ rest))
+    Nothing -> l1 : (tryToInterchangeAndFuse iRanges stmts)
 tryToInterchangeAndFuse iRanges other = other
 
 nextLoopAndStmtsBetween [] = Nothing

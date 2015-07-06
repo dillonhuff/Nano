@@ -13,7 +13,7 @@ blockDot u uniqueVarPrefix stmts =
 
 tryBlkDot :: IExpr -> Statement -> State (String, Int) [Statement]
 tryBlkDot u stmt =
-  case opcode stmt == MMUL && isScalar (operandWritten stmt) of
+  case opcode stmt == MMUL && isScalar (operandWritten stmt) && (constVal u) < (constVal $ numCols $ operandRead 0 stmt) of
     True -> blkDot u stmt
     False -> return [stmt]
 
