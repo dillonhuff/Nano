@@ -21,8 +21,6 @@ pullLoads stmt =
       initInvOps = initialInvOps i b
       allLoopInvOperands = loopInvariantOperands i b initInvOps
       (invStmts, bodyStmts) = L.foldr (partitionBody allLoopInvOperands) ([], []) b in
---  error $ "Inv ops: " ++ show initInvOps
---  error $ "Inv statments: " ++ show invStmts
   case bodyStmts of
     [] -> error $ "Entire body is invariant: " ++ show invStmts ++ "\n" ++ show stmt
     _ -> invStmts ++ [loop (loopInductionVariable stmt) (loopStart stmt) (loopInc stmt) (loopEnd stmt) bodyStmts]

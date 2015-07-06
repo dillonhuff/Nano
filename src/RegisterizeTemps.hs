@@ -25,5 +25,3 @@ tryToRegisterizeWith u registerizeableCondition m stmts =
   case registerizeableCondition m of
     True -> expandStatementsBU (\st -> [applyToOperands (replaceSupermatrix m (mkRegister u m)) st]) stmts
     False -> stmts
-
-{-setRegister $ matrix (bufferName m) (if numRows m /= iConst 1 then u else iConst 1) (if numCols m /= iConst 1 then u else iConst 1) (rowStride m) (colStride m) (matProperties m)-}

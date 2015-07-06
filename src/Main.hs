@@ -2,60 +2,13 @@ module Main(main) where
 
 import Data.List as L
 
-import BlockDot
-import Blocking
 import CBackEnd.CodeGeneration.AVX
-import CBackEnd.CodeGeneration.Core
-import CBackEnd.SanityCheck
-import CBackEnd.Syntax
-import CBackEnd.Timing
-import CBackEnd.TimingHarness
-import CompactTemps
-import CostModel.Flops
-import CostModel.FlopsPlusTempAllocs
-import Dummies
-import Fusion
 import Fuzz
-import IndexExpression
-import InterchangeAndFuse
-import LoopInvariantCodeMotion
-import Matrix
 import Operations
-import RegisterizeTemps
-import Reporting.Report
-import Registerization
-import Search.Exhaustive
-import SMulToBroadcast
-import SplitTemps
-import Statement
+import OptimizationGroups.AVXLevel1
 
 main :: IO ()
-main = assertOptimizationsCorrect avxVarDecls toAVX avxLvl1Opts (ddotsmul 18)
-
-avxLvl1Opts =
-  registerization ++ tempReductionAVX ++ blockAndFuseAVXLvl1
-
-registerization =
-  [pullCodeOutOfLoops, registerizeBelow 4 "k_", registerize 4 "r_", smulToBroadcast "sm"]
-
-tempReductionAVX =
-  [registerizeTemps 4, compactTemps, splitTemps "t_"]
-
-blockAndFuseAVXLvl1 =
-  interchangeAndFuse:(blockDot 4 "d_"):interchangeAndFuse:(L.intersperse interchangeAndFuse blockingOptimizationsAVXLVL1)
-
-blockingOptimizationsAVXLVL1 :: [[Statement] -> [Statement]]
-blockingOptimizationsAVXLVL1 =
-  L.map (\(f, b) -> blkUniqueVar f b)
-  [(blockMatrixAddM, iConst 4),
-   (blockScalarMultiplyM, iConst 4),
-   (blockMatrixAddN, iConst 4),
-   (blockScalarMultiplyN, iConst 4),
-   (blockMatrixMultiplyM, iConst 4),
-   (blockMatrixMultiplyN, iConst 4),
-   (blockMatrixTransposeM, iConst 4),
-   (blockMatrixTransposeM, iConst 4),
-   (blockMatrixTransposeN, iConst 4)]
+main = assertOptimizationsCorrect avxVarDecls toAVX avxLvl1Opts (daxpadd 19)
 
 {-
 main :: IO ()
