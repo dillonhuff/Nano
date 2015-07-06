@@ -75,6 +75,22 @@ fits_accum4 stmt =
   isRegister (operandWritten stmt) && isRegister (operandRead 1 stmt) &&
   isRegisterizeable 1 (operandWritten stmt) && isRegisterizeable 4 (operandRead 1 stmt)
 
+fits_accumBelow4 stmt =
+  opcode stmt == ACCU && allType double stmt &&
+  isRegister (operandWritten stmt) && isRegister (operandRead 1 stmt) &&
+  isRegisterizeable 1 (operandWritten stmt) && isRegisterizeableBelow 4 (operandRead 1 stmt)
+
+accumBelow4 stmt =
+  let c = operandWritten stmt
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt
+      t1 = cFuncall "_mm256_blendv_pd" [cFuncall "_mm256_setzero_pd" [], cVar $ bufferName b, mask $ max (constVal $ numRows $ operandRead 1 stmt) (constVal $ numCols $ operandRead 1 stmt)]
+      t4 = cFuncall "_mm256_hadd_pd" [t1, cFuncall "_mm256_setzero_pd" []]
+      t5 = cFuncall "_mm256_permute4x64_pd" [t4, cVar "0b11011000"]
+      t6 = cFuncall "_mm256_hadd_pd" [t5, cFuncall "_mm256_setzero_pd" []]
+      t7 = cFuncall "_mm256_add_pd" [t6, cVar $ bufferName a] in
+  [cExprSt (cAssign (cVar $ bufferName c) t7) ""]  
+  
 accum4 stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt
@@ -134,4 +150,5 @@ avxInstructions =
    (fits_mm256_maskload_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_pd" [matRExpr 0 stmt, mask $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]),
    (fits_mm256_maskstore_pd, \stmt -> fc "_mm256_maskstore_pd" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]),
    (fits_accum4, \stmt -> accum4 stmt),
+   (fits_accumBelow4, \stmt -> accumBelow4 stmt),
    (fits_assign, \stmt -> [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""])]

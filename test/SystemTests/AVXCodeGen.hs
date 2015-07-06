@@ -30,7 +30,8 @@ avxTestCases =
    ltc "daxpy" avxVarDecls toAVX avxOpts (daxpy 16),
    ltc "matrix add even" avxVarDecls toAVX avxOptsSMulAdd [matrixAdd m1 m2 m3],
    ltc "matrix add uneven" avxVarDecls toAVX avxOptsSMulAdd [matrixAdd n1 n2 n3],
-   ltc "dot product" avxVarDecls toAVX avxOptsSMulAdd [matrixMultiply alpha x1 y1]]
+   ltc "dot product" avxVarDecls toAVX avxOptsSMulAdd [matrixMultiply alpha x1 y1],
+   ltc "uneven size dot product" avxVarDecls toAVX avxOptsSMulAdd [matrixMultiply alpha xu1 yu1]]
 
 avxOpts = pullCodeOutOfLoops:(registerize 4 "r_"):(smulToBroadcast "sm"):(registerizeTemps 4):compactTemps:fuseInnerLoops:avxBlocking
 
@@ -59,3 +60,6 @@ n3 = constDblMat "N3" 9 9 9 1
 
 x1 = constDblMat "x" 1 8 1 1
 y1 = constDblMat "y" 8 1 1 1
+
+xu1 = constDblMat "x" 1 11 1 1
+yu1 = constDblMat "y" 11 1 1 1

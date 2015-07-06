@@ -42,8 +42,18 @@ mainBlkedDot u stmt =
         body = [elemWiseMultiply t1 xi pi, matrixAdd t2 t1 t2] in
       return $ (setZero t2):(blockedLoop i (numCols x) u body):(matrixSet ar alpha):(accumulate ar ar t2):(matrixSet alpha ar):[]
 
-residualBlkedDot u stmt =
-  error "residualBlkedDot"
+residualBlkedDot u stmt = do
+  t3N <- freshRegName
+  arN <- freshRegName
+  let alpha = operandWritten stmt
+      x = operandRead 0 stmt
+      p = operandRead 1 stmt
+      (rs, rl) = computeResidual u (numCols x)
+      ar = duplicateInRegister (iConst 1) arN alpha
+      xr = colPart rs rl x
+      pr = rowPart rs rl p
+      t3 = duplicateInRegister u t3N xr in
+    return [elemWiseMultiply t3 xr pr, matrixSet ar alpha, accumulate ar ar t3, matrixSet alpha ar]
 
 freshRegName :: State (String, Int) String
 freshRegName = do
