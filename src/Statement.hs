@@ -9,6 +9,8 @@ module Statement(Statement,
                  collectFromAllOperands,
                  collectFromStmt, collectValuesFromStmt,
                  operandRead,
+                 anyNullOperands,
+                 setOperandWritten, setOperandsRead,
                  OpCode(..)) where
 
 import Control.Monad
@@ -109,6 +111,13 @@ allOperands stmt = L.nub $ allOperandsWithRepeats stmt
 
 allOperandsWithRepeats (Instr _ w args) = w:args
 allOperandsWithRepeats (Loop _ _ _ _ _) = []
+
+anyNullOperands stmt =
+  L.any isNull $ allOperands stmt
+
+setOperandWritten w (Instr c _ args) = Instr c w args
+
+setOperandsRead args (Instr c w _) = Instr c w args
 
 data OpCode
   = MMUL

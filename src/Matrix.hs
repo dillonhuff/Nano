@@ -1,7 +1,7 @@
 module Matrix(Matrix,
               matrix,
               rowPart, colPart,
-              isMatrix, isVector, isScalar, isRowVector, isColVector,
+              isMatrix, isVector, isScalar, isRowVector, isColVector, isNull,
               bufferName, locationExpr, sizeExpr, matProperties,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
@@ -43,6 +43,9 @@ rowPart rStart numRows m =
 
 colPart cStart numCols m =
   SubMatrix Col cStart numCols m (matProperties m)
+
+isNull m =
+  numRows m == iConst 0 || numCols m == iConst 0
 
 isScalar m =
   numRows m == iConst 1 && numCols m == iConst 1

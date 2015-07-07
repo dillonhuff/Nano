@@ -4,6 +4,8 @@ module Blocking(blockMatrixAddM, blockMatrixAddN,
                 blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP,
                 blockedLoop, computeResidual) where
 
+import Data.List as L
+
 import IndexExpression
 import Matrix
 import Partition
@@ -63,125 +65,82 @@ blockMatrixMultiplyP indVar blkFactor stmt =
     True -> blockMMulP indVar blkFactor stmt
     False -> [stmt]
 
-blockMAddM indVar blkFactor stmt =
-  case numRows (operandWritten residual) == iConst 0 of
-    True -> [mainLoop]
-    False -> [mainLoop, residual]
+blockMAddM indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
   where
     c = operandWritten stmt
-    (rs, rl) = computeResidual blkFactor (numRows c)
-    mainAdd = applyToOperands (\m -> rowPart indVar blkFactor m) stmt
+    (mainAdd, residual) = splitStmt indVar blkFactor (Just Row, [Just Row, Just Row]) stmt
     mainLoop = blockedLoop indVar (numRows c) blkFactor [mainAdd]
-    residual = applyToOperands (\m -> rowPart rs rl m) stmt
 
-blockMAddN indVar blkFactor stmt =
-  case numCols (operandWritten residual) == iConst 0 of
-    True -> [mainLoop]
-    False -> [mainLoop, residual]
+
+blockMAddN indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
   where
     c = operandWritten stmt
-    (rs, rl) = computeResidual blkFactor (numCols c)
-    mainAdd = applyToOperands (\m -> colPart indVar blkFactor m) stmt
+    (mainAdd, residual) = splitStmt indVar blkFactor (Just Col, [Just Col, Just Col]) stmt
     mainLoop = blockedLoop indVar (numCols c) blkFactor [mainAdd]
-    residual = applyToOperands (\m -> colPart rs rl m) stmt
 
-blockSMulM indVar blkFactor stmt =
-  case numRows (operandWritten residual) == iConst 0 of
-    True -> [mainLoop]
-    False -> [mainLoop, residual]
+
+blockSMulM indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
   where
     c = operandWritten stmt
-    (rs, rl) = computeResidual blkFactor (numRows c)
-    mainSMul = applyToOperands (\m -> if not (isScalar m) then rowPart indVar blkFactor m else m) stmt
+    (mainSMul, residual) = splitStmt indVar blkFactor (Just Row, [Nothing, Just Row]) stmt
     mainLoop = blockedLoop indVar (numRows c) blkFactor [mainSMul]
-    residual = applyToOperands (\m -> if not (isScalar m) then rowPart rs rl m else m) stmt
 
-blockSMulN indVar blkFactor stmt =
-  case numCols (operandWritten residual) == iConst 0 of
-    True -> [mainLoop]
-    False -> [mainLoop, residual]
+
+blockSMulN indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
   where
     c = operandWritten stmt
-    (rs, rl) = computeResidual blkFactor (numCols c)
-    mainSMul = applyToOperands (\m -> if not (isScalar m) then colPart indVar blkFactor m else m) stmt
+    (mainSMul, residual) = splitStmt indVar blkFactor (Just Col, [Nothing, Just Col]) stmt
     mainLoop = blockedLoop indVar (numCols c) blkFactor [mainSMul]
-    residual = applyToOperands (\m -> if not (isScalar m) then colPart rs rl m else m) stmt
 
-blockMMulM indVar blkFactor stmt =
-  case numRows (operandWritten residual) == iConst 0 of
-    True -> [mainLoop]
-    False -> [mainLoop, residual]
+
+blockMMulM indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
   where
     c = operandWritten stmt
-    a = operandRead 0 stmt
-    b = operandRead 1 stmt
-    (mainC, resC) = splitMat indVar blkFactor Row c
-    (mainA, resA) = splitMat indVar blkFactor Row a
-    mainMul = matrixMultiply mainC mainA b
-    (rs, rl) = computeResidual blkFactor (numRows c)
+    (mainMul, residual) = splitStmt indVar blkFactor (Just Row, [Just Row, Nothing, Just Row]) stmt
     mainLoop = blockedLoop indVar (numRows c) blkFactor [mainMul]
-    residual = matrixMultiply resC resA b
 
-blockMMulN indVar blkFactor stmt =
-  case numCols (operandWritten residual) == iConst 0 of
-    True -> [mainLoop]
-    False -> [mainLoop, residual]
+blockMMulN indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
   where
     c = operandWritten stmt
-    a = operandRead 0 stmt
-    b = operandRead 1 stmt
-    (mainB, resB) = splitMat indVar blkFactor Col b
-    (mainC, resC) = splitMat indVar blkFactor Col c
-    mainMul = matrixMultiply mainC a mainB
-    (rs, rl) = computeResidual blkFactor (numCols c)
+    (mainMul, residual) = splitStmt indVar blkFactor (Just Col, [Nothing, Just Col, Just Col]) stmt
     mainLoop = blockedLoop indVar (numCols c) blkFactor [mainMul]
-    residual = matrixMultiply resC a resB
 
-blockMMulP indVar blkFactor stmt =
-  case numCols (operandRead 0 residual) == iConst 0 of
-    True -> [mainLoop]
-    False -> [mainLoop, residual]
+blockMMulP indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
   where
-    c = operandWritten stmt
-    a = operandRead 0 stmt
     b = operandRead 1 stmt
-    (mainA, resA) = splitMat indVar blkFactor Col a
-    (mainB, resB) = splitMat indVar blkFactor Row b
-    mainMul = matrixMultiply c mainA mainB
+    (mainMul, residual) = splitStmt indVar blkFactor (Nothing, [Just Col, Just Row, Nothing]) stmt
     mainLoop = blockedLoop indVar (numRows b) blkFactor [mainMul]
-    residual = matrixMultiply c resA resB
 
-blockTransM indVar blkFactor stmt =
-  case numRows (operandWritten residual) == iConst 0 of
-    True -> [mainLoop]
-    False -> [mainLoop, residual]
+blockTransM indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
   where
     a = operandWritten stmt
-    b = operandRead 0 stmt
-    (mainA, resA) = splitMat indVar blkFactor Row a
-    (mainB, resB) = splitMat indVar blkFactor Col b
-    (rs, rl) = computeResidual blkFactor (numRows a)
-    mainTrans = matrixTranspose mainA mainB
+    (mainTrans, residual) = splitStmt indVar blkFactor (Just Row, [Just Col]) stmt
     mainLoop = blockedLoop indVar (numRows a) blkFactor [mainTrans]
-    residual = matrixTranspose resA resB
 
-blockTransN indVar blkFactor stmt =
-  case numCols (operandWritten residual) == iConst 0 of
-    True -> [mainLoop]
-    False -> [mainLoop, residual]
+blockTransN indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
   where
     a = operandWritten stmt
-    b = operandRead 0 stmt
-    (mainA, resA) = splitMat indVar blkFactor Col a --colPart indVar blkFactor a
-    (mainB, resB) = splitMat indVar blkFactor Row b
-    (rs, rl) = computeResidual blkFactor (numCols a)
-    mainTrans = matrixTranspose mainA mainB
+    (mainTrans, residual) = splitStmt indVar blkFactor (Just Col, [Just Row]) stmt
     mainLoop = blockedLoop indVar (numCols a) blkFactor [mainTrans]
-    residual = matrixTranspose resA resB
+
 
 blockedLoop indVar dim blkFactor stmts =
   let e = evaluateIExprConstants $ iSub dim blkFactor in
   loop (varName indVar) (iConst 0) blkFactor e stmts
+
+splitStmt indVar blkFactor (splitW, splitR) stmt =
+  let (mainW, resW) = (splitMatN indVar blkFactor splitW) (operandWritten stmt)
+      mainRResRPairs = L.zipWith (\dir m -> splitMatN indVar blkFactor dir m) splitR $ operandsRead stmt
+      mainR = L.map fst mainRResRPairs
+      resR = L.map snd mainRResRPairs
+      mainSt = setOperandWritten mainW $ setOperandsRead mainR stmt
+      resSt = setOperandWritten resW $ setOperandsRead resR stmt in
+  (mainSt, resSt)
+
+splitMatN indVar blkFactor maybeDir m =
+  case maybeDir of
+    Just d -> splitMat indVar blkFactor d m
+    Nothing -> (m, m)
 
 splitMat indVar blkFactor partDir m =
   case partDir of
