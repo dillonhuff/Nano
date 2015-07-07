@@ -18,6 +18,7 @@ import Data.Map as M hiding (partition)
 
 import Analysis.IndexExpression
 import IndexExpression
+import Partition
 import Scope
 
 data Matrix
@@ -174,17 +175,6 @@ partitionedBy i (Matrix _ nr nc rs cs _) =
   containsSubExpr i nr || containsSubExpr i nc || containsSubExpr i rs || containsSubExpr i cs
 partitionedBy i (SubMatrix _ v b m p) =
   (containsSubExpr i v || containsSubExpr i b) || partitionedBy i m
-
-data Shape
-  = Row
-  | Col
-    deriving (Eq, Ord, Show)
-
-data Partition
-  = Partition Shape IExpr IExpr
-    deriving (Eq, Ord, Show)
-
-partition s i l = Partition s i l
 
 data Properties
   = Properties Scope Type MemLocation

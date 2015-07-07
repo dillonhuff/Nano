@@ -8,7 +8,7 @@ import Operations
 import OptimizationGroups.AVXLevel1
 
 main :: IO ()
-main = assertOptimizationsCorrect avxVarDecls toAVX avxLvl1Opts (daxpadd 19)
+main = assertOptimizationsCorrect avxVarDecls toAVX avxLvl1Opts (daxpadd 16)
 
 {-
 main :: IO ()

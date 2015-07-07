@@ -6,6 +6,7 @@ module Blocking(blockMatrixAddM, blockMatrixAddN,
 
 import IndexExpression
 import Matrix
+import Partition
 import Statement
 
 blockMatrixAddM :: IExpr -> IExpr -> Statement -> [Statement]
@@ -114,13 +115,11 @@ blockMMulM indVar blkFactor stmt =
     c = operandWritten stmt
     a = operandRead 0 stmt
     b = operandRead 1 stmt
-    mainC = rowPart indVar blkFactor c
-    mainA = rowPart indVar blkFactor a
+    (mainC, resC) = splitMat indVar blkFactor Row c
+    (mainA, resA) = splitMat indVar blkFactor Row a
     mainMul = matrixMultiply mainC mainA b
     (rs, rl) = computeResidual blkFactor (numRows c)
     mainLoop = blockedLoop indVar (numRows c) blkFactor [mainMul]
-    resC = rowPart rs rl c
-    resA = rowPart rs rl a
     residual = matrixMultiply resC resA b
 
 blockMMulN indVar blkFactor stmt =
@@ -131,13 +130,11 @@ blockMMulN indVar blkFactor stmt =
     c = operandWritten stmt
     a = operandRead 0 stmt
     b = operandRead 1 stmt
-    mainC = colPart indVar blkFactor c
-    mainB = colPart indVar blkFactor b
+    (mainB, resB) = splitMat indVar blkFactor Col b
+    (mainC, resC) = splitMat indVar blkFactor Col c
     mainMul = matrixMultiply mainC a mainB
     (rs, rl) = computeResidual blkFactor (numCols c)
     mainLoop = blockedLoop indVar (numCols c) blkFactor [mainMul]
-    resC = colPart rs rl c
-    resB = colPart rs rl b
     residual = matrixMultiply resC a resB
 
 blockMMulP indVar blkFactor stmt =
@@ -148,12 +145,8 @@ blockMMulP indVar blkFactor stmt =
     c = operandWritten stmt
     a = operandRead 0 stmt
     b = operandRead 1 stmt
-    mainA = colPart indVar blkFactor a
-    mainB = rowPart indVar blkFactor b
-    (rsA, rlA) = computeResidual blkFactor (numCols a)
-    resA = colPart rsA rlA a
-    (rsB, rlB) = computeResidual blkFactor (numRows b)
-    resB = rowPart rsB rlB b
+    (mainA, resA) = splitMat indVar blkFactor Col a
+    (mainB, resB) = splitMat indVar blkFactor Row b
     mainMul = matrixMultiply c mainA mainB
     mainLoop = blockedLoop indVar (numRows b) blkFactor [mainMul]
     residual = matrixMultiply c resA resB
@@ -165,11 +158,9 @@ blockTransM indVar blkFactor stmt =
   where
     a = operandWritten stmt
     b = operandRead 0 stmt
-    mainA = rowPart indVar blkFactor a
-    mainB = colPart indVar blkFactor b
+    (mainA, resA) = splitMat indVar blkFactor Row a
+    (mainB, resB) = splitMat indVar blkFactor Col b
     (rs, rl) = computeResidual blkFactor (numRows a)
-    resA = rowPart rs rl a
-    resB = colPart rs rl b
     mainTrans = matrixTranspose mainA mainB
     mainLoop = blockedLoop indVar (numRows a) blkFactor [mainTrans]
     residual = matrixTranspose resA resB
@@ -181,11 +172,9 @@ blockTransN indVar blkFactor stmt =
   where
     a = operandWritten stmt
     b = operandRead 0 stmt
-    mainA = colPart indVar blkFactor a
-    mainB = rowPart indVar blkFactor b
+    (mainA, resA) = splitMat indVar blkFactor Col a --colPart indVar blkFactor a
+    (mainB, resB) = splitMat indVar blkFactor Row b
     (rs, rl) = computeResidual blkFactor (numCols a)
-    resA = colPart rs rl a
-    resB = rowPart rs rl b
     mainTrans = matrixTranspose mainA mainB
     mainLoop = blockedLoop indVar (numCols a) blkFactor [mainTrans]
     residual = matrixTranspose resA resB
@@ -193,6 +182,11 @@ blockTransN indVar blkFactor stmt =
 blockedLoop indVar dim blkFactor stmts =
   let e = evaluateIExprConstants $ iSub dim blkFactor in
   loop (varName indVar) (iConst 0) blkFactor e stmts
+
+splitMat indVar blkFactor partDir m =
+  case partDir of
+    Row -> let (rs, rl) = computeResidual blkFactor (numRows m) in (rowPart indVar blkFactor m, rowPart rs rl m)
+    Col -> let (rs, rl) = computeResidual blkFactor (numCols m) in (colPart indVar blkFactor m, colPart rs rl m)
 
 computeResidual blkFactor dimLength =
   (residualStart blkFactor dimLength, residualLength blkFactor dimLength)
