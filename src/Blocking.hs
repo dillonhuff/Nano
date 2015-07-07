@@ -13,116 +13,50 @@ import Statement
 
 blockMatrixAddM :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixAddM indVar blkFactor stmt =
-  case isMatrixAdd stmt && numRows (operandWritten stmt) > blkFactor of
-    True -> blockMAddM indVar blkFactor stmt
-    False -> [stmt]
+  block isMatrixAdd (\stmt -> numRows $ operandWritten stmt) indVar blkFactor (Just Row, [Just Row, Just Row]) stmt
 
 blockMatrixAddN :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixAddN indVar blkFactor stmt =
-  case isMatrixAdd stmt && numCols (operandWritten stmt) > blkFactor of
-    True -> blockMAddN indVar blkFactor stmt
-    False -> [stmt]
+  block isMatrixAdd (\stmt -> numCols $ operandWritten stmt) indVar blkFactor (Just Col, [Just Col, Just Col]) stmt
 
 blockMatrixTransposeM :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixTransposeM indVar blkFactor stmt =
-  case isMatrixTranspose stmt && numRows (operandWritten stmt) > blkFactor of
-    True -> blockTransM indVar blkFactor stmt
-    False -> [stmt]
+  block isMatrixTranspose (\stmt -> numRows $ operandWritten stmt) indVar blkFactor (Just Row, [Just Col]) stmt
 
 blockMatrixTransposeN :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixTransposeN indVar blkFactor stmt =
-  case isMatrixTranspose stmt && numCols (operandWritten stmt) > blkFactor of
-    True -> blockTransN indVar blkFactor stmt
-    False -> [stmt]
+  block isMatrixTranspose (\stmt -> numCols $ operandWritten stmt) indVar blkFactor (Just Col, [Just Row]) stmt
 
 blockScalarMultiplyM :: IExpr -> IExpr -> Statement -> [Statement]
 blockScalarMultiplyM indVar blkFactor stmt =
-  case isScalarMultiply stmt && numRows (operandWritten stmt) > blkFactor of
-    True -> blockSMulM indVar blkFactor stmt
-    False -> [stmt]
+  block isScalarMultiply (\stmt -> numRows $ operandWritten stmt) indVar blkFactor (Just Row, [Nothing, Just Row]) stmt
 
 blockScalarMultiplyN :: IExpr -> IExpr -> Statement -> [Statement]
 blockScalarMultiplyN indVar blkFactor stmt =
-  case isScalarMultiply stmt && numCols (operandWritten stmt) > blkFactor of
-    True -> blockSMulN indVar blkFactor stmt
-    False -> [stmt]
+  block isScalarMultiply (\stmt -> numCols $ operandWritten stmt) indVar blkFactor (Just Col, [Nothing, Just Col]) stmt
 
 blockMatrixMultiplyM :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyM indVar blkFactor stmt =
-  case isMatrixMultiply stmt && numRows (operandWritten stmt) > blkFactor of
-    True -> blockMMulM indVar blkFactor stmt
-    False -> [stmt]
+  block isMatrixMultiply (\stmt -> numRows $ operandWritten stmt) indVar blkFactor (Just Row, [Just Row, Nothing, Just Row]) stmt
 
 blockMatrixMultiplyN :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyN indVar blkFactor stmt =
-  case isMatrixMultiply stmt && numCols (operandWritten stmt) > blkFactor of
-    True -> blockMMulN indVar blkFactor stmt
-    False -> [stmt]
+  block isMatrixMultiply (\stmt -> numCols $ operandWritten stmt) indVar blkFactor (Just Col, [Nothing, Just Col, Just Col]) stmt
 
 blockMatrixMultiplyP :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyP indVar blkFactor stmt =
-  case isMatrixMultiply stmt && numCols (operandRead 0 stmt) > blkFactor of
-    True -> blockMMulP indVar blkFactor stmt
+  block isMatrixMultiply (\stmt -> numRows $ operandRead 1 stmt) indVar blkFactor (Nothing, [Just Col, Just Row, Nothing]) stmt
+
+block isTargetOp aPartitionedDim indVar blkFactor partDirs stmt =
+  case isTargetOp stmt && aPartitionedDim stmt > blkFactor of
+    True -> blkStmt aPartitionedDim indVar blkFactor partDirs stmt
     False -> [stmt]
 
-blockMAddM indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
+blkStmt aPartitionedDim indVar blkFactor partDirs stmt =
+  L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residualOp]
   where
-    c = operandWritten stmt
-    (mainAdd, residual) = splitStmt indVar blkFactor (Just Row, [Just Row, Just Row]) stmt
-    mainLoop = blockedLoop indVar (numRows c) blkFactor [mainAdd]
-
-
-blockMAddN indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
-  where
-    c = operandWritten stmt
-    (mainAdd, residual) = splitStmt indVar blkFactor (Just Col, [Just Col, Just Col]) stmt
-    mainLoop = blockedLoop indVar (numCols c) blkFactor [mainAdd]
-
-
-blockSMulM indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
-  where
-    c = operandWritten stmt
-    (mainSMul, residual) = splitStmt indVar blkFactor (Just Row, [Nothing, Just Row]) stmt
-    mainLoop = blockedLoop indVar (numRows c) blkFactor [mainSMul]
-
-
-blockSMulN indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
-  where
-    c = operandWritten stmt
-    (mainSMul, residual) = splitStmt indVar blkFactor (Just Col, [Nothing, Just Col]) stmt
-    mainLoop = blockedLoop indVar (numCols c) blkFactor [mainSMul]
-
-
-blockMMulM indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
-  where
-    c = operandWritten stmt
-    (mainMul, residual) = splitStmt indVar blkFactor (Just Row, [Just Row, Nothing, Just Row]) stmt
-    mainLoop = blockedLoop indVar (numRows c) blkFactor [mainMul]
-
-blockMMulN indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
-  where
-    c = operandWritten stmt
-    (mainMul, residual) = splitStmt indVar blkFactor (Just Col, [Nothing, Just Col, Just Col]) stmt
-    mainLoop = blockedLoop indVar (numCols c) blkFactor [mainMul]
-
-blockMMulP indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
-  where
-    b = operandRead 1 stmt
-    (mainMul, residual) = splitStmt indVar blkFactor (Nothing, [Just Col, Just Row, Nothing]) stmt
-    mainLoop = blockedLoop indVar (numRows b) blkFactor [mainMul]
-
-blockTransM indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
-  where
-    a = operandWritten stmt
-    (mainTrans, residual) = splitStmt indVar blkFactor (Just Row, [Just Col]) stmt
-    mainLoop = blockedLoop indVar (numRows a) blkFactor [mainTrans]
-
-blockTransN indVar blkFactor stmt = L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residual]
-  where
-    a = operandWritten stmt
-    (mainTrans, residual) = splitStmt indVar blkFactor (Just Col, [Just Row]) stmt
-    mainLoop = blockedLoop indVar (numCols a) blkFactor [mainTrans]
-
+    (mainOp, residualOp) = splitStmt indVar blkFactor partDirs stmt
+    mainLoop = blockedLoop indVar (aPartitionedDim stmt) blkFactor [mainOp]
 
 blockedLoop indVar dim blkFactor stmts =
   let e = evaluateIExprConstants $ iSub dim blkFactor in
