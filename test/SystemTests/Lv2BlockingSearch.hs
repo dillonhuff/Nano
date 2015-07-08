@@ -66,7 +66,8 @@ lv2BlockingCasesColStride =
    ltc "scalar matrix multiply" avxVarDecls toAVX lv2Opts [scalarMultiply m1_cs alpha m1_cs],
    ltc "scalar matrix multiply with residual" avxVarDecls toAVX lv2Opts [scalarMultiply k1_cs alpha k2_cs],
    ltc "smul then add" avxVarDecls toAVX lv2Opts [scalarMultiply kt1_cs alpha k2_cs, matrixAdd k3_cs k2_cs kt1_cs],
-   ltc "dot product then smul with residual" avxVarDecls toAVX lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1_cs alpha k1_cs]]
+   ltc "dot product then smul with residual" avxVarDecls toAVX lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1_cs alpha k1_cs],
+   ltc "mvmul" avxVarDecls toAVX lv2Opts [matrixMultiply y1 m1_cs yc1]]
 
 lv2Opts = avxLvl1Opts ++ [partitionSearch "b_"]
 

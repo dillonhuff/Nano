@@ -7,6 +7,7 @@ import Blocking
 import IndexExpression
 import InterchangeAndFuse
 import Matrix
+import MMulToSMul
 import Partition
 import Statement
 
@@ -18,10 +19,15 @@ partitionSearch prefix stmts =
 propagatingPartitionSearch stmts =
   case isLv1Op stmts of
     True -> return stmts
-    False -> pickPartitionAndPropagate stmts >>= propagatingPartitionSearch
+    False -> do
+      res <- pickPartitionAndPropagate stmts
+      cRes <- cleanAndFuse res
+      propagatingPartitionSearch cRes
 
-cleanAndFuse stmts =
-  return $ interchangeAndFuse stmts
+cleanAndFuse :: [Statement] -> State (String, Int, [(Matrix, Shape, Int)]) [Statement]
+cleanAndFuse stmts = do
+  res <- mmulToSMul stmts
+  return $ interchangeAndFuse res
   
 pickPartitionAndPropagate stmts = do
   addPartition (pickPartition stmts)
