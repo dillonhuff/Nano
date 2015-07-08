@@ -50,10 +50,9 @@ nextLoopInvOps i stmts current =
   L.foldr (addIfInvariant i stmts) current possibleNewOperands
 
 addIfInvariant i stmts operand knownInvOps =
-  let allWriteLocs = L.filter (\stmt -> (not $ isLoop stmt) && operandWritten stmt == operand) stmts in
+  let allWriteLocs = L.filter (\stmt -> (not $ isLoop stmt) && operandWritten stmt == operand) $ L.concatMap (collectFromStmt id) stmts in
   case (not $ partitionedBy i operand) && L.all (\stmt -> (L.all (\m -> L.elem m knownInvOps) $ operandsRead stmt)) allWriteLocs of
-    True -> operand:knownInvOps {-error $ "Adding\n" ++ show operand ++ "\nto\n" ++ show knownInvOps ++ "\niVar is " ++ show i ++
-            "Does iVar partition new operand ? " ++ show (partitionedBy i operand) --operand:knownInvOps-}
+    True -> operand:knownInvOps
     False -> knownInvOps
 
 allOperandsWritten stmts =

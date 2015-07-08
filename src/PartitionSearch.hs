@@ -12,12 +12,13 @@ import Statement
 
 partitionSearch :: String -> [Statement] -> [Statement]
 partitionSearch prefix stmts =
-  evalState (propagatingPartitionSearch stmts) (prefix, 0, [])
+  let res = evalState (propagatingPartitionSearch stmts) (prefix, 0, []) in
+  res
 
 propagatingPartitionSearch stmts =
   case isLv1Op stmts of
     True -> return stmts
-    False -> pickPartitionAndPropagate stmts >>= propagatingPartitionSearch 
+    False -> pickPartitionAndPropagate stmts >>= propagatingPartitionSearch
 
 cleanAndFuse stmts =
   return $ interchangeAndFuse stmts
@@ -53,10 +54,13 @@ applyPartitionAndCollectInducedPartitions m partDir blkFactor stmts =
   expandStatementsBUM (applyPartIfPossible m partDir blkFactor) stmts
 
 applyPartIfPossible m partDir blkFactor stmt =
-  let possibleBlockings = blockingsInDir stmt partDir m in
-  case possibleBlockings of
-    [] -> return [stmt]
-    (blk:rest) -> applyPart blk blkFactor stmt
+  case L.elem m $ allOperands stmt of
+    True ->
+      let possibleBlockings = blockingsInDir stmt partDir m in
+      case possibleBlockings of
+        [] -> return [stmt]
+        (blk:rest) -> applyPart blk blkFactor stmt
+    False -> return [stmt]
 
 applyPart blk blkFactor stmt =
   case blockingApplies blk stmt of

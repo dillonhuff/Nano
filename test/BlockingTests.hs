@@ -136,7 +136,9 @@ blockingsInDirCases =
    ((matrixAdd a b b, Row, a), [blockMAddM]),
    ((matrixAdd a b b, Col, a), [blockMAddN]),
    ((matrixMultiply c a b, Col, c), [blockMMulN]),
-   ((matrixMultiply c a b, Col, a), [blockMMulP])]
+   ((matrixMultiply c a b, Col, a), [blockMMulP]),
+   ((matrixMultiply c a b, Row, c), [blockMMulM]),
+   ((matrixMultiply c a b, Row, a), [blockMMulM])]
 
 operandsPartitionedByBlockingTest (stmt, blocking) =
   operandsPartitionedByBlocking stmt blocking
@@ -144,4 +146,5 @@ operandsPartitionedByBlockingTest (stmt, blocking) =
 operandsPartitionedByBlockingCases
   = [((matrixAdd a b b, blockMMulN), []),
      ((matrixAdd a b b, blockMAddN), [(a, Col), (b, Col)]),
-     ((matrixMultiply c a b, blockMMulP), [(a, Col), (b, Row)])]
+     ((matrixMultiply c a b, blockMMulP), [(a, Col), (b, Row)]),
+     ((matrixMultiply c a b, blockMMulM), [(c, Row), (a, Row)])]
