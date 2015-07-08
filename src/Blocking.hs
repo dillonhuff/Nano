@@ -2,11 +2,12 @@ module Blocking(blockMatrixAddM, blockMatrixAddN,
                 blockMatrixTransposeM, blockMatrixTransposeN,
                 blockScalarMultiplyM, blockScalarMultiplyN,
                 blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP,
-                blockedLoop, computeResidual, blockingsInDir,
+                blockedLoop, computeResidual, blockingsInDir, operandsPartitionedByBlocking,
                 blockMAddM, blockMAddN, blockMTransM, blockMTransN, blockSMulM,
                 blockSMulN, blockMMulM, blockMMulN, blockMMulP) where
 
 import Data.List as L
+import Data.Maybe
 
 import IndexExpression
 import Matrix
@@ -96,6 +97,11 @@ partitionByOperand stmt (Blocking _ _ (wp, rps)) =
 partitionsOperandInDir ::Shape -> Matrix -> (Matrix, Maybe Shape) -> Bool
 partitionsOperandInDir dir m (n, s) =
   m /= n || (m == n && s == Just dir)
+
+operandsPartitionedByBlocking stmt blking =
+  case blockingApplies blking stmt of
+    True -> L.nub $ L.map (\(m, p) -> (m, fromJust p)) $ L.filter (\(m, p) -> case p of { Just d -> True; Nothing -> False }) $ partitionByOperand stmt blking
+    False -> []
 
 data Blocking
   = Blocking (Statement -> Bool) (Statement -> IExpr) (Maybe Shape, [Maybe Shape])

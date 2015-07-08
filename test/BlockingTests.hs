@@ -17,7 +17,8 @@ allBlockingTests = TestLabel "All blocking tests" $ TestList
    makeTestCases (blockMatrixMultiplyMTest $ iVar "i") blockMatrixMultiplyMCases,
    makeTestCases (blockMatrixMultiplyNTest $ iVar "j") blockMatrixMultiplyNCases,
    makeTestCases (blockMatrixMultiplyPTest $ iVar "k") blockMatrixMultiplyPCases,
-   makeTestCases blockingsInDirTest blockingsInDirCases]
+   makeTestCases blockingsInDirTest blockingsInDirCases,
+   makeTestCases operandsPartitionedByBlockingTest  operandsPartitionedByBlockingCases]
 
 blockMatrixAddMCases =
   [((iConst 5, matrixMultiply a a a), [matrixMultiply a a a]),
@@ -136,3 +137,11 @@ blockingsInDirCases =
    ((matrixAdd a b b, Col, a), [blockMAddN]),
    ((matrixMultiply c a b, Col, c), [blockMMulN]),
    ((matrixMultiply c a b, Col, a), [blockMMulP])]
+
+operandsPartitionedByBlockingTest (stmt, blocking) =
+  operandsPartitionedByBlocking stmt blocking
+
+operandsPartitionedByBlockingCases
+  = [((matrixAdd a b b, blockMMulN), []),
+     ((matrixAdd a b b, blockMAddN), [(a, Col), (b, Col)]),
+     ((matrixMultiply c a b, blockMMulP), [(a, Col), (b, Row)])]
