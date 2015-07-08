@@ -2,6 +2,7 @@ module Blocking(blockMatrixAddM, blockMatrixAddN,
                 blockMatrixTransposeM, blockMatrixTransposeN,
                 blockScalarMultiplyM, blockScalarMultiplyN,
                 blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP,
+                blockSetZeroM, blockSetZeroN,
                 blockedLoop, computeResidual, blockingsInDir, operandsPartitionedByBlocking,
                 blockingApplies, block,
                 blockMAddM, blockMAddN, blockMTransM, blockMTransN, blockSMulM,
@@ -51,6 +52,14 @@ blockMatrixMultiplyP :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyP indVar blkFactor stmt =
   block blockMMulP indVar blkFactor stmt
 
+blockSetZeroM :: IExpr -> IExpr -> Statement -> [Statement]
+blockSetZeroM indVar blkFactor stmt =
+  block blockZeroM indVar blkFactor stmt
+
+blockSetZeroN :: IExpr -> IExpr -> Statement -> [Statement]
+blockSetZeroN indVar blkFactor stmt =
+  block blockZeroN indVar blkFactor stmt
+
 blockMAddM =
   blocking isMatrixAdd (\stmt -> numRows $ operandWritten stmt) (Just Row, [Just Row, Just Row])
 blockMAddN =
@@ -69,6 +78,10 @@ blockMMulN =
   blocking isMatrixMultiply (\stmt -> numCols $ operandWritten stmt) (Just Col, [Nothing, Just Col, Just Col])
 blockMMulP =
   blocking isMatrixMultiply (\stmt -> numRows $ operandRead 1 stmt) (Nothing, [Just Col, Just Row, Nothing])
+blockZeroM =
+  blocking (\stmt -> opcode stmt == ZERO) (\stmt -> numRows $ operandWritten stmt) (Just Row, [])
+blockZeroN =
+  blocking (\stmt -> opcode stmt == ZERO) (\stmt -> numCols $ operandWritten stmt) (Just Col, [])
 
 blockings =
   [blockMAddM,
@@ -79,7 +92,9 @@ blockings =
    blockSMulN,
    blockMMulM,
    blockMMulN,
-   blockMMulP]
+   blockMMulP,
+   blockZeroM,
+   blockZeroM]
 
 blockingsInDir stmt dir m =
   case L.elem m $ allOperands stmt of

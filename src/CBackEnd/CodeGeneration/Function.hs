@@ -21,8 +21,24 @@ toCStmtsFunction stmt =
             True -> matrixTransposeToCStmts stmt
             False -> case isMatrixSet stmt of
               True -> matrixSetToCStmts stmt
-              False -> error $ "toCStmts: Unsupported statement " ++ show stmt
+              False -> case opcode stmt == ZERO of
+                True -> setZeroToCStmts stmt
+                False -> error $ "toCStmts: Unsupported statement " ++ show stmt
 
+setZeroToCStmts setZ =
+  let c = operandWritten setZ in
+  case isDouble $ dataType c of
+    True -> [cExprSt (cFuncall "set_to_zero_double" args) ""]
+    False -> [cExprSt (cFuncall "set_to_zero_float" args) ""]
+  where
+    c = operandWritten setZ
+    m = iExprToCExpr $ numRows c
+    n = iExprToCExpr $ numCols c
+    cRS = iExprToCExpr $ rowStride c
+    cCS = iExprToCExpr $ colStride c
+    args = [matToCExpr c,
+            m, n, cRS, cCS]
+  
 matrixAddToCStmts madd =
   let c = operandWritten madd in
   case isDouble $ dataType c of

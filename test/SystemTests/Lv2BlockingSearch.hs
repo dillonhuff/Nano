@@ -28,7 +28,8 @@ lv2BlockingCasesRowStride =
    ltc "scalar matrix multiply with residual" avxVarDecls toAVX lv2Opts [scalarMultiply k1 alpha k2],
    ltc "smul then add" avxVarDecls toAVX lv2Opts [scalarMultiply kt1 alpha k2, matrixAdd k3 k2 kt1],
    ltc "dot product then smul with residual" avxVarDecls toAVX lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1 alpha k1],
-   ltc "mvmul" avxVarDecls toAVX lv2Opts [matrixMultiply y1 m1 yc1]]
+   ltc "mvmul" avxVarDecls toAVX lv2Opts [matrixMultiply y1 m1 yc1],
+   ltc "gemv" avxVarDecls toAVX lv2Opts [setZero tv1, matrixMultiply tv1 m1 yc1, scalarMultiply tv2 alpha tv1, matrixAdd y1 tv2 y1]]
 
 m1 = constDblMat "M1" 8 8 8 1
 m2 = constDblMat "M2" 8 8 8 1
@@ -43,8 +44,11 @@ k2 = constDblMat "K2" 17 10 10 1
 k3 = constDblMat "K3" 17 10 10 1
 
 t1 = constDblMatTemp "T1" 8 8 8 1
+t2 = constDblMatTemp "T2" 8 8 8 1
 lt1 = constDblMatTemp "LT1" 19 19 19 1
 kt1 = constDblMatTemp "KT1" 17 10 10 1
+tv1 = constDblMatTemp "TV1" 8 1 1 1
+tv2 = constDblMatTemp "TV2" 8 1 1 1
 
 n1 = constDblMat "N1" 9 9 9 1
 n2 = constDblMat "N2" 9 9 9 1

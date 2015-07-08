@@ -40,4 +40,6 @@ blockingOptimizationsAVXLVL1 =
    (blockScalarMultiplyN, iConst 4),
    (blockMatrixTransposeM, iConst 4),
    (blockMatrixTransposeM, iConst 4),
-   (blockMatrixTransposeN, iConst 4)]
+   (blockMatrixTransposeN, iConst 4),
+   (blockSetZeroM, iConst 4),
+   (blockSetZeroN, iConst 4)]
