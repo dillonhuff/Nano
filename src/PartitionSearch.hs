@@ -27,10 +27,18 @@ pickPartitionAndPropagate stmts = do
   propagatePartition stmts
 
 pickPartition stmts =
-  (firstOperand stmts, Row, 1)
+  let m = firstPartitionableOperand stmts in
+  (m, partDim m, 1)
 
-firstOperand stmts =
-  L.head $ L.concatMap (collectFromAllOperands id) stmts
+partDim m =
+  case isRowMajor m of
+    True -> Row
+    False -> Col
+
+firstPartitionableOperand stmts =
+  L.head $ L.filter isPartitionable $ L.concatMap (collectFromAllOperands id) stmts
+
+isPartitionable m = isMatrix m
 
 propagatePartition stmts = do
   (p, i, nextParts) <- get

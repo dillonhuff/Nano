@@ -2,6 +2,7 @@ module Matrix(Matrix,
               matrix,
               rowPart, colPart,
               isMatrix, isVector, isScalar, isRowVector, isColVector, isNull,
+              isRowMajor, isColMajor, isContiguous,
               bufferName, locationExpr, sizeExpr, matProperties,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
@@ -61,6 +62,15 @@ isColVector m =
 
 isMatrix m =
   not (isScalar m) && not (isVector m)
+
+isColMajor m =
+  rowStride m == iConst 1
+
+isRowMajor m =
+  colStride m == iConst 1
+
+isContiguous m =
+  isScalar m || (isRowVector m && isRowMajor m) || (isColVector m && isColMajor m)
 
 underlyingMatrix (SubMatrix _ _ _ m _) = m
 underlyingMatrix m = m
