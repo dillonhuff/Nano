@@ -2,7 +2,9 @@ module Blocking(blockMatrixAddM, blockMatrixAddN,
                 blockMatrixTransposeM, blockMatrixTransposeN,
                 blockScalarMultiplyM, blockScalarMultiplyN,
                 blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP,
-                blockedLoop, computeResidual) where
+                blockedLoop, computeResidual, blockingsInDir,
+                blockMAddM, blockMAddN, blockMTransM, blockMTransN, blockSMulM,
+                blockSMulN, blockMMulM, blockMMulN, blockMMulP) where
 
 import Data.List as L
 
@@ -13,41 +15,102 @@ import Statement
 
 blockMatrixAddM :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixAddM indVar blkFactor stmt =
-  block isMatrixAdd (\stmt -> numRows $ operandWritten stmt) indVar blkFactor (Just Row, [Just Row, Just Row]) stmt
+  block blockMAddM indVar blkFactor stmt
 
 blockMatrixAddN :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixAddN indVar blkFactor stmt =
-  block isMatrixAdd (\stmt -> numCols $ operandWritten stmt) indVar blkFactor (Just Col, [Just Col, Just Col]) stmt
+  block blockMAddN indVar blkFactor stmt
 
 blockMatrixTransposeM :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixTransposeM indVar blkFactor stmt =
-  block isMatrixTranspose (\stmt -> numRows $ operandWritten stmt) indVar blkFactor (Just Row, [Just Col]) stmt
+  block blockMTransM indVar blkFactor stmt
 
 blockMatrixTransposeN :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixTransposeN indVar blkFactor stmt =
-  block isMatrixTranspose (\stmt -> numCols $ operandWritten stmt) indVar blkFactor (Just Col, [Just Row]) stmt
+  block blockMTransN indVar blkFactor stmt
 
 blockScalarMultiplyM :: IExpr -> IExpr -> Statement -> [Statement]
 blockScalarMultiplyM indVar blkFactor stmt =
-  block isScalarMultiply (\stmt -> numRows $ operandWritten stmt) indVar blkFactor (Just Row, [Nothing, Just Row]) stmt
+  block blockSMulM indVar blkFactor stmt
 
 blockScalarMultiplyN :: IExpr -> IExpr -> Statement -> [Statement]
 blockScalarMultiplyN indVar blkFactor stmt =
-  block isScalarMultiply (\stmt -> numCols $ operandWritten stmt) indVar blkFactor (Just Col, [Nothing, Just Col]) stmt
+  block blockSMulN indVar blkFactor stmt
 
 blockMatrixMultiplyM :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyM indVar blkFactor stmt =
-  block isMatrixMultiply (\stmt -> numRows $ operandWritten stmt) indVar blkFactor (Just Row, [Just Row, Nothing, Just Row]) stmt
+  block blockMMulM indVar blkFactor stmt
 
 blockMatrixMultiplyN :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyN indVar blkFactor stmt =
-  block isMatrixMultiply (\stmt -> numCols $ operandWritten stmt) indVar blkFactor (Just Col, [Nothing, Just Col, Just Col]) stmt
+  block blockMMulN indVar blkFactor stmt
 
 blockMatrixMultiplyP :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixMultiplyP indVar blkFactor stmt =
-  block isMatrixMultiply (\stmt -> numRows $ operandRead 1 stmt) indVar blkFactor (Nothing, [Just Col, Just Row, Nothing]) stmt
+  block blockMMulP indVar blkFactor stmt
 
-block isTargetOp aPartitionedDim indVar blkFactor partDirs stmt =
+blockMAddM =
+  blocking isMatrixAdd (\stmt -> numRows $ operandWritten stmt) (Just Row, [Just Row, Just Row])
+blockMAddN =
+  blocking isMatrixAdd (\stmt -> numCols $ operandWritten stmt) (Just Col, [Just Col, Just Col])
+blockMTransM =
+  blocking isMatrixTranspose (\stmt -> numRows $ operandWritten stmt) (Just Row, [Just Col])
+blockMTransN =
+  blocking isMatrixTranspose (\stmt -> numCols $ operandWritten stmt) (Just Col, [Just Row])
+blockSMulM =
+  blocking isScalarMultiply (\stmt -> numRows $ operandWritten stmt) (Just Row, [Nothing, Just Row])
+blockSMulN =
+  blocking isScalarMultiply (\stmt -> numCols $ operandWritten stmt) (Just Col, [Nothing, Just Col])
+blockMMulM =
+  blocking isMatrixMultiply (\stmt -> numRows $ operandWritten stmt) (Just Row, [Just Row, Nothing, Just Row])
+blockMMulN =
+  blocking isMatrixMultiply (\stmt -> numCols $ operandWritten stmt) (Just Col, [Nothing, Just Col, Just Col])
+blockMMulP =
+  blocking isMatrixMultiply (\stmt -> numRows $ operandRead 1 stmt) (Nothing, [Just Col, Just Row, Nothing])
+
+blockings =
+  [blockMAddM,
+   blockMAddN,
+   blockMTransM,
+   blockMTransN,
+   blockSMulM,
+   blockSMulN,
+   blockMMulM,
+   blockMMulN,
+   blockMMulP]
+
+blockingsInDir stmt dir m =
+  case L.elem m $ allOperands stmt of
+    True -> L.filter (\blk -> blocksInDir stmt dir m blk) $ L.filter (\blk -> blockingApplies blk stmt) blockings
+    False -> []
+
+blocksInDir :: Statement -> Shape -> Matrix -> Blocking -> Bool
+blocksInDir stmt dir m blk =
+  let partList = partitionByOperand stmt blk in
+  L.all (partitionsOperandInDir dir m) partList
+
+partitionByOperand :: Statement -> Blocking -> [(Matrix, Maybe Shape)]
+partitionByOperand stmt (Blocking _ _ (wp, rps)) =
+  (operandWritten stmt, wp):(L.zip (operandsRead stmt) rps)
+
+partitionsOperandInDir ::Shape -> Matrix -> (Matrix, Maybe Shape) -> Bool
+partitionsOperandInDir dir m (n, s) =
+  m /= n || (m == n && s == Just dir)
+
+data Blocking
+  = Blocking (Statement -> Bool) (Statement -> IExpr) (Maybe Shape, [Maybe Shape])
+
+instance Show Blocking where
+  show (Blocking _ _ ps) = show ps
+
+instance Eq Blocking where
+  (==) (Blocking _ _ ps1) (Blocking _ _ ps2) = ps1 == ps2
+
+blocking = Blocking
+
+blockingApplies (Blocking isTargetOp _ _) stmt = isTargetOp stmt
+
+block (Blocking isTargetOp aPartitionedDim partDirs) indVar blkFactor stmt =
   case isTargetOp stmt && aPartitionedDim stmt > blkFactor of
     True -> blkStmt aPartitionedDim indVar blkFactor partDirs stmt
     False -> [stmt]

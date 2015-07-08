@@ -6,6 +6,7 @@ import Blocking
 import IndexExpression
 import Matrix
 import Module
+import Partition
 import Statement
 
 allBlockingTests = TestLabel "All blocking tests" $ TestList 
@@ -15,7 +16,8 @@ allBlockingTests = TestLabel "All blocking tests" $ TestList
    makeTestCases (blockScalarMultiplyNTest $ iVar "j") blockScalarMultiplyNCases,
    makeTestCases (blockMatrixMultiplyMTest $ iVar "i") blockMatrixMultiplyMCases,
    makeTestCases (blockMatrixMultiplyNTest $ iVar "j") blockMatrixMultiplyNCases,
-   makeTestCases (blockMatrixMultiplyPTest $ iVar "k") blockMatrixMultiplyPCases]
+   makeTestCases (blockMatrixMultiplyPTest $ iVar "k") blockMatrixMultiplyPCases,
+   makeTestCases blockingsInDirTest blockingsInDirCases]
 
 blockMatrixAddMCases =
   [((iConst 5, matrixMultiply a a a), [matrixMultiply a a a]),
@@ -124,3 +126,13 @@ mmulCBlk2MResidual =
 
 constDblMat name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties arg double memory)
+
+blockingsInDirTest (stmt, dir, m) =
+  blockingsInDir stmt dir m
+
+blockingsInDirCases =
+  [((matrixAdd a b b, Row, c), []),
+   ((matrixAdd a b b, Row, a), [blockMAddM]),
+   ((matrixAdd a b b, Col, a), [blockMAddN]),
+   ((matrixMultiply c a b, Col, c), [blockMMulN]),
+   ((matrixMultiply c a b, Col, a), [blockMMulP])]
