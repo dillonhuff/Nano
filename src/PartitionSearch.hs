@@ -5,6 +5,7 @@ import Data.List as L
 
 import Blocking
 import IndexExpression
+import InterchangeAndFuse
 import Matrix
 import Partition
 import Statement
@@ -19,7 +20,7 @@ propagatingPartitionSearch stmts =
     False -> pickPartitionAndPropagate stmts >>= propagatingPartitionSearch 
 
 cleanAndFuse stmts =
-  return stmts
+  return $ interchangeAndFuse stmts
   
 pickPartitionAndPropagate stmts = do
   addPartition (pickPartition stmts)
