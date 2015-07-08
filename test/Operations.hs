@@ -1,9 +1,56 @@
 module Operations(daxpy, ddotsmul, daxpadd,
-                  dmvmul) where
+                  dmvmul, dgemvRM, dgemvCM,
+                  dblinfRM, dbigemvRM) where
 
-import Dummies
+import Dummies hiding (x, y, z, a, b, c)
 import Matrix
 import Statement
+
+dbigemvRM m n =
+  let alpha = constDblScalar "alpha"
+      beta = constDblScalar "beta"
+      t1 = constDblColVec "t1" m
+      t2 = constDblColVec "t2" m
+      x = constDblColVec "x" n
+      y = constDblColVec "y" m
+      a = constDblMat "A" m n n 1
+      b = constDblMat "B" m n n 1 in
+  [setZero t1,
+   matrixMultiply t1 a x,
+   scalarMultiply t1 alpha t1,
+   setZero t2,
+   matrixMultiply t2 a x,
+   scalarMultiply t2 alpha t2,
+   matrixAdd y t1 t2]
+
+dblinfRM m n =
+  let alpha = constDblScalar "alpha"
+      a = constDblMat "A" m n n 1
+      t1 = constDblRowVec "t1" m
+      t2 = constDblColVec "t2" m
+      x = constDblColVec "x" m
+      y = constDblColVec "y" n in
+  [matrixTranspose t1 x, setZero t2, matrixMultiply t2 a y, matrixMultiply alpha t1 t2]
+
+dgemvRM m n =
+  let alpha = constDblScalar "alpha"
+      beta = constDblScalar "beta"
+      t1 = constDblColVecT "t1" m
+      t2 = constDblColVecT "t2" m
+      dx = constDblColVec "x" n
+      dy = constDblColVec "y" m
+      aM = constDblMat "A" m n n 1 in
+  [setZero t1, matrixMultiply t1 aM dx, scalarMultiply t2 alpha t1, scalarMultiply dy beta dy, matrixAdd dy t2 dy]
+
+dgemvCM m n =
+  let alpha = constDblScalar "alpha"
+      beta = constDblScalar "beta"
+      t1 = constDblColVecT "t1" m
+      t2 = constDblColVecT "t2" m
+      dx = constDblColVec "x" n
+      dy = constDblColVec "y" m
+      aM = constDblMat "A" m n 1 m in
+  [setZero t1, matrixMultiply t1 aM dx, scalarMultiply t2 alpha t1, scalarMultiply dy beta dy, matrixAdd dy t2 dy]
 
 dmvmul m n =
   [matrixMultiply (constDblColVec "y" m) (constDblMatRM "A" m n) (constDblColVec "x" n)]

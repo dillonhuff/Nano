@@ -120,14 +120,3 @@ registerizeTrans u stmt =
     r1Name <- freshRegName
     let r1 = duplicateInRegister u r1Name b in
       return [matrixSet r1 b, matrixSet a r1]
-
-{-
-mkRegister u m =
-  case isRowVector m of
-    True -> setRegister $ matrix (bufferName m) (iConst 1) u (rowStride m) (colStride m) (matProperties m)
-    False -> setRegister $ matrix (bufferName m) u (iConst 1) (rowStride m) (colStride m) (matProperties m)
--}
-{-
-mkRegister u m =
-  setRegister $ matrix (bufferName m) (if numRows m == u then u else iConst 1) (if numCols m == u then u else iConst 1) (rowStride m) (colStride m) (matProperties m)
--}
