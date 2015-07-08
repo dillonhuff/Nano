@@ -3,6 +3,7 @@ module Blocking(blockMatrixAddM, blockMatrixAddN,
                 blockScalarMultiplyM, blockScalarMultiplyN,
                 blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP,
                 blockedLoop, computeResidual, blockingsInDir, operandsPartitionedByBlocking,
+                blockingApplies, block,
                 blockMAddM, blockMAddN, blockMTransM, blockMTransN, blockSMulM,
                 blockSMulN, blockMMulM, blockMMulN, blockMMulP) where
 
