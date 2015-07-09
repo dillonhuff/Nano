@@ -21,6 +21,7 @@ import Analysis.IndexExpression
 import IndexExpression
 import Partition
 import Scope
+import Type
 
 data Matrix
   = Matrix String IExpr IExpr IExpr IExpr Properties
@@ -201,23 +202,6 @@ properties = Properties
 propScope (Properties s _ _) = s
 propType (Properties _ t _) = t
 propMemLocation (Properties _ _ l) = l
-
-data Type
-  = Single
-  | Double
-    deriving (Eq, Ord)
-
-instance Show Type where
-  show Single = "S"
-  show Double = "D"
-
-single = Single
-double = Double
-
-isDouble Double = True
-isDouble _ = False
-
-isSingle t = not $ isDouble t
 
 data MemLocation
   = Memory

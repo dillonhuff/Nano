@@ -1,33 +1,67 @@
-module FrontEnd.Parser(parseOperation,
+module FrontEnd.Parser({-parseOperation,
                        parseStatement,
+                       parseFormalParam) where-}
                        parseFormalParam) where
 
 import Text.Parsec.Expr
 import Text.Parsec.Prim
 import Text.ParserCombinators.Parsec
 
-import IndexExpression
-import Core.MatrixOperation
 import FrontEnd.Token
+import IndexExpression
+import Matrix
+import MatrixOperation
+import Type
 
 parser :: Parsec [Token] () a -> String -> [Token] -> Either String a
 parser p srcName toks = case parse p srcName toks of
   Left err -> Left $ show err
   Right res -> Right $ res
 
-parseOperation :: String -> [Token] -> Either String [MatrixOperation]
+parseOperation :: String -> [Token] -> Either String [[MatrixStmt]]
 parseOperation sourceFileName toks = case parse (many pOperation) sourceFileName toks of
   Left err -> Left $ show err
   Right matOp -> Right matOp
 
-parseStatement :: String -> [Token] -> Either String MatrixStmt
+{-parseStatement :: String -> [Token] -> Either String MatrixStmt
 parseStatement sourceFileName toks = case parse pMatStatement sourceFileName toks of
   Left err -> Left $ show err
-  Right matOp -> Right matOp
+  Right matOp -> Right matOp-}
 
 parseFormalParam srcName toks = parser pFormalParam srcName toks
 
-pOperation = do
+pFormalParam = do
+  scp <- pScope
+  (nr, nc, rs, cs) <- pLayout
+  tp <- pEntryType
+  (name, pos) <- pIdent
+  return $ (name, matrix name nr nc rs cs $ properties scp tp memory)
+
+pEntryType = do
+  scopeStr <- pResWithNameTok "double" <|> pResWithNameTok "single"
+  case resName scopeStr of
+    "double" -> return double
+    "single" -> return single
+
+pLayout = pScalarL <|> pVectorL <|> pMatrixL
+
+pScalarL = do
+  s <- pResWithNameTok "sca"
+  return (iConst 1, iConst 1, iConst 1, iConst 1)
+
+pVectorL = error "pVectorL"
+
+pMatrixL = error "pMatrixL"
+
+pScope = do
+  scopeStr <- pResWithNameTok "iarg" <|> pResWithNameTok "oarg" <|> pResWithNameTok "temp"
+  case resName scopeStr of
+    "iarg" -> return arg
+    "oarg" -> return arg
+    "temp" -> return local
+
+
+pOperation = error "pOperation" {-do
   position <- getPosition
   pResWithNameTok "operation"
   (name, pos) <-pIdent
@@ -37,25 +71,19 @@ pOperation = do
   pResWithNameTok "{"
   ops <- pMatStatements
   pResWithNameTok "}"
-  return $ matrixOperation name args ops position
+  return $ matrixOperation name args ops position-}
 
+{-
 pArgList = sepBy pFormalParam (pResWithNameTok ",")
 
-pFormalParam = do
-  readMod <- pReadMod
-  pResWithNameTok "matrix"
-  dataType <- pEntryType
-  matLayout <- pLayout
-  (name, pos) <- pIdent
-  return $ (name, mOpSymInfo arg dataType (matLayout name))
 
 pReadMod = (pResWithNameTok "output") <|> (pResWithNameTok "r") <|> (pResWithNameTok "rw")
 
 pEntryType = do
   outN <- pResWithNameTok "double" <|> pResWithNameTok "float"
   case resName outN of
-    "double" -> return doubleFloat
-    "float" -> return singleFloat
+    "double" -> return double
+    "float" -> return single
 
 pLayout = do
   nr <- pDim
@@ -64,10 +92,10 @@ pLayout = do
   cs <- pDim
   return $ layoutForMat nr nc rs cs
 
-layoutForMat nr nc rs cs name =
+layoutForMat nr nc rs cs name = error "layoutForMat" {-
   layout (lr nr "_nrows") (lr nc "_ncols") (lr rs "_rs") (lr cs "_cs")
   where
-    lr i suffix = if i == iVar "gen" then (iVar (name ++ suffix)) else i
+    lr i suffix = if i == iVar "gen" then (iVar (name ++ suffix)) else i-}
 
 pDim = pGen <|> pConstDim
 
@@ -81,13 +109,13 @@ pConstDim = do
 
 pMatStatements = many pMatStatement
 
-pMatStatement = do
+pMatStatement = error "pMatStatement" {-do
   pos <- getPosition
   (name, pos) <- pIdent
   pResWithNameTok "="
   ex <- pMatExpr
   pResWithNameTok ";"
-  return $ matAsg name ex pos
+  return $ matAsg name ex pos-}
 
 table =
   [[matTransOp],
@@ -103,36 +131,39 @@ matSubOp = Infix pMatSubOp AssocLeft
 pMatTransOp = do
   pos <- getPosition
   pResWithNameTok "'"
-  return $ (\n -> matrixTrans n pos)
+  return $ (\n -> mUnop MTrans n pos)
 
 pScalMulOp = do
   pos <- getPosition
   pResWithNameTok ".*"
-  return $ (\l r -> scalarMul l r pos)
+  return $ (\l r -> mBinop SMul l r pos)
 
 pMatMulOp = do
   pos <- getPosition
   pResWithNameTok "*"
-  return $ (\l r -> matrixMul l r pos)
+  return $ (\l r -> mBinop MMul l r pos)
   
 pMatAddOp = do
   pos <- getPosition
   pResWithNameTok "+"
-  return $ (\l r -> matrixAdd l r pos)
+  return $ (\l r -> mBinop MAdd l r pos)
 
 pMatSubOp = do
   pos <- getPosition
   pResWithNameTok "-"
-  return $ (\l r -> matrixSub l r pos)
+  return $ (\l r -> mBinop MSub l r pos)
 
 pTerm = pMatName
       <|> pParens pMatExpr
 
 pMatExpr = buildExpressionParser table pTerm
 
-pMatName = do
+pMatName = error "pMatName" {-do
   (n, pos) <- pIdent
-  return $ matName n pos
+  return $ matName n pos-}
+
+
+-}
 
 pParens pOther = do
   pResWithNameTok "("
@@ -168,4 +199,3 @@ mTok condition = tokenPrim show updatePos meetsCond
 updatePos :: SourcePos -> Token -> [Token] -> SourcePos
 updatePos _ _ (pt:_) = pos pt
 updatePos position _ [] = position
-

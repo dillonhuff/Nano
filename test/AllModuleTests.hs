@@ -20,5 +20,5 @@ allModuleTests = TestLabel "All module tests" $ TestList
                 IndexExpressionTests.allIndexExpressionTests,
                 MatrixTests.allMatrixTests,
                 allLexerTests,
-                allParserTests
+                allParserTests,
                 allStatementInterchangeTests]

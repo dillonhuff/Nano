@@ -25,6 +25,7 @@ keywordCases =
    ("rm", dres "rm"),
    ("cm", dres "cm"),
    ("double", dres "double"),
+   ("sca", dres "sca"),
    ("single", dres "single"),
    ("{", dres "{"),
    ("}", dres "}"),

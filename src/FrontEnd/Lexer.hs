@@ -18,7 +18,7 @@ languageDef =
              Tok.identStart      = letter,
              Tok.identLetter     = alphaNum,
              Tok.reservedNames   = [ "architecture", "operation", "LangC",
-                                     "mat", "vec",
+                                     "mat", "vec", "sca",
                                      "rm", "cm",
                                      "iarg", "oarg", "temp",
                                      "double", "single"],
@@ -49,7 +49,8 @@ pResWord = do
          <|> string "iarg"
          <|> string "temp"
          <|> string "double"
-         <|> string "single"
+         <|> (try (string "single"))
+         <|> string "sca"
          <|> string "rm"
          <|> string "cm"
          <|> string "{"

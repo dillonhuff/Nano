@@ -6,6 +6,7 @@ module Dummies(a, b, c, d, e, f, g, h, i, j, k,
                dummyRanges, blkUniqueVar, uniqueVarName,
                maddCBA, smulCAlphaA, mmulCBA,
                constDblMat, constRect, constDblMatTemp,
+               constFltMat,
                blockingOptimizations,
                testOperations, compoundTestOperations,
                preprocessingOpts, preprocessMMulOpts, preprocessTransOpts) where

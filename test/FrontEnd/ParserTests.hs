@@ -1,21 +1,23 @@
 module FrontEnd.ParserTests(allParserTests) where
 
 import Data.List as L
+import Test.HUnit
 
-import Core.IndexExpression
+import Dummies
+import IndexExpression
 import FrontEnd.Lexer
-import Core.MatrixOperation
 import FrontEnd.Parser
-import Core.SymbolTable
-import TestUtils.Module
 import FrontEnd.Token
+import Matrix
+import MatrixOperation
+import Module
 
-allParserTests = do
-  testFunction (lexAndParseOperation "noname.lspc") opCases
-  testFunction (lexAndParseStatement "noname.lspc") stCases
-  testFunction (lexAndParseFormalParam "noname.lspc") formalParamCases
+allParserTests = TestLabel "allParserTests" $ TestList 
+--  [testFunction (lexAndParseOperation "noname.lspc") opCases,
+--   testFunction (lexAndParseStatement "noname.lspc") stCases,
+   [makeTestCases (lexAndParseFormalParam "noname.lspc") formalParamCases]
 
-opCases =
+{-opCases =
   L.map (\(x, y) -> (x, Right [y]))
   [("operation nothing() { }",
     matrixOperation "nothing" [] [] dummyPos),
@@ -37,14 +39,17 @@ stCases =
    ("x = b';", dMatAsg "x" (dMatrixTrans (dMatName "b"))),
    ("K = A*(B + C);", dMatAsg "K" (dMatrixMul (dMatName "A") (dMatrixAdd (dMatName "B") (dMatName "C")))),
    ("x = (beta + (alpha + omega));", dMatAsg "x" (dMatrixAdd (dMatName "beta") (dMatrixAdd (dMatName "alpha") (dMatName "omega")))),
-   ("A = alpha .* A;", dMatAsg "A" (dScalarMul (dMatName "alpha") (dMatName "A")))]
+   ("A = alpha .* A;", dMatAsg "A" (dScalarMul (dMatName "alpha") (dMatName "A")))]-}
 
 formalParamCases =
   L.map (\(x, y) -> (x, Right y))
-  [("r matrix double 1 1 1 1 c", ("c", mOpSymInfo arg doubleFloat $ layout (iConst 1) (iConst 1) (iConst 1) (iConst 1))),
-   ("r matrix float gen gen gen gen a", ("a", mOpSymInfo arg singleFloat $ layout (iVar "a_nrows") (iVar "a_ncols") (iVar "a_rs") (iVar "a_cs"))),
-   ("r matrix double 4 4 4 1 A", ("A", mOpSymInfo arg doubleFloat $ layout (iConst 4) (iConst 4) (iConst 4) (iConst 1)))]
+  [("iarg sca double c", ("c", constDblMat "c" 1 1 1 1)),
+   ("temp sca double c", ("c", constDblMatTemp "c" 1 1 1 1)),
+   ("oarg sca single c", ("c", constFltMat "c" 1 1 1 1))]
 
-lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
-lexAndParseStatement fName str = (lexString fName str) >>= (parseStatement fName)
+{-                   ("r matrix float gen gen gen gen a", ("a", mOpSymInfo arg singleFloat $ layout (iVar "a_nrows") (iVar "a_ncols") (iVar "a_rs") (iVar "a_cs"))),
+   ("r matrix double 4 4 4 1 A", ("A", mOpSymInfo arg doubleFloat $ layout (iConst 4) (iConst 4) (iConst 4) (iConst 1)))]-}
+
+--lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
+--lexAndParseStatement fName str = (lexString fName str) >>= (parseStatement fName)
 lexAndParseFormalParam fName str = (lexString fName str) >>= (parseFormalParam fName)
