@@ -17,7 +17,7 @@ avxVarDecls stmts = decls
     tempBufInfo = L.filter (\info -> bufScope info == local) bufInfo
     tempBufferDecls = bufDecls $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
     regs = L.filter (\info -> not $ isCPtr $ bufType info) tempBufInfo
-    regDecls = L.map (\info -> (cM256Reg, bufName info)) regs
+    regDecls = L.map (\info -> (cM256dReg, bufName info)) regs
     decls = iVarDecls ++ regDecls ++ tempBufferDecls
   
 toAVX stmt =
