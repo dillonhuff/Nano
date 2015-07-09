@@ -1,11 +1,29 @@
 module Operations(daxpy, ddotsmul, daxpadd,
                   dmvmul, dgemvRM, dgemvCM,
-                  dblinfRM, dbigemvRM, dmmRM, dgemmRM) where
+                  dblinfRM, dbigemvRM, dmmRM, dgemmRM, dgemmsumRM) where
 
 import Dummies hiding (x, y, z, a, b, c)
 import Matrix
 import Statement
 
+dgemmsumRM m n p =
+  let alpha = constDblScalar "alpha"
+      beta = constDblScalar "beta"
+      a0 = constDblMat "A0" p m m 1
+      a1 = constDblMat "A1" p m m 1
+      b = constDblMat "B" p n n 1
+      c = constDblMat "C" m n n 1
+      t1 = constDblMatTemp "T1" m n n 1
+      t2 = constDblMatTemp "T2" p m m 1
+      t3 = constDblMatTemp "T3" m p p 1 in
+  [matrixAdd t2 a0 a1,
+   matrixTranspose t3 t2,
+   setZero t1,
+   matrixMultiply t1 t3 b,
+   scalarMultiply t1 alpha t1,
+   scalarMultiply c beta c,
+   matrixAdd c t1 c]
+  
 dgemmRM m n p =
   let alpha = constDblScalar "alpha"
       beta = constDblScalar "beta"

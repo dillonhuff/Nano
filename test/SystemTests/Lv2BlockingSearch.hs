@@ -32,7 +32,9 @@ lv2BlockingCasesRowStride =
    ltc "mvmul" avxVarDecls toAVX lv2Opts [matrixMultiply y1 m1 yc1],
    ltc "gemv" avxVarDecls toAVX lv2Opts (dgemvRM 18 9),
    ltc "blinf" avxVarDecls toAVX lv2Opts (dblinfRM 24 24),
-   ltc "dbigemv" avxVarDecls toAVX lv2Opts (dbigemvRM 8 8)]
+   ltc "dbigemv" avxVarDecls toAVX lv2Opts (dbigemvRM 8 8),
+   ltc "dgemm" avxVarDecls toAVX lv2Opts (dgemmRM 15 17 22),
+   ltc "dgemmsum" avxVarDecls toAVX lv2Opts (dgemmsumRM 3 16 9)]
 
 m1 = constDblMat "M1" 8 8 8 1
 m2 = constDblMat "M2" 8 8 8 1

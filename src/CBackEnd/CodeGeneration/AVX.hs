@@ -89,6 +89,16 @@ fits_accumBelow4 stmt =
   isRegister (operandWritten stmt) && isRegister (operandRead 1 stmt) &&
   isRegisterizeable 1 (operandWritten stmt) && isRegisterizeableBelow 4 (operandRead 1 stmt)
 
+fits_rrbroadcast stmt =
+  opcode stmt == BRDC && allInRegister stmt && isScalar (operandRead 0 stmt)
+
+rrbroadcast stmt =
+  let c = operandWritten stmt
+      a = operandRead 0 stmt
+      t0 = cFuncall "_mm256_unpacklo_pd" [cVar $ bufferName $ a, cVar $ bufferName a]
+      t1 = cFuncall "_mm256_permute2f128_pd" [t0, t0, cVar "0b00100010"] in
+  [cExprSt (cAssign (cVar $ bufferName c) t1) ""]
+
 accumBelow4 stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt
@@ -160,5 +170,6 @@ avxInstructions =
    (fits_mm256_maskload_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_pd" [matRExpr 0 stmt, mask $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]),
    (fits_mm256_maskstore_pd, \stmt -> fc "_mm256_maskstore_pd" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]),
    (fits_accum4, \stmt -> accum4 stmt),
+   (fits_rrbroadcast, \stmt -> rrbroadcast stmt),
    (fits_accumBelow4, \stmt -> accumBelow4 stmt),
    (fits_assign, \stmt -> [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""])]
