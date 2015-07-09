@@ -10,7 +10,7 @@ import IndexExpression
 import Matrix
 import Statement
 
-avxVarDecls stmts = decls
+avxVarDeclsSingle stmts = decls
   where
     iVarDecls = inductionVariableDecls stmts
     bufInfo = bufferInfoList stmts
@@ -20,79 +20,79 @@ avxVarDecls stmts = decls
     regDecls = L.map (\info -> (cM256dReg, bufName info)) regs
     decls = iVarDecls ++ regDecls ++ tempBufferDecls
   
-toAVX stmt =
+toAVXSingle stmt =
   case opcode stmt of
-    LOOP -> loopToCStmts toAVX stmt
+    LOOP -> loopToCStmts toAVXSingle stmt
     _ -> toAVXIntrinsic stmt
 
 toAVXIntrinsic stmt =
   firstToMatch avxInstructions stmt
 
-fits_mm256_add_pd stmt =
-  opcode stmt == EADD && allInRegister stmt && allVectorLEQ 4 stmt && allType double stmt
+fits_mm256_add_ps stmt =
+  opcode stmt == EADD && allInRegister stmt && allVectorLEQ 8 stmt && allType single stmt
 
-fits_mm256_mul_pd stmt =
-  opcode stmt == EMUL && allInRegister stmt && allVectorLEQ 4 stmt && allType double stmt
+fits_mm256_mul_ps stmt =
+  opcode stmt == EMUL && allInRegister stmt && allVectorLEQ 8 stmt && allType single stmt
 
-fits_mm256_fmadd_pd stmt =
+fits_mm256_fmadd_ps stmt =
   opcode stmt == MMUL && allInRegister stmt &&
-  allVectorLEQ 4 stmt && allType double stmt &&
+  allVectorLEQ 8 stmt && allType single stmt &&
   isScalar (operandWritten stmt)
 
-fits_mm256_broadcast_sd stmt =
+fits_mm256_broadcast_ss stmt =
   opcode stmt == BRDC && isRegister (operandWritten stmt) &&
   not (isRegister (operandRead 0 stmt)) && isScalar (operandRead 0 stmt) &&
-  allType double stmt
+  allType single stmt
 
 fits_assign stmt =
   opcode stmt == MSET && allInRegister stmt
 
-fits_mm256_loadu_pd stmt =
-  opcode stmt == MSET && allType double stmt &&
+fits_mm256_loadu_ps stmt =
+  opcode stmt == MSET && allType single stmt &&
   isContiguous (operandRead 0 stmt) &&
   isRegister (operandWritten stmt) &&
-  isRegisterizeable 4 (operandWritten stmt) &&
+  isRegisterizeable 8 (operandWritten stmt) &&
   not (isRegister $ operandRead 0 stmt)
 
-fits_mm256_storeu_pd stmt =
-  opcode stmt == MSET && allType double stmt &&
+fits_mm256_storeu_ps stmt =
+  opcode stmt == MSET && allType single stmt &&
   isRegister (operandRead 0 stmt) &&
   isContiguous (operandWritten stmt) &&
-  isRegisterizeable 4 (operandRead 0 stmt) &&
+  isRegisterizeable 8 (operandRead 0 stmt) &&
   not (isRegister $ operandWritten stmt)
 
-fits_mm256_maskload_pd stmt =
-  opcode stmt == MSET && allType double stmt &&
+fits_mm256_maskload_ps stmt =
+  opcode stmt == MSET && allType single stmt &&
   isRegister (operandWritten stmt) &&
   isContiguous (operandRead 0 stmt) &&
-  isRegisterizeableBelow 4 (operandWritten stmt) &&
+  isRegisterizeableBelow 8 (operandWritten stmt) &&
   not (isRegister $ operandRead 0 stmt)
 
-fits_mm256_maskstore_pd stmt =
-  opcode stmt == MSET && allType double stmt &&
+fits_mm256_maskstore_ps stmt =
+  opcode stmt == MSET && allType single stmt &&
   isRegister (operandRead 0 stmt) &&
   isContiguous (operandWritten stmt) &&
-  isRegisterizeableBelow 4 (operandRead 0 stmt) &&
+  isRegisterizeableBelow 8 (operandRead 0 stmt) &&
   not (isRegister $ operandWritten stmt)
 
-fits_mm256_setzero_pd stmt =
-  opcode stmt == ZERO && allType double stmt &&
+fits_mm256_setzero_ps stmt =
+  opcode stmt == ZERO && allType single stmt &&
   isRegister (operandWritten stmt) &&
-  (isRegisterizeableBelow 4 (operandWritten stmt) || isRegisterizeable 4 (operandWritten stmt))
+  (isRegisterizeableBelow 8 (operandWritten stmt) || isRegisterizeable 8 (operandWritten stmt))
 
 fits_accum4 stmt =
-  opcode stmt == ACCU && allType double stmt &&
+  opcode stmt == ACCU && allType single stmt &&
   isRegister (operandWritten stmt) && isRegister (operandRead 1 stmt) &&
-  isRegisterizeable 1 (operandWritten stmt) && isRegisterizeable 4 (operandRead 1 stmt)
+  isRegisterizeable 1 (operandWritten stmt) && isRegisterizeable 8 (operandRead 1 stmt)
 
 fits_accumBelow4 stmt =
-  opcode stmt == ACCU && allType double stmt &&
+  opcode stmt == ACCU && allType single stmt &&
   isRegister (operandWritten stmt) && isRegister (operandRead 1 stmt) &&
-  isRegisterizeable 1 (operandWritten stmt) && isRegisterizeableBelow 4 (operandRead 1 stmt)
+  isRegisterizeable 1 (operandWritten stmt) && isRegisterizeableBelow 8 (operandRead 1 stmt)
 
 fits_rrbroadcast stmt =
   opcode stmt == BRDC && allInRegister stmt &&
-  isScalar (operandRead 0 stmt) && allType double stmt
+  isScalar (operandRead 0 stmt) && allType single stmt
 
 rrbroadcast stmt =
   let c = operandWritten stmt
@@ -122,56 +122,24 @@ accum4 stmt =
       t7 = cFuncall "_mm256_add_pd" [t6, cVar $ bufferName a] in
   [cExprSt (cAssign (cVar $ bufferName c) t7) ""]
 
-fc n args = [cExprSt (cFuncall n args) ""]
-afc lname fname args = [cExprSt (cAssign (cVar lname) (cFuncall fname args)) ""]
-
-allInRegister stmt = L.all isRegister $ allOperands stmt
-
-allVectorLEQ n stmt =
-  (L.all (\m -> isVector m || isScalar m) $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) <= n) $ allOperands stmt)
-
-allVectorEQ n stmt =
-  (L.all isVector $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) == n) $ allOperands stmt)
-
-allVectorLT n stmt =
-  (L.all isVector $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) < n) $ allOperands stmt)
-
-allType t stmt = L.all (\m -> dataType m == t) $ allOperands stmt
-
-regWName stmt = regName $ operandWritten stmt
-regName op = cVar $ bufferName op
-regFuncall n stmt = cFuncall n $ L.map regName $ operandsRead stmt
-
-matWExpr stmt = matToCExpr $ operandWritten stmt
-matRExpr n stmt =
-  case isRegister $ operandRead n stmt of
-    True -> cVar $ bufferName $ operandRead n stmt
-    False -> matToCExpr $ operandRead n stmt
-
-
 mask n =
   cFuncall "_mm256_set_epi32" $ maskArgs n
 
 -- Also datatype depenent
 maskArgs n =
-  (L.replicate (2*(4 - n)) (cIntLit 0)) ++ (L.replicate (2*n) (cIntLit (-1)))
-
-firstToMatch :: [(Statement -> Bool, Statement -> [CStmt String])] -> Statement -> [CStmt String]
-firstToMatch [] stmt = error $ "firstToMatch: no matches for " ++ show stmt
-firstToMatch ((cond, f):rest) stmt =
-  if cond stmt then f stmt else firstToMatch rest stmt
+  (L.replicate (8 - n) (cIntLit 0)) ++ (L.replicate n (cIntLit (-1)))
 
 avxInstructions =
-  [(fits_mm256_add_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_pd" stmt)) ""]),
-   (fits_mm256_mul_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_pd" stmt)) ""]),
-   (fits_mm256_fmadd_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_fmadd_pd" stmt)) ""]),
-   (fits_mm256_setzero_pd, \stmt -> afc (bufferName $ operandWritten stmt) "_mm256_setzero_pd" []),
-   (fits_mm256_broadcast_sd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_sd" [matRExpr 0 stmt])) ""]),
-   (fits_mm256_loadu_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_loadu_pd" [matRExpr 0 stmt])) ""]),
-   (fits_mm256_storeu_pd, \stmt -> fc "_mm256_storeu_pd" [matWExpr stmt, matRExpr 0 stmt]),
-   (fits_mm256_maskload_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_pd" [matRExpr 0 stmt, mask $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]),
-   (fits_mm256_maskstore_pd, \stmt -> fc "_mm256_maskstore_pd" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]),
-   (fits_accum4, \stmt -> accum4 stmt),
-   (fits_rrbroadcast, \stmt -> rrbroadcast stmt),
-   (fits_accumBelow4, \stmt -> accumBelow4 stmt),
+  [(fits_mm256_add_ps, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_ps" stmt)) ""]),
+   (fits_mm256_mul_ps, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_ps" stmt)) ""]),
+   (fits_mm256_fmadd_ps, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_fmadd_ps" stmt)) ""]),
+   (fits_mm256_setzero_ps, \stmt -> afc (bufferName $ operandWritten stmt) "_mm256_setzero_ps" []),
+   (fits_mm256_broadcast_ss, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_ss" [matRExpr 0 stmt])) ""]),
+   (fits_mm256_loadu_ps, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_loadu_ps" [matRExpr 0 stmt])) ""]),
+   (fits_mm256_storeu_ps, \stmt -> fc "_mm256_storeu_ps" [matWExpr stmt, matRExpr 0 stmt]),
+   (fits_mm256_maskload_ps, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_ps" [matRExpr 0 stmt, mask $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]),
+   (fits_mm256_maskstore_ps, \stmt -> fc "_mm256_maskstore_ps" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]),
+--   (fits_accum4, \stmt -> accum4 stmt),
+--   (fits_rrbroadcast, \stmt -> rrbroadcast stmt),
+--   (fits_accumBelow4, \stmt -> accumBelow4 stmt),
    (fits_assign, \stmt -> [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""])]

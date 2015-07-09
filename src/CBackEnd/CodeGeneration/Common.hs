@@ -1,7 +1,10 @@
 module CBackEnd.CodeGeneration.Common(loopToCStmts,
                                       scalarVarDecls, inductionVariableDecls,
                                       matToCExpr,
-                                      bufferInfoList) where
+                                      bufferInfoList, firstToMatch,
+                                      fc, afc, regWName, matRExpr, regName,
+                                      allInRegister, allType, regFuncall,
+                                      allVectorLEQ, matWExpr) where
 
 import Data.List as L
 
@@ -55,3 +58,35 @@ matToCExpr m =
   case isRegister m of
     True -> cAddr (cVar $ bufferName m)
     False -> cAdd (cVar $ bufferName m) (iExprToCExpr $ evaluateIExprConstants $ locationExpr m)
+
+fc n args = [cExprSt (cFuncall n args) ""]
+afc lname fname args = [cExprSt (cAssign (cVar lname) (cFuncall fname args)) ""]
+
+allInRegister stmt = L.all isRegister $ allOperands stmt
+
+allVectorLEQ n stmt =
+  (L.all (\m -> isVector m || isScalar m) $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) <= n) $ allOperands stmt)
+
+allVectorEQ n stmt =
+  (L.all isVector $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) == n) $ allOperands stmt)
+
+allVectorLT n stmt =
+  (L.all isVector $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) < n) $ allOperands stmt)
+
+allType t stmt = L.all (\m -> dataType m == t) $ allOperands stmt
+
+regWName stmt = regName $ operandWritten stmt
+regName op = cVar $ bufferName op
+regFuncall n stmt = cFuncall n $ L.map regName $ operandsRead stmt
+
+matWExpr stmt = matToCExpr $ operandWritten stmt
+matRExpr n stmt =
+  case isRegister $ operandRead n stmt of
+    True -> cVar $ bufferName $ operandRead n stmt
+    False -> matToCExpr $ operandRead n stmt
+
+firstToMatch :: [(Statement -> Bool, Statement -> [CStmt String])] -> Statement -> [CStmt String]
+firstToMatch [] stmt = error $ "firstToMatch: no matches for " ++ show stmt
+firstToMatch ((cond, f):rest) stmt =
+  if cond stmt then f stmt else firstToMatch rest stmt
+

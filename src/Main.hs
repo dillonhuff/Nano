@@ -2,7 +2,7 @@ module Main(main) where
 
 import Data.List as L
 
-import CBackEnd.CodeGeneration.AVX
+import CBackEnd.CodeGeneration.AVX.Double
 import Fuzz
 import Operations
 import OptimizationGroups.AVXLevel1

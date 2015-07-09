@@ -210,6 +210,18 @@ void simple_smul(int m, int n,
   }
 }
 
+void simple_smul_float(int m, int n,
+		       float* scalar,
+		       float* a, int a_row_stride, int a_col_stride,
+		       float* b, int b_row_stride, int b_col_stride) {
+  int i, j;
+  for (i = 0; i < m; i++)	{
+    for (j = 0; j < n; j++)	{
+      B(i, j) = A(i, j) * *scalar;
+    }
+  }
+}
+
 void simple_trsml(int m, int n,
 		  double* a, int a_row_stride, int a_col_stride,
 		  double* b, int b_row_stride, int b_col_stride) {
@@ -226,14 +238,14 @@ void simple_trsml(int m, int n,
 
 void simple_add_float(int m, int n,
 		      float *a, int a_row_stride, int a_col_stride,
-		      float *b, int b_row_stride, int b_col_stride) {
+		      float *b, int b_row_stride, int b_col_stride,
+		      float *c, int c_row_stride, int c_col_stride) {
   int i, j;
   for (i = 0; i < m; i++)	{
     for (j = 0; j < n; j++)	{
-      B(i, j) += A(i, j);
+      C(i, j) = A(i, j) + B(i, j);
     }
   }
-  return;
 }
 
 void simple_mmul_float(int m, int n, int k,
@@ -247,18 +259,6 @@ void simple_mmul_float(int m, int n, int k,
       for (p = 0; p < k; p++)	{
 	C(i, j) += A(i, p) * B(p, j);
       }
-    }
-  }
-  return;
-}
-
-void simple_smul_float(int m, int n,
-		       float *scalar,
-		       float *a, int a_row_stride, int a_col_stride) {
-  int i, j;
-  for (i = 0; i < m; i++)	{
-    for (j = 0; j < n; j++)	{
-      A(i, j) = A(i, j) * *scalar;
     }
   }
   return;

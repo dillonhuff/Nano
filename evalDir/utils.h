@@ -66,6 +66,11 @@ void simple_smul(int m, int n,
 		 double *a, int a_row_stride, int a_col_stride,
 		 double *b, int b_row_stride, int b_col_stride);
 
+void simple_smul_float(int m, int n,
+		       float* scalar,
+		       float* a, int a_row_stride, int a_col_stride,
+		       float* b, int b_row_stride, int b_col_stride);
+
 void simple_trsml(int m, int n,
 		  double* a, int a_row_stride, int a_col_stride,
 		  double* b, int b_row_stride, int b_col_stride);
@@ -75,17 +80,14 @@ void simple_trans_float(int m, int n,
 			float* b, int b_row_stride, int b_col_stride);
 
 void simple_add_float(int m, int n,
-	float *a, int a_row_stride, int a_col_stride,
-	float *b, int b_row_stride, int b_col_stride);
+		float* a, int a_row_stride, int a_col_stride,
+		float* b, int b_row_stride, int b_col_stride,
+		float* c, int c_row_stride, int c_col_stride);
 
 void simple_mmul_float(int m, int n, int k,
 	float *a, int a_row_stride, int a_col_stride,
 	float *b, int b_row_stride, int b_col_stride,
 	float *c, int c_row_stride, int c_col_stride);
-
-void simple_smul_float(int m, int n,
-	float *scalar,
-	float *a, int a_row_stride, int a_col_stride);
 
 void copy_double(int m, int n,
 		 double* a,
