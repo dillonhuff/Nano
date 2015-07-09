@@ -42,30 +42,3 @@ isRegisterizeableBelow u op =
            ((constVal $ numCols op) < u && (constVal $ numRows op) == 1) of
         True -> True
         False -> False
-
-{-
-isRegisterizeableBelow i op =
-  case i == 1 of
-    True -> isScalar op
-    False ->
-      case let u = iConst i in (numRows op < u && numCols op == (iConst 1)) || (numCols op == u && numRows op < (iConst 1)) of
-        True -> True
-        False -> False
--}
-{-
-isRegisterizeable i op =
-  case i == 1 of
-    True -> isScalar op
-    False ->
-      case let u = iConst i in (numRows op == u && numCols op == (iConst 1)) || (numCols op == u && numRows op == (iConst 1)) of
-        True -> True
-        False -> False
-
-isRegisterizeableBelow i op =
-  case i == 1 of
-    True -> isScalar op
-    False ->
-      case let u = iConst i in (numRows op < u && numCols op == (iConst 1)) || (numCols op == u && numRows op < (iConst 1)) of
-        True -> True
-        False -> False
--}

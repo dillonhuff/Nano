@@ -36,7 +36,7 @@ instance Show Matrix where
                                   show cs ++ "]" ++
                                   show p
   show (SubMatrix s v b m p) = show s ++ " " ++
-                               show v ++ " " ++ show v ++ " " ++ show b ++ " (" ++ show m ++ ") " ++ show p
+                               show v ++ " " ++ show b ++ " (" ++ show m ++ ") " ++ show p
 
 matrix = Matrix
 
