@@ -46,7 +46,7 @@ registerizeStmt i stmt =
     MSET -> registerizeTrans u stmt
     EMUL -> registerizeEMUL u stmt
     BRDC -> return [stmt]
-    ZERO -> return [stmt]
+    ZERO -> registerizeZERO u stmt
     ACCU -> return [stmt]
     _ -> error $ "registerizeStmt: Unsupported operation " ++ show stmt
 
@@ -120,3 +120,10 @@ registerizeTrans u stmt =
     r1Name <- freshRegName
     let r1 = duplicateInRegister u r1Name b in
       return [matrixSet r1 b, matrixSet a r1]
+
+registerizeZERO u stmt =
+  let a = operandWritten stmt in
+  do
+    r1Name <- freshRegName
+    let r = duplicateInRegister u r1Name a in
+      return [setZero r, matrixSet a r]

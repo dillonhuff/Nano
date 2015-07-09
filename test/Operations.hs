@@ -1,16 +1,31 @@
 module Operations(daxpy, ddotsmul, daxpadd,
                   dmvmul, dgemvRM, dgemvCM,
-                  dblinfRM, dbigemvRM) where
+                  dblinfRM, dbigemvRM, dmmRM, dgemmRM) where
 
 import Dummies hiding (x, y, z, a, b, c)
 import Matrix
 import Statement
 
+dgemmRM m n p =
+  let alpha = constDblScalar "alpha"
+      beta = constDblScalar "beta"
+      a = constDblMat "A" m p p 1
+      b = constDblMat "B" p n n 1
+      c = constDblMat "C" m n n 1
+      t1 = constDblMatTemp "T1" m n n 1 in
+  [setZero t1, matrixMultiply t1 a b, scalarMultiply t1 alpha t1, scalarMultiply c beta c, matrixAdd c t1 c]
+
+dmmRM m n p =
+  let a = constDblMat "A" m p p 1
+      b = constDblMat "B" p n n 1
+      c = constDblMat "C" m n n 1 in
+  [setZero c, matrixMultiply c a b]
+
 dbigemvRM m n =
   let alpha = constDblScalar "alpha"
       beta = constDblScalar "beta"
-      t1 = constDblColVec "t1" m
-      t2 = constDblColVec "t2" m
+      t1 = constDblColVecT "t1" m
+      t2 = constDblColVecT "t2" m
       x = constDblColVec "x" n
       y = constDblColVec "y" m
       a = constDblMat "A" m n n 1
@@ -26,8 +41,8 @@ dbigemvRM m n =
 dblinfRM m n =
   let alpha = constDblScalar "alpha"
       a = constDblMat "A" m n n 1
-      t1 = constDblRowVec "t1" m
-      t2 = constDblColVec "t2" m
+      t1 = constDblRowVecT "t1" m
+      t2 = constDblColVecT "t2" m
       x = constDblColVec "x" m
       y = constDblColVec "y" n in
   [matrixTranspose t1 x, setZero t2, matrixMultiply t2 a y, matrixMultiply alpha t1 t2]

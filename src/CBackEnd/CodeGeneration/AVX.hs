@@ -34,6 +34,11 @@ fits_mm256_add_pd stmt =
 fits_mm256_mul_pd stmt =
   opcode stmt == EMUL && allInRegister stmt && allVectorLEQ 4 stmt && allType double stmt
 
+fits_mm256_fmadd_pd stmt =
+  opcode stmt == MMUL && allInRegister stmt &&
+  allVectorLEQ 4 stmt && allType double stmt &&
+  isScalar (operandWritten stmt)
+
 fits_mm256_broadcast_sd stmt =
   opcode stmt == BRDC && isRegister (operandWritten stmt) &&
   not (isRegister (operandRead 0 stmt)) && isScalar (operandRead 0 stmt)
@@ -147,6 +152,7 @@ firstToMatch ((cond, f):rest) stmt =
 avxInstructions =
   [(fits_mm256_add_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_pd" stmt)) ""]),
    (fits_mm256_mul_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_pd" stmt)) ""]),
+   (fits_mm256_fmadd_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_fmadd_pd" stmt)) ""]),
    (fits_mm256_setzero_pd, \stmt -> afc (bufferName $ operandWritten stmt) "_mm256_setzero_pd" []),
    (fits_mm256_broadcast_sd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_sd" [matRExpr 0 stmt])) ""]),
    (fits_mm256_loadu_pd, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_loadu_pd" [matRExpr 0 stmt])) ""]),
