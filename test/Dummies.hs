@@ -6,7 +6,7 @@ module Dummies(a, b, c, d, e, f, g, h, i, j, k,
                dummyRanges, blkUniqueVar, uniqueVarName,
                maddCBA, smulCAlphaA, mmulCBA,
                constDblMat, constRect, constDblMatTemp,
-               constFltMat,
+               constFltMat, constFltMatTemp,
                blockingOptimizations,
                testOperations, compoundTestOperations,
                preprocessingOpts, preprocessMMulOpts, preprocessTransOpts) where
@@ -62,6 +62,9 @@ constFltMat name nr nc rs cs =
 
 constDblMatTemp name nr nc rs cs =
   matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties local double memory)
+
+constFltMatTemp name nr nc rs cs =
+  matrix name (iConst nr) (iConst nc) (iConst rs) (iConst cs) (properties local single memory)
 
 blockingOptimizations =
   L.map (\(f, b) -> blkUniqueVar f b)

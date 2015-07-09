@@ -19,27 +19,27 @@ import SMulToBroadcast
 import SplitTemps
 import Statement
 
-avxLvl1Opts =
-  registerization ++ tempReductionAVX ++ blockAndFuseAVXLvl1
+avxLvl1Opts n =
+  (registerization n) ++ (tempReductionAVX n) ++ (blockAndFuseAVXLvl1 n)
 
-registerization =
-  [pullCodeOutOfLoops, deleteRedundantAssignments, registerizeBelow 4 "k_", registerize 4 "r_", smulToBroadcast "sm"]
+registerization n =
+  [pullCodeOutOfLoops, deleteRedundantAssignments, registerizeBelow n "k_", registerize n "r_", smulToBroadcast "sm"]
 
-tempReductionAVX =
-  [registerizeTempsBelow 4, registerizeTemps 4, compactTemps, splitTemps "t_"]
+tempReductionAVX n =
+  [registerizeTempsBelow n, registerizeTemps n, compactTemps, splitTemps "t_"]
 
-blockAndFuseAVXLvl1 =
-  interchangeAndFuse:(blockDot 4 "d_"):interchangeAndFuse:(L.intersperse interchangeAndFuse blockingOptimizationsAVXLVL1)
+blockAndFuseAVXLvl1 n =
+  interchangeAndFuse:(blockDot n "d_"):interchangeAndFuse:(L.intersperse interchangeAndFuse (blockingOptimizationsAVXLVL1 n))
 
-blockingOptimizationsAVXLVL1 :: [[Statement] -> [Statement]]
-blockingOptimizationsAVXLVL1 =
+blockingOptimizationsAVXLVL1 :: Int -> [[Statement] -> [Statement]]
+blockingOptimizationsAVXLVL1 n =
   L.map (\(f, b) -> blkUniqueVar f b)
-  [(blockMatrixAddM, iConst 4),
-   (blockMatrixAddN, iConst 4),
-   (blockScalarMultiplyM, iConst 4),
-   (blockScalarMultiplyN, iConst 4),
-   (blockMatrixTransposeM, iConst 4),
-   (blockMatrixTransposeM, iConst 4),
-   (blockMatrixTransposeN, iConst 4),
-   (blockSetZeroM, iConst 4),
-   (blockSetZeroN, iConst 4)]
+  [(blockMatrixAddM, iConst n),
+   (blockMatrixAddN, iConst n),
+   (blockScalarMultiplyM, iConst n),
+   (blockScalarMultiplyN, iConst n),
+   (blockMatrixTransposeM, iConst n),
+   (blockMatrixTransposeM, iConst n),
+   (blockMatrixTransposeN, iConst n),
+   (blockSetZeroM, iConst n),
+   (blockSetZeroN, iConst n)]

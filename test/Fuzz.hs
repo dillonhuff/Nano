@@ -52,7 +52,7 @@ assertOptimizationsCorrect varDeclFunc codeGenFunc transformsToApply operation =
       (regularOp, argInfo) = operationToC scalarVarDecls toCStmtsFunction "op" operation in
     do
       scRes <- runSanityCheck "fuzzTest" regularOp transformedOp argInfo
-      assertEqual (failMessageInfo transformedOp regularOp argInfo) scRes "true\n"
+      assertEqual (failMessageInfo transformedOp regularOp argInfo) "true\n" scRes
 
 failMessageInfo resultOp regularOp argInfo =
   "Operation:\n" ++ (prettyPrint 0 regularOp) ++ "\n" ++

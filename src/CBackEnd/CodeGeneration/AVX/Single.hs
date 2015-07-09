@@ -1,4 +1,4 @@
-module CBackEnd.CodeGeneration.AVX(avxVarDecls, toAVX) where
+module CBackEnd.CodeGeneration.AVX.Single(avxVarDeclsSingle, toAVXSingle) where
 
 import Data.List as L
 
@@ -41,7 +41,8 @@ fits_mm256_fmadd_pd stmt =
 
 fits_mm256_broadcast_sd stmt =
   opcode stmt == BRDC && isRegister (operandWritten stmt) &&
-  not (isRegister (operandRead 0 stmt)) && isScalar (operandRead 0 stmt)
+  not (isRegister (operandRead 0 stmt)) && isScalar (operandRead 0 stmt) &&
+  allType double stmt
 
 fits_assign stmt =
   opcode stmt == MSET && allInRegister stmt
@@ -90,7 +91,8 @@ fits_accumBelow4 stmt =
   isRegisterizeable 1 (operandWritten stmt) && isRegisterizeableBelow 4 (operandRead 1 stmt)
 
 fits_rrbroadcast stmt =
-  opcode stmt == BRDC && allInRegister stmt && isScalar (operandRead 0 stmt)
+  opcode stmt == BRDC && allInRegister stmt &&
+  isScalar (operandRead 0 stmt) && allType double stmt
 
 rrbroadcast stmt =
   let c = operandWritten stmt
