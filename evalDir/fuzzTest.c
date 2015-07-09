@@ -172,7 +172,7 @@ void sanity_check(FILE* df){
 
 int main(){
 	FILE* data_file;
-	data_file = fopen("/Users/dillon/Haskell/Nano/runData/fuzzTest.txt", "w");
+	data_file = fopen("./fuzzTest.txt", "w");
 	sanity_check(data_file);
 	fclose(data_file);
 	return 0;
