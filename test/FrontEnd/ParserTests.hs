@@ -45,7 +45,8 @@ formalParamCases =
   L.map (\(x, y) -> (x, Right y))
   [("iarg sca double c", ("c", constDblMat "c" 1 1 1 1)),
    ("temp sca double c", ("c", constDblMatTemp "c" 1 1 1 1)),
-   ("oarg sca single c", ("c", constFltMat "c" 1 1 1 1))]
+   ("oarg sca single c", ("c", constFltMat "c" 1 1 1 1)),
+   ("oarg vec 12 double vectorArg", ("vectorArg", constDblMat "vectorArg" ))]
 
 {-                   ("r matrix float gen gen gen gen a", ("a", mOpSymInfo arg singleFloat $ layout (iVar "a_nrows") (iVar "a_ncols") (iVar "a_rs") (iVar "a_cs"))),
    ("r matrix double 4 4 4 1 A", ("A", mOpSymInfo arg doubleFloat $ layout (iConst 4) (iConst 4) (iConst 4) (iConst 1)))]-}
