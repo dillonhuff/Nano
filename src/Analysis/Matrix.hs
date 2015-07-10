@@ -53,7 +53,7 @@ isRegisterizeableBelow u op =
     False -> False
 
 allMatIVars m =
-  let b = underlyingMatrix m in
+  let b = baseMatrix m in
   L.filter isVar $ L.concatMap allIExprOperands [numRows b, numCols b, rowStride b, colStride b]
 
 anyDisjointPartitions ranges s t =

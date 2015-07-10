@@ -25,7 +25,8 @@ allBasicGSTests =
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dvadd2 (iVar "m")),
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dscal (iVar "m")),
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (daxpy (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dgemvRM (iVar "m") (iVar "n"))]
+   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dmaddRM (iVar "m") (iVar "n"))]
+--   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dgemvRM (iVar "m") (iVar "n"))
 
 lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
 
@@ -48,6 +49,11 @@ dvadd i =
   let x = matrix "x" i (iConst 1) (iConst 1) (iConst 1) (properties arg double memory)
       y = matrix "y" i (iConst 1) (iConst 1) (iConst 1) (properties arg double memory) in
   [matrixAdd x y y]
+
+dmaddRM m n =
+  let a = matrix "A" m n n (iConst 1) (properties arg double memory)
+      b = matrix "B" m n n (iConst 1) (properties arg double memory) in
+  [matrixAdd a b b]
 
 daxpy i =
   let alpha = constDblMat "alpha" 1 1 1 1

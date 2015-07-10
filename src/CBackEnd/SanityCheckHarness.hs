@@ -30,8 +30,8 @@ sanityCheckHarnessS additionalDecls setupCode scOpFuncall testOpFuncall argInfo 
     scBody = sanityCheckBody setupCode scOpFuncall testOpFuncall argInfo
 
 sanityCheckBody setupCode scOpFuncall testOpFuncall argInfo =
-  initAllBuffers ++
   setupCode ++
+  initAllBuffers ++
   setMainBuffersToRandValues ++
   copyMainBuffersToRefBuffers ++
   copyMainBuffersToTestBuffers ++

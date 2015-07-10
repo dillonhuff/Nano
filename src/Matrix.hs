@@ -7,7 +7,7 @@ module Matrix(Matrix,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
               substituteInIExprs, partitionList, accessedRectangle,
-              setName, setRegister, isRegister, underlyingMatrix,
+              setName, setRegister, isRegister, underlyingMatrix, baseMatrix,
               replaceSupermatrix, smallestSubsumingPartition, partitionedBy,
               Type,
               single, double,
@@ -78,6 +78,9 @@ isFixedSize m =
 
 underlyingMatrix (SubMatrix _ _ _ m _) = m
 underlyingMatrix m = m
+
+baseMatrix (SubMatrix _ _ _ m _) = baseMatrix m
+baseMatrix m = m
 
 replaceSupermatrix target result s@(SubMatrix shp v b m p) =
   case s == target of
