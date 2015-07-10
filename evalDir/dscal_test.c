@@ -10,10 +10,10 @@ void time_impl(FILE* df){
 	unsigned long long lvar;
 	unsigned long long num_runs;
 	double avg_cycles_per_run;
-	m = 12;
+	m = 1200;
 	beta = mkl_malloc(sizeof(double), 32);
-	x = mkl_malloc((sizeof(double) * 12), 32);
-	rand_doubles(12, x);
+	x = mkl_malloc((sizeof(double) * 1200), 32);
+	rand_doubles(1200, x);
 	rand_doubles(1, beta);
 	num_runs = 0;
 	total_cycles = 0;
