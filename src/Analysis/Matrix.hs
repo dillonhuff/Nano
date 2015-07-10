@@ -25,7 +25,8 @@ accessedRegionsOverlap ranges s t =
 accessOverlap iRanges s t = do
   sR <- accessedRectangle iRanges s
   tR <- accessedRectangle iRanges t
-  return $ rectanglesOverlap sR tR
+  error $ "sR = " ++ show sR ++ "\n" ++ "tR = " ++ show tR
+  --return $ rectanglesOverlap sR tR
 
 isRegisterizeable u op =
   case isFixedSize op of
