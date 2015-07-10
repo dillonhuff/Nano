@@ -16,7 +16,7 @@ import Statement
 import TestUtils
 
 allFltLv2BlockingSearchTests =
-  TestLabel "All Lv2 blocking search tests" $
+  TestLabel "All single precision lv2 blocking search tests" $
   TestList $ [fltLv2BlockingCasesRowStride, fltLv2BlockingCasesColStride]
 
 fltLv2BlockingCasesRowStride =
@@ -28,13 +28,13 @@ fltLv2BlockingCasesRowStride =
    ltc "scalar matrix multiply" avxVarDeclsSingle toAVXSingle lv2Opts [scalarMultiply m1 alpha m1],
    ltc "scalar matrix multiply with residual" avxVarDeclsSingle toAVXSingle lv2Opts [scalarMultiply k1 alpha k2],
    ltc "smul then add" avxVarDeclsSingle toAVXSingle lv2Opts [scalarMultiply kt1 alpha k2, matrixAdd k3 k2 kt1],
-   ltc "dot product then smul with residual" avxVarDeclsSingle toAVXSingle lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1 alpha k1],
-   ltc "mvmul" avxVarDeclsSingle toAVXSingle lv2Opts [matrixMultiply y1 m1 yc1],
-   ltc "sgemv" avxVarDeclsSingle toAVXSingle lv2Opts (sgemvRM 18 9),
-   ltc "sblinf" avxVarDeclsSingle toAVXSingle lv2Opts (sblinfRM 24 24),
-   ltc "sbigemv" avxVarDeclsSingle toAVXSingle lv2Opts (sbigemvRM 8 8),
-   ltc "sgemm" avxVarDeclsSingle toAVXSingle lv2Opts (sgemmRM 15 17 22),
-   ltc "sgemmsum" avxVarDeclsSingle toAVXSingle lv2Opts (sgemmsumRM 3 16 9)]
+--   ltc "dot product then smul with residual" avxVarDeclsSingle toAVXSingle lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1 alpha k1],
+--   ltc "mvmul" avxVarDeclsSingle toAVXSingle lv2Opts [matrixMultiply y1 m1 yc1],
+--   ltc "sgemv" avxVarDeclsSingle toAVXSingle lv2Opts (sgemvRM 18 9),
+--   ltc "sblinf" avxVarDeclsSingle toAVXSingle lv2Opts (sblinfRM 24 24),
+--   ltc "sbigemv" avxVarDeclsSingle toAVXSingle lv2Opts (sbigemvRM 8 8),
+   ltc "sgemm" avxVarDeclsSingle toAVXSingle lv2Opts (sgemmRM 15 17 22)]
+--   ltc "sgemmsum" avxVarDeclsSingle toAVXSingle lv2Opts (sgemmsumRM 3 16 9)]
 
 m1 = constFltMat "M1" 8 8 8 1
 m2 = constFltMat "M2" 8 8 8 1
@@ -67,7 +67,7 @@ xu1 = constFltMat "x" 1 11 1 1
 yu1 = constFltMat "y" 11 1 1 1
 
 fltLv2BlockingCasesColStride =
-  TestLabel "Column stride" $ TestList $
+  TestLabel "Col Stride" $ TestList $
   [ltc "row major matrix add" avxVarDeclsSingle toAVXSingle lv2Opts [matrixAdd m1_cs m2_cs m3_cs],
    ltc "row major matrix add with residual" avxVarDeclsSingle toAVXSingle lv2Opts [matrixAdd n1_cs n2_cs n3_cs],
    ltc "row major matrix add twice" avxVarDeclsSingle toAVXSingle lv2Opts [matrixAdd t1_cs m1_cs m2_cs, matrixAdd m3_cs t1_cs t1_cs],
@@ -75,7 +75,7 @@ fltLv2BlockingCasesColStride =
    ltc "scalar matrix multiply" avxVarDeclsSingle toAVXSingle lv2Opts [scalarMultiply m1_cs alpha m1_cs],
    ltc "scalar matrix multiply with residual" avxVarDeclsSingle toAVXSingle lv2Opts [scalarMultiply k1_cs alpha k2_cs],
    ltc "smul then add" avxVarDeclsSingle toAVXSingle lv2Opts [scalarMultiply kt1_cs alpha k2_cs, matrixAdd k3_cs k2_cs kt1_cs],
-   ltc "dot product then smul with residual" avxVarDeclsSingle toAVXSingle lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1_cs alpha k1_cs],
+--   ltc "dot product then smul with residual" avxVarDeclsSingle toAVXSingle lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1_cs alpha k1_cs],
    ltc "mvmul" avxVarDeclsSingle toAVXSingle lv2Opts [matrixMultiply y1 m1_cs yc1],
    ltc "sgemv" avxVarDeclsSingle toAVXSingle lv2Opts (sgemvCM 4 15)]
 

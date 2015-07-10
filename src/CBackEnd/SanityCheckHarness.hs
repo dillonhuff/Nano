@@ -47,7 +47,6 @@ scResultVarDecls argInfo = L.map (\info -> (cInt, (bufName info) ++ "_sc_result"
 refBufInfo bufInfo = bufferInfo ((bufName bufInfo) ++ "_ref") (bufType bufInfo) (bufSize bufInfo) (bufScope bufInfo)
 testBufInfo bufInfo = bufferInfo ((bufName bufInfo) ++ "_test") (bufType bufInfo) (bufSize bufInfo) (bufScope bufInfo)
 
-
 copyBufferCode :: BufferInfo -> BufferInfo -> CStmt String
 copyBufferCode destBuf srcBuf =
   cExprSt (cFuncall "memcpy" [cVar $ bufName destBuf, cVar $ bufName srcBuf, bufSizeExpr destBuf]) ""
