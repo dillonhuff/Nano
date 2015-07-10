@@ -14,9 +14,10 @@ dscalCall = [cExprSt (cFuncall "cblas_dscal" [cVar "m", cArrAcc (cVar "beta") (c
 dscalDecls = [(cInt, "m"), (cPtr cDouble,  "beta"), (cPtr cDouble, "x")]
 
 dscalSetup m = [cExprSt (cAssign (cVar "m") (cIntLit m)) "",
-                cExprSt (cFuncall "mkl_malloc" [betaSize, cVar "beta", cIntLit 32]) "",
-                cExprSt (cFuncall "mkl_malloc" [xSize, cVar "x", cIntLit 32]) "",
-                cExprSt (cFuncall "rand_doubles" [cIntLit m, cVar "x"]) ""]
+                cExprSt (cAssign (cVar "beta") (cFuncall "mkl_malloc" [betaSize, cIntLit 32])) "",
+                cExprSt (cAssign (cVar "x") (cFuncall "mkl_malloc" [xSize, cIntLit 32])) "",
+                cExprSt (cFuncall "rand_doubles" [cIntLit m, cVar "x"]) "",
+                cExprSt (cFuncall "rand_doubles" [cIntLit 1, cVar "beta"]) ""]
   where
     betaSize = cSizeOf cDouble
     xSize = cMul (cSizeOf cDouble) (cIntLit m)
