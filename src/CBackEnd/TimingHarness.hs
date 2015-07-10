@@ -8,19 +8,19 @@ import CBackEnd.Utils
 
 timingHarness :: String -> [BufferInfo] -> CTopLevelItem String
 timingHarness funcName bufInfo =
-  timingHarnessSetup ft bufDecs allocAndSetRand freeBufs
+  timingHarnessSetup [ft] bufDecs allocAndSetRand freeBufs
   where
     ft = cExprSt (cFuncall funcName $ L.map (\info -> cVar $ bufName info) bufInfo) ""
     allocAndSetRand = (L.map initializeBuffer bufInfo) ++ (L.map setArgToRandValuesCode bufInfo)
     freeBufs = L.map freeBuffer bufInfo
     bufDecs = bufDecls bufInfo
 
-timingHarnessSetup :: CStmt String -> [(CType, String)] -> [CStmt String] -> [CStmt String] -> CTopLevelItem String
-timingHarnessSetup funcallToTime varDecls setupCode tearDownCode =
+timingHarnessSetup :: [CStmt String] -> [(CType, String)] -> [CStmt String] -> [CStmt String] -> CTopLevelItem String
+timingHarnessSetup codeToTime varDecls setupCode tearDownCode =
   cFuncDecl cVoid "time_impl" [(cPtr cFILE, "df")] $ cBlock allDecls bodyStmts
   where
     allDecls = varDecls ++ timingVarDecls
-    bodyStmts = timingBody funcallToTime setupCode tearDownCode
+    bodyStmts = timingBody codeToTime setupCode tearDownCode
 
 timingVarDecls = [(cULongLong, "start"),
                   (cULongLong, "end"),
@@ -29,37 +29,36 @@ timingVarDecls = [(cULongLong, "start"),
                   (cULongLong, "num_runs"),
                   (cDouble, "avg_cycles_per_run")]
 
-timingBody funcallToTime setupCode tearDownCode =
+timingBody codeToTime setupCode tearDownCode =
   setupCode ++
-  (runCountLoop funcallToTime) ++
-  (timedLoop funcallToTime) ++
+  (runCountLoop codeToTime) ++
+  (timedLoop codeToTime) ++
   avgCyclesPerRunComputation ++
   writeTimingResults ++
   tearDownCode
   
-runCountLoop funcallToTime =
+runCountLoop codeToTime =
   [cExprSt (cAssign (cVar "num_runs") (cIntLit 0)) "",
    cExprSt (cAssign (cVar "total_cycles") (cIntLit 0)) ""] ++
-  (runCountBody funcallToTime)
+  (runCountBody codeToTime)
 
-runCountBody funcallToTime =
-  [cWhile (cLEQ (cVar "total_cycles") (cIntLit 100000000)) (runCountWhileBody funcallToTime) ""]
+runCountBody codeToTime =
+  [cWhile (cLEQ (cVar "total_cycles") (cIntLit 100000000)) (runCountWhileBody codeToTime) ""]
 
-runCountWhileBody funcallToTime =
+runCountWhileBody codeToTime =
   cBlock [] body
   where
     addToTotal = cExprSt (cAssign (cVar "total_cycles") (cAdd (cVar "total_cycles") (cSub (cVar "start") (cVar "end")))) ""
     incRuns = cExprSt (cAssign (cVar "num_runs") (cAdd (cVar "num_runs") (cIntLit 1))) ""
-    callFunc = funcallToTime
-    body = startRDTSC ++ [callFunc] ++ endRDTSC ++ [addToTotal, incRuns]
+    body = startRDTSC ++ codeToTime ++ endRDTSC ++ [addToTotal, incRuns]
 
-timedLoop funcallToTime =
+timedLoop codeToTime =
   startRDTSC ++
-  (timedLoopBody funcallToTime) ++
+  (timedLoopBody codeToTime) ++
   endRDTSC
 
-timedLoopBody funcallToTime =
-  [cFor (cAssign (cVar "lvar") (cIntLit 1)) (cLEQ (cVar "lvar") (cVar "num_runs")) (cAssign (cVar "lvar") (cAdd (cVar "lvar") (cIntLit 1))) (cBlock [] [funcallToTime]) ""]
+timedLoopBody codeToTime =
+  [cFor (cAssign (cVar "lvar") (cIntLit 1)) (cLEQ (cVar "lvar") (cVar "num_runs")) (cAssign (cVar "lvar") (cAdd (cVar "lvar") (cIntLit 1))) (cBlock [] codeToTime) ""]
 
 avgCyclesPerRunComputation = [cExprSt (cAssign (cVar "avg_cycles_per_run") avgVal) ""]
   where

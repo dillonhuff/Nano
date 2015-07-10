@@ -3,12 +3,28 @@ module Main(main) where
 import Data.List as L
 
 import CBackEnd.CodeGeneration.AVX.Double
+import CBackEnd.Syntax
+import CBackEnd.Timing
 import Fuzz
 import Operations
 import OptimizationGroups.AVXLevel1
+import CBackEnd.Timing
 
-main :: IO ()
-main = assertOptimizationsCorrect avxVarDecls toAVX avxLvl1Opts (daxpadd 16)
+main =
+  runTimingCodeForExternalFunction "external_func_test" simpleAddCall simpleAddVars addSetup addTearDown (cInclude "\"utils.h\"")
+
+simpleAddCall = [cExprSt (cFuncall "simple_add" [cVar "m", cVar "n",
+                                                cVar "a", cVar "ars", cVar "acs",
+                                                cVar "b", cVar "brs", cVar "bcs",
+                                                cVar "c", cVar "crs", cVar "ccs"]) ""]
+addSetup = []
+
+simpleAddVars = []
+
+addTearDown = []
+
+{-main :: IO ()
+main = assertOptimizationsCorrect avxVarDecls toAVX avxLvl1Opts (daxpadd 16)-}
 
 {-
 main :: IO ()

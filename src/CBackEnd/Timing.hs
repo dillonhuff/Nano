@@ -1,4 +1,5 @@
-module CBackEnd.Timing(runTimingCode) where
+module CBackEnd.Timing(runTimingCode,
+                       runTimingCodeForExternalFunction) where
 
 import CBackEnd.Syntax
 import CBackEnd.TimingHarness
@@ -17,14 +18,14 @@ runTimingCode testName funcToTime argInfo =
     readFileShowingContents $ dataFileName testName
 
 runTimingCodeForExternalFunction :: FilePath ->
-                                    CStmt String ->
+                                    [CStmt String] ->
                                     [(CType, String)] ->
                                     [CStmt String] ->
                                     [CStmt String] ->
                                     CTopLevelItem String ->
                                     IO String
-runTimingCodeForExternalFunction testName funcallToTime varDecls setupCode tearDownCode includeFile =
-  let timeHarness = timingHarnessSetup funcallToTime varDecls setupCode tearDownCode
+runTimingCodeForExternalFunction testName codeToTime varDecls setupCode tearDownCode includeFile =
+  let timeHarness = timingHarnessSetup codeToTime varDecls setupCode tearDownCode
       timingMain = mainFunc ["time_impl"] (dataFileName testName)
       scHeader = cInclude "\"utils.h\""
       codeItems = [includeFile, scHeader, timeHarness, timingMain] in
