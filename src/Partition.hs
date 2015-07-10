@@ -1,5 +1,6 @@
 module Partition(Partition,
                  partition,
+                 partShape, partBase,
                  Shape(..)) where
 
 import IndexExpression
@@ -15,4 +16,5 @@ data Partition
 
 partition s i l = Partition s i l
 
-
+partShape (Partition s _ _) = s
+partBase (Partition _ b _) = b

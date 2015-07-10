@@ -18,12 +18,14 @@ import Registerization
 import SMulToBroadcast
 import SplitTemps
 import Statement
+import StatementInterchange
 
 avxLvl1Opts n =
   (registerization n) ++ (tempReductionAVX n) ++ (blockAndFuseAVXLvl1 n)
 
 registerization n =
   [pullCodeOutOfLoops, deleteRedundantAssignments, registerizeBelow n "k_", registerize n "r_", smulToBroadcast "sm"]
+--  [deleteRedundantAssignments, registerizeBelow n "k_", registerize n "r_", smulToBroadcast "sm"]  
 
 tempReductionAVX n =
   [registerizeTempsBelow n, registerizeTemps n, compactTemps, splitTemps "t_"]

@@ -3,6 +3,7 @@ module SystemTests.AllSystemTests(allSystemTests) where
 import Test.HUnit
 
 import SystemTests.AVXCodeGen
+import SystemTests.BasicGS
 import SystemTests.BlockingTests
 import SystemTests.CompactTemps
 import SystemTests.Fusion
@@ -17,6 +18,7 @@ import SystemTests.SplitTemps
 
 allSystemTests = TestLabel "All sytem tests" $ TestList
                [allAVXCodeGenTests,
+                allBasicGSTests,
                 allCompactTempsTests,
                 allFusionTests,
                 allInterchangeAndFuseTests,

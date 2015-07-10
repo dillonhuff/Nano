@@ -20,7 +20,9 @@ allBasicGSTests =
   TestList $ L.map TestCase
   [assertOptimizationsCorrectGS scalarVarDecls toCStmtsFunction [] (dscal (iVar "m")),
    assertOptimizationsCorrectGS scalarVarDecls toScalarC blockingT (dscal (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dscal (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dvadd (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dvadd2 (iVar "m")),
+--   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dscal (iVar "m"))]
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (daxpy (iVar "m"))]
 
 blockingT =
@@ -31,6 +33,17 @@ dscal i =
   let alpha = constDblMat "alpha" 1 1 1 1
       x = matrix "x" i (iConst 1) (iConst 1) (iConst 1) (properties arg double memory) in
   [scalarMultiply x alpha x]
+
+dvadd2 i =
+  let x = matrix "x" i (iConst 1) (iConst 1) (iConst 1) (properties arg double memory)
+      y = matrix "y" i (iConst 1) (iConst 1) (iConst 1) (properties arg double memory)
+      z = matrix "z" i (iConst 1) (iConst 1) (iConst 1) (properties arg double memory) in
+  [matrixAdd x y y, matrixAdd z y y]
+
+dvadd i =
+  let x = matrix "x" i (iConst 1) (iConst 1) (iConst 1) (properties arg double memory)
+      y = matrix "y" i (iConst 1) (iConst 1) (iConst 1) (properties arg double memory) in
+  [matrixAdd x y y]
 
 daxpy i =
   let alpha = constDblMat "alpha" 1 1 1 1

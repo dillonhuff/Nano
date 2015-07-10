@@ -151,7 +151,7 @@ blkVarDim aPartitionedDim indVar blkFactor partDirs stmt =
     resIVar = iVar $ (varName indVar) ++ "_res"
     (mainSt, resSt) = splitStmtGS indVar resIVar blkFactor partDirs stmt
     mainLoop = blockedLoop indVar (aPartitionedDim stmt) blkFactor [mainSt]
-    residualLoop = blockedResLoop resIVar  (aPartitionedDim stmt) blkFactor [resSt]
+    residualLoop = blockedResLoop resIVar (aPartitionedDim stmt) blkFactor [resSt]
 
 splitStmtGS indVar resIndVar blkFactor (splitW, splitR) stmt =
   let (mainW, resW) = (splitMatNGS indVar resIndVar blkFactor splitW) (operandWritten stmt)
@@ -179,7 +179,7 @@ blkConst aPartitionedDim indVar blkFactor partDirs stmt =
     mainLoop = blockedLoop indVar (aPartitionedDim stmt) blkFactor [mainOp]
 
 blockedLoop indVar dim blkFactor stmts =
-  let e = evaluateIExprConstants $ iSub dim blkFactor in
+  let e = evaluateIExprConstants $ iSub (iMul (iDiv dim blkFactor) blkFactor) (iConst 1) in
   loop (varName indVar) (iConst 0) blkFactor e stmts
 
 blockedResLoop indVar dim blkFactor stmts =
