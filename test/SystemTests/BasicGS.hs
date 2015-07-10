@@ -8,11 +8,12 @@ import CBackEnd.CodeGeneration.AVX.Double
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Function
 import CBackEnd.CodeGeneration.Scalar
-import Dummies hiding (daxpy)
+import Dummies hiding (daxpy, alpha, beta, x, y, z)
 import Fuzz
 import IndexExpression
 import Matrix
 import OptimizationGroups.AVXLevel1
+import PartitionSearch
 import Statement
 
 allBasicGSTests =
@@ -22,8 +23,11 @@ allBasicGSTests =
    assertOptimizationsCorrectGS scalarVarDecls toScalarC blockingT (dscal (iVar "m")),
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dvadd (iVar "m")),
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dvadd2 (iVar "m")),
---   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dscal (iVar "m"))]
-   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (daxpy (iVar "m"))]
+   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dscal (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (daxpy (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dgemvRM (iVar "m") (iVar "n"))]
+
+lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
 
 blockingT =
   L.map (\t -> expandStatementsBU t)
@@ -51,3 +55,13 @@ daxpy i =
       t = matrix "t" i (iConst 1) (iConst 1) (iConst 1) (properties local double memory)
       x = matrix "x" i (iConst 1) (iConst 1) (iConst 1) (properties arg double memory) in
   [scalarMultiply t alpha x, matrixAdd y t y]
+
+dgemvRM m n =
+  let alpha = constDblMat "alpha" 1 1 1 1
+      beta = constDblMat "beta" 1 1 1 1
+      y = matrix "y" m (iConst 1) (iConst 1) (iConst 1) (properties arg double memory)
+      t1 = matrix "t" m (iConst 1) (iConst 1) (iConst 1) (properties local double memory)
+      t2 = matrix "t" m (iConst 1) (iConst 1) (iConst 1) (properties local double memory)
+      x = matrix "x" n (iConst 1) (iConst 1) (iConst 1) (properties arg double memory)
+      a = matrix "A" m n n (iConst 1) (properties arg double memory) in
+  [setZero t1, matrixMultiply t1 a x, scalarMultiply t2 alpha t1, scalarMultiply y beta y, matrixAdd y t2 y]

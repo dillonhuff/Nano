@@ -11,9 +11,12 @@ import Utils
 blockDot u uniqueVarPrefix stmts =
   evalState (expandStatementsBUM (tryBlkDot (iConst u)) stmts) (uniqueVarPrefix, 0)
 
+-- Need to update for general sizes
 tryBlkDot :: IExpr -> Statement -> State (String, Int) [Statement]
 tryBlkDot u stmt =
-  case opcode stmt == MMUL && isScalar (operandWritten stmt) && (constVal u) < (constVal $ numCols $ operandRead 0 stmt) of
+  case opcode stmt == MMUL && isScalar (operandWritten stmt) &&
+       isFixedSize (operandRead 0 stmt) &&
+       (constVal u) < (constVal $ numCols $ operandRead 0 stmt) of
     True -> blkDot u stmt
     False -> return [stmt]
 
