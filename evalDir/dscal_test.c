@@ -22,7 +22,7 @@ void time_impl(FILE* df){
 		start = rdtsc();
 		cblas_dscal(m, beta[0], x, 1);
 		end = rdtsc();
-		total_cycles = (total_cycles + (start - end));
+		total_cycles = (total_cycles + (end - start));
 		num_runs = (num_runs + 1);
 	}
 	start = rdtsc();

@@ -48,7 +48,7 @@ runCountBody codeToTime =
 runCountWhileBody codeToTime =
   cBlock [] body
   where
-    addToTotal = cExprSt (cAssign (cVar "total_cycles") (cAdd (cVar "total_cycles") (cSub (cVar "start") (cVar "end")))) ""
+    addToTotal = cExprSt (cAssign (cVar "total_cycles") (cAdd (cVar "total_cycles") (cSub (cVar "end") (cVar "start")))) ""
     incRuns = cExprSt (cAssign (cVar "num_runs") (cAdd (cVar "num_runs") (cIntLit 1))) ""
     body = startRDTSC ++ codeToTime ++ endRDTSC ++ [addToTotal, incRuns]
 
