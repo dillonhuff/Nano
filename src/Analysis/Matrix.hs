@@ -11,16 +11,16 @@ import IndexExpression
 import Matrix
 
 matricesOverlap :: Map IExpr (IExpr, IExpr, IExpr) -> Matrix -> Matrix -> Bool
-matricesOverlap ranges s t =
+matricesOverlap ranges s t = --error "matricesOverlap ? "
   case bufferName s == bufferName t of
     True -> accessedRegionsOverlap ranges s t
     False -> False
 
 accessedRegionsOverlap :: Map IExpr (IExpr, IExpr, IExpr) -> Matrix -> Matrix -> Bool
-accessedRegionsOverlap ranges s t =
-  case accessOverlap ranges s t of
+accessedRegionsOverlap ranges s t = error $ "accessedRegionsOverlap ranges = " ++ show ranges
+{-  case accessOverlap ranges s t of
     Just b -> b
-    Nothing -> True
+    Nothing -> True-}
 
 accessOverlap iRanges s t = do
   sR <- accessedRectangle iRanges s

@@ -148,13 +148,14 @@ blkStmt aPartitionedDim indVar blkFactor partDirs stmt =
 blkVarDim aPartitionedDim indVar blkFactor partDirs stmt =
   [mainLoop, residualLoop]
   where
-    (mainSt, resSt) = splitStmtGS indVar blkFactor partDirs stmt
+    resIVar = iVar $ (varName indVar) ++ "_res"
+    (mainSt, resSt) = splitStmtGS indVar resIVar blkFactor partDirs stmt
     mainLoop = blockedLoop indVar (aPartitionedDim stmt) blkFactor [mainSt]
-    residualLoop = blockedResLoop indVar (aPartitionedDim stmt) blkFactor [resSt]
+    residualLoop = blockedResLoop resIVar  (aPartitionedDim stmt) blkFactor [resSt]
 
-splitStmtGS indVar blkFactor (splitW, splitR) stmt =
-  let (mainW, resW) = (splitMatNGS indVar indVar blkFactor splitW) (operandWritten stmt)
-      mainRResRPairs = L.zipWith (\dir m -> splitMatNGS indVar indVar blkFactor dir m) splitR $ operandsRead stmt
+splitStmtGS indVar resIndVar blkFactor (splitW, splitR) stmt =
+  let (mainW, resW) = (splitMatNGS indVar resIndVar blkFactor splitW) (operandWritten stmt)
+      mainRResRPairs = L.zipWith (\dir m -> splitMatNGS indVar resIndVar blkFactor dir m) splitR $ operandsRead stmt
       mainR = L.map fst mainRResRPairs
       resR = L.map snd mainRResRPairs
       mainSt = setOperandWritten mainW $ setOperandsRead mainR stmt
