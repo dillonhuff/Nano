@@ -10,18 +10,31 @@ import CBackEnd.Utils
 
 sanityCheckHarness :: String -> String -> [BufferInfo] -> CTopLevelItem String
 sanityCheckHarness scOpName testOpName argInfo =
-  cFuncDecl cVoid "sanity_check" [(cPtr cFILE, "df")] $ cBlock allDecls scBody 
+  sanityCheckHarnessS [] [] scOpCall testOpCall argInfo
   where
-    allDecls = (bufDecls argInfo) ++ (refBufDecls argInfo) ++ (testBufDecls argInfo) ++ (scResultVarDecls argInfo)
-    scBody = sanityCheckBody scOpName testOpName argInfo
+    scOpCall = \refBufs -> [cExprSt (cFuncall scOpName $ L.map (\bufInfo -> cVar $ bufName bufInfo) refBufs) ""]
+    testOpCall = \testBufs -> [cExprSt (cFuncall testOpName $ L.map (\bufInfo -> cVar $ bufName bufInfo) testBufs) ""]
 
-sanityCheckBody scOpName testOpName argInfo =
+sanityCheckHarnessS :: [(CType, String)] ->
+                       [CStmt String] ->
+                       ([BufferInfo] -> [CStmt String]) ->
+                       ([BufferInfo] -> [CStmt String]) ->
+                       [BufferInfo] ->
+                       CTopLevelItem String
+sanityCheckHarnessS additionalDecls setupCode scOpFuncall testOpFuncall argInfo =
+  cFuncDecl cVoid "sanity_check" [(cPtr cFILE, "df")] $ cBlock allDecls scBody
+  where
+    bufferDecls = (bufDecls argInfo) ++ (refBufDecls argInfo) ++ (testBufDecls argInfo) ++ (scResultVarDecls argInfo)
+    allDecls = additionalDecls ++ bufferDecls
+    scBody = sanityCheckBody scOpFuncall testOpFuncall argInfo
+
+sanityCheckBody scOpFuncall testOpFuncall argInfo =
   initAllBuffers ++
   setMainBuffersToRandValues ++
   copyMainBuffersToRefBuffers ++
   copyMainBuffersToTestBuffers ++
-  callRef ++
-  callMain ++
+  (scOpFuncall refBufs) ++
+  (testOpFuncall testBufs) ++
   setSCResultVars ++
   compareSCResultVars ++
   freeAllBuffers
@@ -34,8 +47,6 @@ sanityCheckBody scOpName testOpName argInfo =
     setMainBuffersToRandValues = L.map setArgToRandValuesCode argInfo
     copyMainBuffersToRefBuffers = L.zipWith copyBufferCode refBufs argInfo
     copyMainBuffersToTestBuffers = L.zipWith copyBufferCode testBufs argInfo
-    callRef = [cExprSt (cFuncall scOpName $ L.map (\bufInfo -> cVar $ bufName bufInfo) refBufs) ""]
-    callMain = [cExprSt (cFuncall testOpName $ L.map (\bufInfo -> cVar $ bufName bufInfo) testBufs) ""]
     setSCResultVars = L.zipWith3 setSCResultVar scResultVars refBufs testBufs
     compareSCResultVars = [compareVars $ L.map cVar scResultVars]
     freeAllBuffers = L.map freeBuffer argInfo
