@@ -133,11 +133,45 @@ blocking = Blocking
 blockingApplies (Blocking isTargetOp _ _) stmt = isTargetOp stmt
 
 block (Blocking isTargetOp aPartitionedDim partDirs) indVar blkFactor stmt =
-  case isTargetOp stmt && aPartitionedDim stmt > blkFactor of
+  case isTargetOp stmt &&
+       (((isConst $ aPartitionedDim stmt) && (aPartitionedDim stmt > blkFactor)) || (isVar $ aPartitionedDim stmt))  of
     True -> blkStmt aPartitionedDim indVar blkFactor partDirs stmt
     False -> [stmt]
 
 blkStmt aPartitionedDim indVar blkFactor partDirs stmt =
+  case isConst $ aPartitionedDim stmt of
+    True -> blkConst aPartitionedDim indVar blkFactor partDirs stmt
+    False -> case isVar $ aPartitionedDim stmt of
+      True -> blkVarDim aPartitionedDim indVar blkFactor partDirs stmt
+      False -> error $ "blockStmt: Trying to partition statement " ++ show stmt ++ " by " ++ show blkFactor
+
+blkVarDim aPartitionedDim indVar blkFactor partDirs stmt =
+  [mainLoop, residualLoop]
+  where
+    (mainSt, resSt) = splitStmtGS indVar blkFactor partDirs stmt
+    mainLoop = blockedLoop indVar (aPartitionedDim stmt) blkFactor [mainSt]
+    residualLoop = blockedResLoop indVar (aPartitionedDim stmt) blkFactor [resSt]
+
+splitStmtGS indVar blkFactor (splitW, splitR) stmt =
+  let (mainW, resW) = (splitMatNGS indVar indVar blkFactor splitW) (operandWritten stmt)
+      mainRResRPairs = L.zipWith (\dir m -> splitMatNGS indVar indVar blkFactor dir m) splitR $ operandsRead stmt
+      mainR = L.map fst mainRResRPairs
+      resR = L.map snd mainRResRPairs
+      mainSt = setOperandWritten mainW $ setOperandsRead mainR stmt
+      resSt = setOperandWritten resW $ setOperandsRead resR stmt in
+  (mainSt, resSt)
+
+splitMatNGS indVar resIndVar blkFactor maybeDir m =
+  case maybeDir of
+    Just d -> splitMatGS indVar resIndVar blkFactor d m
+    Nothing -> (m, m)
+
+splitMatGS indVar resIndVar blkFactor partDir m =
+  case partDir of
+    Row -> (rowPart indVar blkFactor m, rowPart resIndVar (iConst 1) m)
+    Col -> (colPart indVar blkFactor m, colPart resIndVar (iConst 1) m)
+
+blkConst aPartitionedDim indVar blkFactor partDirs stmt =
   L.filter (\stmt -> not $ anyNullOperands stmt) [mainLoop, residualOp]
   where
     (mainOp, residualOp) = splitStmt indVar blkFactor partDirs stmt
@@ -147,6 +181,11 @@ blockedLoop indVar dim blkFactor stmts =
   let e = evaluateIExprConstants $ iSub dim blkFactor in
   loop (varName indVar) (iConst 0) blkFactor e stmts
 
+blockedResLoop indVar dim blkFactor stmts =
+  let s = evaluateIExprConstants $ iMul (iDiv dim blkFactor) blkFactor
+      e = evaluateIExprConstants $ iSub dim (iConst 1) in
+  loop (varName indVar) s (iConst 1) e stmts
+  
 splitStmt indVar blkFactor (splitW, splitR) stmt =
   let (mainW, resW) = (splitMatN indVar blkFactor splitW) (operandWritten stmt)
       mainRResRPairs = L.zipWith (\dir m -> splitMatN indVar blkFactor dir m) splitR $ operandsRead stmt

@@ -64,7 +64,7 @@ assertOptimizationsCorrectGS varDeclFunc codeGenFunc transformsToApply operation
       indDecls = bufDecls indInfo
       indNames = L.map bufName indInfo
       indVars = L.map cVar indNames
-      indInits = L.map (\indVar -> cExprSt (cAssign indVar (cIntLit 10)) "") indVars
+      indInits = L.map (\indVar -> cExprSt (cAssign indVar (cIntLit 79)) "") indVars
       scFuncall = \bufs -> [cExprSt (cFuncall (cFuncName regularOp) ((L.map (cVar . bufName) bufs) ++ indVars)) ""]
       testFuncall = \bufs -> [cExprSt (cFuncall (cFuncName transformedOp) ((L.map (cVar . bufName) bufs) ++ indVars)) ""] in
     do

@@ -112,6 +112,7 @@ iExprToCExpr (IVar n) = cVar n
 iExprToCExpr (IConst i) = cIntLit i
 iExprToCExpr (IAdd l r) = cAdd (iExprToCExpr l) (iExprToCExpr r)
 iExprToCExpr (IMul l r) = cMul (iExprToCExpr l) (iExprToCExpr r)
+iExprToCExpr (IDiv l r) = cDiv (iExprToCExpr l) (iExprToCExpr r)
 
 containsSubExpr subExpr i =
   case subExpr == i of

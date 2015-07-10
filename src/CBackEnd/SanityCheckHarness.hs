@@ -27,10 +27,11 @@ sanityCheckHarnessS additionalDecls setupCode scOpFuncall testOpFuncall argInfo 
   where
     bufferDecls = (bufDecls argInfo) ++ (refBufDecls argInfo) ++ (testBufDecls argInfo) ++ (scResultVarDecls argInfo)
     allDecls = additionalDecls ++ bufferDecls
-    scBody = sanityCheckBody scOpFuncall testOpFuncall argInfo
+    scBody = sanityCheckBody setupCode scOpFuncall testOpFuncall argInfo
 
-sanityCheckBody scOpFuncall testOpFuncall argInfo =
+sanityCheckBody setupCode scOpFuncall testOpFuncall argInfo =
   initAllBuffers ++
+  setupCode ++
   setMainBuffersToRandValues ++
   copyMainBuffersToRefBuffers ++
   copyMainBuffersToTestBuffers ++
