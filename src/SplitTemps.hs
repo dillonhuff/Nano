@@ -18,7 +18,6 @@ splitTemps prefix stmts =
 groupByOverlap iRanges ms =
   L.foldr (mergeGroups iRanges) (L.map (\m -> m:[]) ms) ms
 
---mergeGroups :: Map IExpr Matrix -> [[Matrix]] -> [[Matrix]]
 mergeGroups iRanges m groups =
   let groupsToMerge = L.filter (\g -> L.any (\gmat -> matricesOverlap iRanges m gmat) g) groups
       groupsToStaySame = groups \\ groupsToMerge in

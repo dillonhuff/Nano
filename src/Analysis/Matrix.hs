@@ -20,7 +20,7 @@ accessedRegionsOverlap :: Map IExpr (IExpr, IExpr, IExpr) -> Matrix -> Matrix ->
 accessedRegionsOverlap ranges s t =
   case accessOverlap ranges s t of
     Just b -> b
-    Nothing -> False
+    Nothing -> True
 
 accessOverlap iRanges s t = do
   sR <- accessedRectangle iRanges s
@@ -28,22 +28,28 @@ accessOverlap iRanges s t = do
   return $ rectanglesOverlap sR tR
 
 isRegisterizeable u op =
-  case u == 1 of
-    True -> isScalar op
-    False ->
-      case ((constVal $ numRows op) == u && (constVal $ numCols op) == 1)  ||
-           ((constVal $ numCols op) == u && (constVal $ numRows op) == 1) of
-        True -> True
-        False -> False
+  case isFixedSize op of
+    True ->
+      case u == 1 of
+        True -> isScalar op
+        False ->
+          case ((constVal $ numRows op) == u && (constVal $ numCols op) == 1)  ||
+               ((constVal $ numCols op) == u && (constVal $ numRows op) == 1) of
+            True -> True
+            False -> False
+    False -> False
 
 isRegisterizeableBelow u op =
-  case u == 1 of
-    True -> isScalar op
-    False ->
-      case ((constVal $ numRows op) < u && (constVal $ numCols op) == 1)  ||
-           ((constVal $ numCols op) < u && (constVal $ numRows op) == 1) of
-        True -> True
-        False -> False
+  case isFixedSize op of
+    True ->
+      case u == 1 of
+        True -> isScalar op
+        False ->
+          case ((constVal $ numRows op) < u && (constVal $ numCols op) == 1)  ||
+               ((constVal $ numCols op) < u && (constVal $ numRows op) == 1) of
+            True -> True
+            False -> False
+    False -> False
 
 allMatIVars m =
   let b = underlyingMatrix m in
