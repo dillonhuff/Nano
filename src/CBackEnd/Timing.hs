@@ -15,3 +15,20 @@ runTimingCode testName funcToTime argInfo =
   do
     compileAndRunC testName codeItems
     readFileShowingContents $ dataFileName testName
+
+runTimingCodeForExternalFunction :: FilePath ->
+                                    CStmt String ->
+                                    [(CType, String)] ->
+                                    [CStmt String] ->
+                                    [CStmt String] ->
+                                    CTopLevelItem String ->
+                                    IO String
+runTimingCodeForExternalFunction testName funcallToTime varDecls setupCode tearDownCode includeFile =
+  let timeHarness = timingHarnessSetup funcallToTime varDecls setupCode tearDownCode
+      timingMain = mainFunc ["time_impl"] (dataFileName testName)
+      scHeader = cInclude "\"utils.h\""
+      codeItems = [includeFile, scHeader, timeHarness, timingMain] in
+  do
+    compileAndRunC testName codeItems
+    readFileShowingContents $ dataFileName testName
+

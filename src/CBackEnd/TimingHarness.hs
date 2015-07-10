@@ -1,4 +1,5 @@
-module CBackEnd.TimingHarness(timingHarness) where
+module CBackEnd.TimingHarness(timingHarness,
+                              timingHarnessSetup) where
 
 import Data.List as L
 
@@ -7,15 +8,15 @@ import CBackEnd.Utils
 
 timingHarness :: String -> [BufferInfo] -> CTopLevelItem String
 timingHarness funcName bufInfo =
-  timingHarnessS ft bufDecs allocAndSetRand freeBufs
+  timingHarnessSetup ft bufDecs allocAndSetRand freeBufs
   where
     ft = cExprSt (cFuncall funcName $ L.map (\info -> cVar $ bufName info) bufInfo) ""
     allocAndSetRand = (L.map initializeBuffer bufInfo) ++ (L.map setArgToRandValuesCode bufInfo)
     freeBufs = L.map freeBuffer bufInfo
     bufDecs = bufDecls bufInfo
 
-timingHarnessS :: CStmt String -> [(CType, String)] -> [CStmt String] -> [CStmt String] -> CTopLevelItem String
-timingHarnessS funcallToTime varDecls setupCode tearDownCode =
+timingHarnessSetup :: CStmt String -> [(CType, String)] -> [CStmt String] -> [CStmt String] -> CTopLevelItem String
+timingHarnessSetup funcallToTime varDecls setupCode tearDownCode =
   cFuncDecl cVoid "time_impl" [(cPtr cFILE, "df")] $ cBlock allDecls bodyStmts
   where
     allDecls = varDecls ++ timingVarDecls
