@@ -2,6 +2,7 @@ module Fuzz(applyRandomOptimizations,
             applyOptimizations,
             selectTransforms,
             assertOptimizationsCorrect,
+            assertOptimizationsCorrectGS,
             assertRandomOptimizationsCorrect) where
 
 import Control.Monad.Random
@@ -14,6 +15,7 @@ import CBackEnd.CodeGeneration.Core
 import CBackEnd.CodeGeneration.Function
 import CBackEnd.SanityCheck
 import CBackEnd.Syntax
+import CBackEnd.Utils
 import Statement
 
 applyTransforms :: [Statement -> [Statement]] -> [Statement] -> [Statement]
@@ -52,6 +54,21 @@ assertOptimizationsCorrect varDeclFunc codeGenFunc transformsToApply operation =
       (regularOp, argInfo) = operationToC scalarVarDecls toCStmtsFunction "op" operation in
     do
       scRes <- runSanityCheck "fuzzTest" regularOp transformedOp argInfo
+      assertEqual (failMessageInfo transformedOp regularOp argInfo) "true\n" scRes
+
+assertOptimizationsCorrectGS varDeclFunc codeGenFunc transformsToApply operation =
+  let (transformedOp, _) = operationToC varDeclFunc codeGenFunc "transformedOp" $ applyOptimizations transformsToApply operation
+      (regularOp, bufsAndIVars) = operationToC scalarVarDecls toCStmtsFunction "op" operation
+      argInfo = L.takeWhile (\b -> isCPtr $ bufType b) bufsAndIVars
+      indInfo = L.dropWhile (\b -> isCPtr $ bufType b) bufsAndIVars
+      indDecls = bufDecls indInfo
+      indNames = L.map bufName indInfo
+      indVars = L.map cVar indNames
+      indInits = L.map (\indVar -> cExprSt (cAssign indVar (cIntLit 10)) "") indVars
+      scFuncall = \bufs -> [cExprSt (cFuncall (cFuncName regularOp) ((L.map (cVar . bufName) bufs) ++ indVars)) ""]
+      testFuncall = \bufs -> [cExprSt (cFuncall (cFuncName transformedOp) ((L.map (cVar . bufName) bufs) ++ indVars)) ""] in
+    do
+      scRes <- runSanityCheckGS "gs_fuzzTest" indDecls indInits scFuncall testFuncall regularOp transformedOp argInfo
       assertEqual (failMessageInfo transformedOp regularOp argInfo) "true\n" scRes
 
 failMessageInfo resultOp regularOp argInfo =

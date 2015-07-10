@@ -1,4 +1,5 @@
 module CBackEnd.SanityCheckHarness(sanityCheckHarness,
+                                   sanityCheckHarnessS,
                                    scSuccessString,
                                    scFailString) where
 

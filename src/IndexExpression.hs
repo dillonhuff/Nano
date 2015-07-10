@@ -2,6 +2,7 @@ module IndexExpression(IExpr,
                        evaluateIExprConstants,
                        iAdd, iMul, iConst, iVar, iSub, iDiv,
                        isConst, isVar, ieToConst,
+                       allIExprOperands,
                        constVal, varName,
                        subIExpr, subIExprForVar,
                        iExprToCExpr, containsSubExpr) where
@@ -121,3 +122,8 @@ iOperands (IAdd l r) = [l, r]
 iOperands (IMul l r) = [l, r]
 iOperands (IDiv l r) = [l, r]
 iOperands _ = []
+
+allIExprOperands (IAdd l r) = allIExprOperands l ++ allIExprOperands r
+allIExprOperands (IMul l r) = allIExprOperands l ++ allIExprOperands r
+allIExprOperands (IDiv l r) = allIExprOperands l ++ allIExprOperands r
+allIExprOperands a = [a]

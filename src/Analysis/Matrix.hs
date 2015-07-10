@@ -1,7 +1,9 @@
-module Analysis.Matrix(matricesOverlap,
+module Analysis.Matrix(allMatIVars,
+                       matricesOverlap,
                        isRegisterizeable,
                        isRegisterizeableBelow) where
 
+import Data.List as L
 import Data.Map as M
 
 import Analysis.IndexExpression
@@ -42,3 +44,7 @@ isRegisterizeableBelow u op =
            ((constVal $ numCols op) < u && (constVal $ numRows op) == 1) of
         True -> True
         False -> False
+
+allMatIVars m =
+  let b = underlyingMatrix m in
+  L.filter isVar $ L.concatMap allIExprOperands [numRows b, numCols b, rowStride b, colStride b]

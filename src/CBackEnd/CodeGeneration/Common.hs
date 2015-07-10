@@ -8,6 +8,7 @@ module CBackEnd.CodeGeneration.Common(loopToCStmts,
 
 import Data.List as L
 
+import Analysis.Matrix
 import CBackEnd.Syntax
 import CBackEnd.Utils
 import IndexExpression
@@ -45,8 +46,18 @@ inductionVariableDecls stmts =
 
 bufferInfoList :: [Statement] -> [BufferInfo]
 bufferInfoList stmts =
-  let allMats = L.nub $ L.concatMap (collectValuesFromStmt $ collectFromAllOperands matrixBufferInfo) stmts in
-  L.sortBy (\l r -> compare (bufName l) (bufName r)) allMats
+  let allMats = L.nub $ L.concatMap (collectValuesFromStmt $ collectFromAllOperands matrixBufferInfo) stmts
+      sortedMats = L.sortBy (\l r -> compare (bufName l) (bufName r)) allMats
+      allIVars = getIVars stmts
+      sortedIVars = L.sortBy (\l r -> compare (bufName l) (bufName r)) allIVars in
+  sortedMats ++ sortedIVars
+
+getIVars :: [Statement] -> [BufferInfo]
+getIVars stmts = L.nub $ allIVars stmts
+
+allIVars stmts =
+  L.map (\i -> bufferInfo (varName i) cInt (cIntLit 1) arg) $
+  L.concatMap (collectValuesFromStmt (\stmt -> L.concatMap allMatIVars $ allOperands stmt)) stmts
 
 matrixBufferInfo :: Matrix -> BufferInfo
 matrixBufferInfo m =
