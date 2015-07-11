@@ -26,7 +26,8 @@ allBasicGSTests =
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dscal (iVar "m")),
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (daxpy (iVar "m")),
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dmaddRM (iVar "m") (iVar "n")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dgemvRM (iVar "m") (iVar "n"))]
+   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dgemvRM (iVar "m") (iVar "n")),
+   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dmmulRM (iVar "m") (iVar "n") (iVar "p"))]
 
 lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
 
@@ -71,3 +72,9 @@ dgemvRM m n =
       x = matrix "x" n (iConst 1) (iConst 1) (iConst 1) (properties arg double memory)
       a = matrix "A" m n n (iConst 1) (properties arg double memory) in
   [setZero t1, matrixMultiply t1 a x, scalarMultiply t2 alpha t1, scalarMultiply y beta y, matrixAdd y t2 y]
+
+dmmulRM m n p =
+  let c = matrix "C" m n n (iConst 1) (properties arg double memory)
+      a = matrix "A" m p p (iConst 1) (properties arg double memory)
+      b = matrix "B" p n n (iConst 1) (properties arg double memory) in
+  [matrixMultiply c a b]
