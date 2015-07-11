@@ -46,12 +46,47 @@ pEntryType = do
 pLayout = pScalarL <|> pVectorL <|> pMatrixL
 
 pScalarL = do
-  s <- pResWithNameTok "sca"
+  s <- pResWithNameTok "scal"
   return (iConst 1, iConst 1, iConst 1, iConst 1)
 
-pVectorL = error "pVectorL"
+pVectorL = pRVectorL <|> pCVectorL
 
-pMatrixL = error "pMatrixL"
+pRVectorL = do
+  s <- pResWithNameTok "rvec"
+  i <- pDim
+  return (iConst 1, i, iConst 1, iConst 1)
+
+pCVectorL = do
+  s <- pResWithNameTok "cvec"
+  i <- pDim
+  return (i, iConst 1, iConst 1, iConst 1)
+
+pMatrixL = do
+  pResWithNameTok "matx"
+  m <- rmLayout <|> cmLayout
+  return m
+
+rmLayout = do
+  pResWithNameTok "rm"
+  nr <- pDim
+  nc <- pDim
+  return (nr, nc, nc, iConst 1)
+
+cmLayout = do
+  pResWithNameTok "cm"
+  nr <- pDim
+  nc <- pDim
+  return (nr, nc, iConst 1, nr)
+
+pDim = pIntConst <|> pVarDim
+
+pIntConst = do
+  i <- pIntLit
+  return $ iConst i
+
+pVarDim = do
+  (i, _) <- pIdent
+  return $ iVar i
 
 pScope = do
   scopeStr <- pResWithNameTok "iarg" <|> pResWithNameTok "oarg" <|> pResWithNameTok "temp"

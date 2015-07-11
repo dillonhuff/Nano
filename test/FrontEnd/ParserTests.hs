@@ -43,13 +43,23 @@ stCases =
 
 formalParamCases =
   L.map (\(x, y) -> (x, Right y))
-  [("iarg sca double c", ("c", constDblMat "c" 1 1 1 1)),
-   ("temp sca double c", ("c", constDblMatTemp "c" 1 1 1 1)),
-   ("oarg sca single c", ("c", constFltMat "c" 1 1 1 1))]
---   ("oarg vec 12 double vectorArg", ("vectorArg", constDblMat "vectorArg" ))]
+  [("iarg scal double c", ("c", constDblMat "c" 1 1 1 1)),
+   ("temp scal double c", ("c", constDblMatTemp "c" 1 1 1 1)),
+   ("oarg scal single c", ("c", constFltMat "c" 1 1 1 1)),
+   ("oarg rvec 12 double xVec", ("xVec", constDblMat "xVec" 1 12 1 1)),
+   ("iarg cvec 19 single yVec", ("yVec", constFltMat "yVec" 19 1 1 1)),
+   ("iarg cvec n double yVec",
+    ("yVec", argDblMat "yVec" (iVar "n") (iConst 1) (iConst 1) (iConst 1))),
+   ("iarg matx rm 12 34 single A",
+    ("A", constFltMat "A" 12 34 34 1)),
+   ("iarg matx cm m n single A",
+    ("A", argFltMat "A" (iVar "m") (iVar "n") (iConst 1) (iVar "m")))]
 
-{-                   ("r matrix float gen gen gen gen a", ("a", mOpSymInfo arg singleFloat $ layout (iVar "a_nrows") (iVar "a_ncols") (iVar "a_rs") (iVar "a_cs"))),
-   ("r matrix double 4 4 4 1 A", ("A", mOpSymInfo arg doubleFloat $ layout (iConst 4) (iConst 4) (iConst 4) (iConst 1)))]-}
+argDblMat n nr nc rs cs =
+  matrix n nr nc rs cs (properties arg double memory)
+
+argFltMat n nr nc rs cs =
+  matrix n nr nc rs cs (properties arg single memory)
 
 --lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
 --lexAndParseStatement fName str = (lexString fName str) >>= (parseStatement fName)
