@@ -162,41 +162,11 @@ pTerm matMap = (pMatrix matMap) <|> pParens (pMatExpr matMap)
 
 pMatrix matMap = do
   (n, pos) <- pIdent
-  return $ mat (lookupF n matMap) pos {-matName n pos-}
+  return $ mat (lookupF n matMap) pos
 
 lookupF k m = case M.lookup k m of
   Just v -> v
   Nothing -> error "lookupF: Could not find value"
-
-{-do
-  position <- getPosition
-  pResWithNameTok "operation"
-  (name, pos) <-pIdent
-  pResWithNameTok "("
-  args <- pArgList
-  pResWithNameTok ")"
-  pResWithNameTok "{"
-  ops <- pMatStatements
-  pResWithNameTok "}"
-  return $ matrixOperation name args ops position-}
-
-{-
-pArgList = sepBy pFormalParam (pResWithNameTok ",")
-
-pReadMod = (pResWithNameTok "output") <|> (pResWithNameTok "r") <|> (pResWithNameTok "rw")
-
-pEntryType = do
-  outN <- pResWithNameTok "double" <|> pResWithNameTok "float"
-  case resName outN of
-    "double" -> return double
-    "float" -> return single
-
-pMatStatements = many pMatStatement
-
-
-
-
--}
 
 pParens pOther = do
   pResWithNameTok "("
