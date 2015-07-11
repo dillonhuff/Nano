@@ -25,8 +25,8 @@ allBasicGSTests =
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dvadd2 (iVar "m")),
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (dscal (iVar "m")),
    assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble (avxLvl1Opts 4) (daxpy (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dmaddRM (iVar "m") (iVar "n"))]
---   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dgemvRM (iVar "m") (iVar "n"))
+   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dmaddRM (iVar "m") (iVar "n")),
+   assertOptimizationsCorrectGS avxVarDeclsDouble toAVXDouble lv2Opts (dgemvRM (iVar "m") (iVar "n"))]
 
 lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
 
