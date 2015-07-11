@@ -1,4 +1,6 @@
-module MatrixOperation(MatrixStmt,
+module MatrixOperation(MatrixOperation,
+                       matrixOperation,
+                       MatrixStmt,
                        masg, dmasg,
                        MExpr,
                        mBinop, mUnop, mat, dmBinop, dmUnop, dmat,
@@ -8,6 +10,16 @@ import Text.Parsec.Pos
 
 import FrontEnd.Token
 import Matrix
+
+data MatrixOperation
+  = MatrixOperation String [MatrixStmt] SourcePos
+    deriving (Ord, Show)
+
+instance Eq MatrixOperation where
+  (==) (MatrixOperation n1 stmts1 _) (MatrixOperation n2 stmts2 _) =
+    n1 == n2 && stmts1 == stmts2
+
+matrixOperation = MatrixOperation
 
 data MatrixStmt
   = MAsg MExpr MExpr SourcePos

@@ -5,12 +5,23 @@ import Data.List as L
 import CBackEnd.CodeGeneration.AVX.Double
 import CBackEnd.Syntax
 import CBackEnd.Timing
+import FrontEnd.Lexer
+import FrontEnd.Parser
 import Fuzz
 import Operations
 import OptimizationGroups.AVXLevel1
 import CBackEnd.Timing
 
-main =
+testFile = "testOp.lspc"
+
+main = do
+  contents <- readFile testFile
+  let parseRes = lexAndParseOperation testFile contents in
+    putStrLn $ show parseRes
+
+lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
+
+{-main =
   runTimingCodeForExternalFunction "external_func_test" simpleAddCall simpleAddVars addSetup addTearDown (cInclude "\"utils.h\"")
 
 simpleAddCall = [cExprSt (cFuncall "simple_add" [cVar "m", cVar "n",
@@ -21,7 +32,7 @@ addSetup = []
 
 simpleAddVars = []
 
-addTearDown = []
+addTearDown = []-}
 
 {-main :: IO ()
 main = assertOptimizationsCorrect avxVarDecls toAVX avxLvl1Opts (daxpadd 16)-}

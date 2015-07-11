@@ -15,21 +15,23 @@ import Module
 
 allParserTests = TestLabel "allParserTests" $ TestList 
    [makeTestCases (lexAndParseStatement "noname.lspc" matMap) stCases,
-    makeTestCases (lexAndParseFormalParam "noname.lspc") formalParamCases]
+    makeTestCases (lexAndParseFormalParam "noname.lspc") formalParamCases,
+    makeTestCases (lexAndParseOperation "noname.lspc") opCases]
 
-{-opCases =
-  L.map (\(x, y) -> (x, Right [y]))
+opCases =
+  L.map (\(x, y) -> (x, Right y))
   [("operation nothing() { }",
-    matrixOperation "nothing" [] [] dummyPos),
-   ("operation trans(output matrix double 12 32 1 12 b, r matrix double 32 12 1 32 a) {}",
-    matrixOperation "trans" [("b", mOpSymInfo arg doubleFloat (layout (iConst 12) (iConst 32) (iConst 1) (iConst 12))),
-                             ("a", mOpSymInfo arg doubleFloat (layout (iConst 32) (iConst 12) (iConst 1) (iConst 32)))] [] dummyPos),
-   ("operation madd(rw matrix float 12 32 1 12 b, r matrix float 12 32 1 32 a, output matrix float 12 32 32 1 c) { c = a + b; }",
-    matrixOperation "madd" [("b", mOpSymInfo arg singleFloat (layout (iConst 12) (iConst 32) (iConst 1) (iConst 12))),
-                             ("a", mOpSymInfo arg singleFloat (layout (iConst 12) (iConst 32) (iConst 1) (iConst 32))),
-                             ("c", mOpSymInfo arg singleFloat (layout (iConst 12) (iConst 32) (iConst 32) (iConst 1)))]
-    [dMatAsg "c" (dMatrixAdd (dMatName "a") (dMatName "b"))] dummyPos)]
--}
+    matrixOperation "nothing" [] dummyPos),
+   ("operation oneOp(oarg scal single a) {}",
+    matrixOperation "oneOp" [] dummyPos),
+   ("operation sscal(oarg cvec 12 single x, \niarg scal single alpha) { \nx = alpha .* x;\n }",
+    matrixOperation "sscal" [scalX] dummyPos)]
+
+scalX = dmasg (dmat (constFltMat "x" 12 1 1 1))
+              (dmBinop SMul
+                       (dmat (constFltMat "alpha" 1 1 1 1))
+                       (dmat (constFltMat "x" 12 1 1 1)))
+
 stCases =
   L.map (\(x, y) -> (x, Right y))
   [("C = A + B;", dmasg (dmat c) (dmBinop MAdd (dmat a) (dmat b))),
@@ -37,14 +39,6 @@ stCases =
    ("C = alpha .* B;", dmasg (dmat c) (dmBinop SMul (dmat alpha) (dmat b))),
    ("A = (alpha.*C) + A';",
     dmasg (dmat a) (dmBinop MAdd (dmBinop SMul (dmat alpha) (dmat c)) (dmUnop MTrans (dmat a))))]
-
-{-("c = a - b;", dMatAsg "c" (dMatrixSub (dMatName "a") (dMatName "b"))),
-   ("c = a * b;", dMatAsg "c" (dMatrixMul (dMatName "a") (dMatName "b"))),
-   ("y = alpha*x + y;", dMatAsg "y" (dMatrixAdd (dMatrixMul (dMatName "alpha") (dMatName "x")) (dMatName "y"))),
-   ("x = b';", dMatAsg "x" (dMatrixTrans (dMatName "b"))),
-   ("K = A*(B + C);", dMatAsg "K" (dMatrixMul (dMatName "A") (dMatrixAdd (dMatName "B") (dMatName "C")))),
-   ("x = (beta + (alpha + omega));", dMatAsg "x" (dMatrixAdd (dMatName "beta") (dMatrixAdd (dMatName "alpha") (dMatName "omega")))),
-   ("A = alpha .* A;", dMatAsg "A" (dScalarMul (dMatName "alpha") (dMatName "A")))]-}
 
 formalParamCases =
   L.map (\(x, y) -> (x, Right y))
@@ -66,10 +60,10 @@ argDblMat n nr nc rs cs =
 argFltMat n nr nc rs cs =
   matrix n nr nc rs cs (properties arg single memory)
 
-lexAndParseStatement fName matMap str = (lexString fName str) >>= (parseStatement fName matMap)
+lexAndParseStatement fName matMap str =
+  (lexString fName str) >>= (parseStatement fName matMap)
 lexAndParseFormalParam fName str = (lexString fName str) >>= (parseFormalParam fName)
-
---lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
+lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
 
 matMap =
   M.fromList matList

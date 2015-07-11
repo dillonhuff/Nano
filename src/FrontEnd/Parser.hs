@@ -1,4 +1,4 @@
-module FrontEnd.Parser({-parseOperation,-}
+module FrontEnd.Parser(parseOperation,
                        parseStatement,
                        parseFormalParam) where
 
@@ -18,8 +18,8 @@ parser p srcName toks = case parse p srcName toks of
   Left err -> Left $ show err
   Right res -> Right $ res
 
-parseOperation :: String -> [Token] -> Either String [[MatrixStmt]]
-parseOperation sourceFileName toks = case parse (many pOperation) sourceFileName toks of
+parseOperation :: String -> [Token] -> Either String MatrixOperation
+parseOperation sourceFileName toks = case parse pOperation sourceFileName toks of
   Left err -> Left $ show err
   Right matOp -> Right matOp
 
@@ -27,6 +27,23 @@ parseStatement :: String -> Map String Matrix -> [Token] -> Either String Matrix
 parseStatement sourceFileName matMap toks = case parse (pMatStatement matMap) sourceFileName toks of
   Left err -> Left $ show err
   Right matOp -> Right matOp
+
+pOperation = do
+  pResWithNameTok "operation"
+  (name, pos) <- pIdent
+  matMap <- pArgDecls
+  body <- pBody matMap
+  return $ matrixOperation name body pos
+
+pArgDecls = do
+  argList <- pParens (sepBy pFormalParam (pResWithNameTok ","))
+  return $ M.fromList argList
+
+pBody matMap = do
+  pResWithNameTok "{"
+  stmts <- many (pMatStatement matMap)
+  pResWithNameTok "}"
+  return stmts
 
 parseFormalParam srcName toks = parser pFormalParam srcName toks
 
@@ -150,8 +167,6 @@ pMatrix matMap = do
 lookupF k m = case M.lookup k m of
   Just v -> v
   Nothing -> error "lookupF: Could not find value"
-
-pOperation = error "pOperation"
 
 {-do
   position <- getPosition
