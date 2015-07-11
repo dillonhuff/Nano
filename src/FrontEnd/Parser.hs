@@ -1,8 +1,8 @@
-module FrontEnd.Parser({-parseOperation,
+module FrontEnd.Parser({-parseOperation,-}
                        parseStatement,
-                       parseFormalParam) where-}
                        parseFormalParam) where
 
+import Data.Map as M
 import Text.Parsec.Expr
 import Text.Parsec.Prim
 import Text.ParserCombinators.Parsec
@@ -23,10 +23,10 @@ parseOperation sourceFileName toks = case parse (many pOperation) sourceFileName
   Left err -> Left $ show err
   Right matOp -> Right matOp
 
-{-parseStatement :: String -> [Token] -> Either String MatrixStmt
-parseStatement sourceFileName toks = case parse pMatStatement sourceFileName toks of
+parseStatement :: String -> Map String Matrix -> [Token] -> Either String MatrixStmt
+parseStatement sourceFileName matMap toks = case parse (pMatStatement matMap) sourceFileName toks of
   Left err -> Left $ show err
-  Right matOp -> Right matOp-}
+  Right matOp -> Right matOp
 
 parseFormalParam srcName toks = parser pFormalParam srcName toks
 
@@ -95,62 +95,15 @@ pScope = do
     "oarg" -> return arg
     "temp" -> return local
 
-
-pOperation = error "pOperation" {-do
-  position <- getPosition
-  pResWithNameTok "operation"
-  (name, pos) <-pIdent
-  pResWithNameTok "("
-  args <- pArgList
-  pResWithNameTok ")"
-  pResWithNameTok "{"
-  ops <- pMatStatements
-  pResWithNameTok "}"
-  return $ matrixOperation name args ops position-}
-
-{-
-pArgList = sepBy pFormalParam (pResWithNameTok ",")
-
-
-pReadMod = (pResWithNameTok "output") <|> (pResWithNameTok "r") <|> (pResWithNameTok "rw")
-
-pEntryType = do
-  outN <- pResWithNameTok "double" <|> pResWithNameTok "float"
-  case resName outN of
-    "double" -> return double
-    "float" -> return single
-
-pLayout = do
-  nr <- pDim
-  nc <- pDim
-  rs <- pDim
-  cs <- pDim
-  return $ layoutForMat nr nc rs cs
-
-layoutForMat nr nc rs cs name = error "layoutForMat" {-
-  layout (lr nr "_nrows") (lr nc "_ncols") (lr rs "_rs") (lr cs "_cs")
-  where
-    lr i suffix = if i == iVar "gen" then (iVar (name ++ suffix)) else i-}
-
-pDim = pGen <|> pConstDim
-
-pGen = do
-  pResWithNameTok "gen"
-  return $ iVar "gen"
-
-pConstDim = do
-  val <- pIntLit
-  return $ iConst val
-
-pMatStatements = many pMatStatement
-
-pMatStatement = error "pMatStatement" {-do
+pMatStatement matMap = do
   pos <- getPosition
-  (name, pos) <- pIdent
+  w <- pMatrix matMap
   pResWithNameTok "="
-  ex <- pMatExpr
+  ex <- pMatExpr matMap
   pResWithNameTok ";"
-  return $ matAsg name ex pos-}
+  return $ masg w ex pos
+
+pMatExpr matMap = buildExpressionParser table (pTerm matMap)
 
 table =
   [[matTransOp],
@@ -188,14 +141,44 @@ pMatSubOp = do
   pResWithNameTok "-"
   return $ (\l r -> mBinop MSub l r pos)
 
-pTerm = pMatName
-      <|> pParens pMatExpr
+pTerm matMap = (pMatrix matMap) <|> pParens (pMatExpr matMap)
 
-pMatExpr = buildExpressionParser table pTerm
-
-pMatName = error "pMatName" {-do
+pMatrix matMap = do
   (n, pos) <- pIdent
-  return $ matName n pos-}
+  return $ mat (lookupF n matMap) pos {-matName n pos-}
+
+lookupF k m = case M.lookup k m of
+  Just v -> v
+  Nothing -> error "lookupF: Could not find value"
+
+pOperation = error "pOperation"
+
+{-do
+  position <- getPosition
+  pResWithNameTok "operation"
+  (name, pos) <-pIdent
+  pResWithNameTok "("
+  args <- pArgList
+  pResWithNameTok ")"
+  pResWithNameTok "{"
+  ops <- pMatStatements
+  pResWithNameTok "}"
+  return $ matrixOperation name args ops position-}
+
+{-
+pArgList = sepBy pFormalParam (pResWithNameTok ",")
+
+pReadMod = (pResWithNameTok "output") <|> (pResWithNameTok "r") <|> (pResWithNameTok "rw")
+
+pEntryType = do
+  outN <- pResWithNameTok "double" <|> pResWithNameTok "float"
+  case resName outN of
+    "double" -> return double
+    "float" -> return single
+
+pMatStatements = many pMatStatement
+
+
 
 
 -}

@@ -1,6 +1,7 @@
 module FrontEnd.ParserTests(allParserTests) where
 
 import Data.List as L
+import Data.Map as M
 import Test.HUnit
 
 import Dummies
@@ -13,9 +14,8 @@ import MatrixOperation
 import Module
 
 allParserTests = TestLabel "allParserTests" $ TestList 
---  [testFunction (lexAndParseOperation "noname.lspc") opCases,
---   testFunction (lexAndParseStatement "noname.lspc") stCases,
-   [makeTestCases (lexAndParseFormalParam "noname.lspc") formalParamCases]
+   [makeTestCases (lexAndParseStatement "noname.lspc" matMap) stCases,
+    makeTestCases (lexAndParseFormalParam "noname.lspc") formalParamCases]
 
 {-opCases =
   L.map (\(x, y) -> (x, Right [y]))
@@ -29,11 +29,16 @@ allParserTests = TestLabel "allParserTests" $ TestList
                              ("a", mOpSymInfo arg singleFloat (layout (iConst 12) (iConst 32) (iConst 1) (iConst 32))),
                              ("c", mOpSymInfo arg singleFloat (layout (iConst 12) (iConst 32) (iConst 32) (iConst 1)))]
     [dMatAsg "c" (dMatrixAdd (dMatName "a") (dMatName "b"))] dummyPos)]
-
+-}
 stCases =
   L.map (\(x, y) -> (x, Right y))
-  [("c = a + b;", dMatAsg "c" (dMatrixAdd (dMatName "a") (dMatName "b"))),
-   ("c = a - b;", dMatAsg "c" (dMatrixSub (dMatName "a") (dMatName "b"))),
+  [("C = A + B;", dmasg (dmat c) (dmBinop MAdd (dmat a) (dmat b))),
+   ("C = A * B;", dmasg (dmat c) (dmBinop MMul (dmat a) (dmat b))),
+   ("C = alpha .* B;", dmasg (dmat c) (dmBinop SMul (dmat alpha) (dmat b))),
+   ("A = (alpha.*C) + A';",
+    dmasg (dmat a) (dmBinop MAdd (dmBinop SMul (dmat alpha) (dmat c)) (dmUnop MTrans (dmat a))))]
+
+{-("c = a - b;", dMatAsg "c" (dMatrixSub (dMatName "a") (dMatName "b"))),
    ("c = a * b;", dMatAsg "c" (dMatrixMul (dMatName "a") (dMatName "b"))),
    ("y = alpha*x + y;", dMatAsg "y" (dMatrixAdd (dMatrixMul (dMatName "alpha") (dMatName "x")) (dMatName "y"))),
    ("x = b';", dMatAsg "x" (dMatrixTrans (dMatName "b"))),
@@ -61,6 +66,13 @@ argDblMat n nr nc rs cs =
 argFltMat n nr nc rs cs =
   matrix n nr nc rs cs (properties arg single memory)
 
---lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
---lexAndParseStatement fName str = (lexString fName str) >>= (parseStatement fName)
+lexAndParseStatement fName matMap str = (lexString fName str) >>= (parseStatement fName matMap)
 lexAndParseFormalParam fName str = (lexString fName str) >>= (parseFormalParam fName)
+
+--lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
+
+matMap =
+  M.fromList matList
+
+matList =
+  [("A", a), ("B", b), ("C", c), ("alpha", alpha)]
