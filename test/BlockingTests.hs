@@ -22,7 +22,7 @@ allBlockingTests = TestLabel "All blocking tests" $ TestList
 
 blockMatrixAddMCases =
   [((iConst 5, matrixMultiply a a a), [matrixMultiply a a a]),
-   ((iConst 4, matrixAdd a a a), [loop "i" (iConst 0) (iConst 4) (iConst 5) [maddABlk4M], maddABlk4ResidualM]),
+   ((iConst 4, matrixAdd a a a), [loop "i" (iConst 0) (iConst 4) (iConst 7) [maddABlk4M], maddABlk4ResidualM]),
    ((iConst 1, matrixAdd a a a), [loop "i" (iConst 0) (iConst 1) (iConst 8) [maddBlk1M]])]
 
 blockMatrixAddNCases =
@@ -31,8 +31,8 @@ blockMatrixAddNCases =
 
 blockScalarMultiplyMCases =
   [((iConst 124, matrixAdd a a a), [matrixAdd a a a]),
-   ((iConst 3, scalarMultiply a alpha a), [loop "i" (iConst 0) (iConst 3) (iConst 6) [smulABlk3M]]),
-   ((iConst 6, scalarMultiply a alpha a), [loop "i" (iConst 0) (iConst 6) (iConst 3) [smulABlk6M], smulABlk6MResidual])]
+   ((iConst 3, scalarMultiply a alpha a), [loop "i" (iConst 0) (iConst 3) (iConst 8) [smulABlk3M]]),
+   ((iConst 6, scalarMultiply a alpha a), [loop "i" (iConst 0) (iConst 6) (iConst 5) [smulABlk6M], smulABlk6MResidual])]
 
 blockScalarMultiplyNCases =
   [((iConst 3, matrixAdd a a a), [matrixAdd a a a]),
