@@ -146,7 +146,7 @@ blkStmt aPartitionedDim indVar blkFactor partDirs stmt =
       False -> error $ "blockStmt: Trying to partition statement " ++ show stmt ++ " by " ++ show blkFactor
 
 blkVarDim aPartitionedDim indVar blkFactor partDirs stmt =
-  [mainLoop, residualLoop]
+  if blkFactor == iConst 1 then [mainLoop] else [mainLoop, residualLoop]
   where
     resIVar = iVar $ (varName indVar) ++ "_res"
     (mainSt, resSt) = splitStmtGS indVar resIVar blkFactor partDirs stmt

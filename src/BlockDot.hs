@@ -61,7 +61,7 @@ residualBlkedDot u stmt =
       i <- freshRegName
       let iV = iVar i
           mainAndRes = blockMatrixMultiplyP iV u stmt
-          res = case mainAndRes of { [x] -> [x]; [x, y] -> [y] } in
+          res = case mainAndRes of { [x] -> []; [x, y] -> [y] } in
         return res
 
 freshRegName :: State (String, Int) String
