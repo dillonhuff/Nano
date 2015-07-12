@@ -17,6 +17,7 @@ import CBackEnd.SanityCheck
 import CBackEnd.Syntax
 import CBackEnd.Utils
 import Statement
+import Utils
 
 applyTransforms :: [Statement -> [Statement]] -> [Statement] -> [Statement]
 applyTransforms [] op = op
@@ -40,10 +41,6 @@ applyRandomOptimizations :: [[Statement] -> [Statement]] -> [Statement] -> IO [S
 applyRandomOptimizations possibleOptimizations stmts = do
   toApply <- selectTransforms possibleOptimizations
   return $ applyOptimizations toApply stmts
-
-applyOptimizations :: [[Statement] -> [Statement]] -> [Statement] -> [Statement]
-applyOptimizations [] stmts = stmts
-applyOptimizations (r:rest) stmts = r $ applyOptimizations rest stmts
 
 assertRandomOptimizationsCorrect varDeclFunc codeGenFunc possibleOptimizations operation = do
   transformsToApply <- selectTransforms possibleOptimizations
