@@ -1,4 +1,4 @@
-module CompactTemps(compactTemps) where
+module Transformations.CompactTemps(compactTemps) where
 
 import Data.List as L
 import Data.Maybe

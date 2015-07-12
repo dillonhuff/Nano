@@ -2,7 +2,7 @@ module BlockingTests(allBlockingTests) where
 
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import IndexExpression
 import Matrix
 import Module

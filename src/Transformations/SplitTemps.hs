@@ -1,11 +1,11 @@
-module SplitTemps(splitTemps) where
+module Transformations.SplitTemps(splitTemps) where
 
 import Data.List as L
 
 import Analysis.Matrix
 import Matrix
 import Statement
-import StatementInterchange
+import Transformations.StatementInterchange
 
 splitTemps :: String -> [Statement] -> [Statement]
 splitTemps prefix stmts =

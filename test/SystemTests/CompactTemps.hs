@@ -3,15 +3,15 @@ module SystemTests.CompactTemps(allCompactTempsTests) where
 import Data.List as L
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Scalar
-import CompactTemps
+import Transformations.CompactTemps
 import Dummies
-import Fusion
+import Transformations.Fusion
 import Fuzz
 import IndexExpression
-import Registerization
+import Transformations.Registerization
 import Statement
 import TestUtils
 

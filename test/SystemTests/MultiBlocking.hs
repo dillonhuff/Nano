@@ -4,7 +4,7 @@ import Data.List as L
 import Control.Monad.Random
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Function
 import Dummies

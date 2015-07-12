@@ -3,20 +3,20 @@ module SystemTests.AVXCodeGen(allAVXCodeGenTests) where
 import Data.List as L
 import Test.HUnit
 
-import BlockDot
-import Blocking
+import Transformations.BlockDot
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.AVX.Double
-import CompactTemps
+import Transformations.CompactTemps
 import Dummies
-import Fusion
+import Transformations.Fusion
 import Fuzz
 import IndexExpression
-import LoopInvariantCodeMotion
+import Transformations.LoopInvariantCodeMotion
 import Operations
-import Registerization
-import RegisterizeTemps
-import SMulToBroadcast
-import SplitTemps
+import Transformations.Registerization
+import Transformations.RegisterizeTemps
+import Transformations.SMulToBroadcast
+import Transformations.SplitTemps
 import Statement
 import TestUtils
 

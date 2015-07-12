@@ -3,11 +3,11 @@ module SystemTests.Fusion(allFusionTests) where
 import Data.List as L
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Function
 import Dummies
-import Fusion
+import Transformations.Fusion
 import Fuzz
 import IndexExpression
 import Statement

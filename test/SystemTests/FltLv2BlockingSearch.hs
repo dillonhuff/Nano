@@ -5,7 +5,7 @@ module SystemTests.FltLv2BlockingSearch(allFltLv2BlockingSearchTests,
 import Data.List as L
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.AVX.Single
 import Dummies hiding (alpha, beta)
 import Fuzz

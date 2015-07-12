@@ -3,11 +3,11 @@ module PartitionSearch(partitionSearch) where
 import Control.Monad.State
 import Data.List as L
 
-import Blocking
+import Transformations.Blocking
 import IndexExpression
-import InterchangeAndFuse
+import Transformations.InterchangeAndFuse
 import Matrix
-import MMulToSMul
+import Transformations.MMulToSMul
 import Partition
 import Statement
 

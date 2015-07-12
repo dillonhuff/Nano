@@ -5,7 +5,7 @@ module SystemTests.Lv2BlockingSearch(allLv2BlockingSearchTests,
 import Data.List as L
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.AVX.Double
 import Dummies
 import Fuzz

@@ -1,4 +1,4 @@
-module SMulToBroadcast(smulToBroadcast) where
+module Transformations.SMulToBroadcast(smulToBroadcast) where
 
 import Control.Monad.State
 import Data.List as L

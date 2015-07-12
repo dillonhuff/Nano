@@ -1,4 +1,4 @@
-module DeleteRedundantAssignments(deleteRedundantAssignments) where
+module Transformations.DeleteRedundantAssignments(deleteRedundantAssignments) where
 
 import Data.List as L
 

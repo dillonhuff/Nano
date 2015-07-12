@@ -3,7 +3,7 @@ module SystemTests.BasicGS(allBasicGSTests) where
 import Data.List as L
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.AVX.Double
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Function

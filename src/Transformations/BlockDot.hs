@@ -1,9 +1,9 @@
-module BlockDot(blockDot) where
+module Transformations.BlockDot(blockDot) where
 
 import Control.Monad.State
 import Data.List as L
 
-import Blocking
+import Transformations.Blocking
 import IndexExpression
 import Matrix
 import Statement

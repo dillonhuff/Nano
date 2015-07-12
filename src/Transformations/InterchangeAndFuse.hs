@@ -1,11 +1,11 @@
-module InterchangeAndFuse(interchangeAndFuse) where
+module Transformations.InterchangeAndFuse(interchangeAndFuse) where
 
 import Data.List as L
 
 import Analysis.Loop
-import Fusion
+import Transformations.Fusion
 import Statement
-import StatementInterchange
+import Transformations.StatementInterchange
 
 interchangeAndFuse stmts = applyToLoopBodiesBU (tryToInterchangeAndFuse $ iVarRanges stmts) stmts
 

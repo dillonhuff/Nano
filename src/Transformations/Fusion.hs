@@ -1,4 +1,4 @@
-module Fusion(canFuseIfAdjacent,
+module Transformations.Fusion(canFuseIfAdjacent,
               fuseInnerLoops, fuseLoops) where
 
 import Data.List as L

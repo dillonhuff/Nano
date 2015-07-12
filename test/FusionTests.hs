@@ -3,9 +3,9 @@ module FusionTests(allFusionTests) where
 import Data.List as L
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import Dummies
-import Fusion
+import Transformations.Fusion
 import IndexExpression
 import Module
 import Statement

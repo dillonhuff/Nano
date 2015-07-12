@@ -1,4 +1,4 @@
-module Registerization(registerize,
+module Transformations.Registerization(registerize,
                        registerizeBelow) where
 
 import Control.Monad.State

@@ -3,13 +3,13 @@ module SystemTests.InterchangeAndFuse(allInterchangeAndFuseTests) where
 import Data.List as L
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Function
 import Dummies
 import Fuzz
 import IndexExpression
-import InterchangeAndFuse
+import Transformations.InterchangeAndFuse
 import Statement
 
 allInterchangeAndFuseTests = TestLabel "All interchange and fuse system tests" $

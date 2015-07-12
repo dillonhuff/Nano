@@ -1,4 +1,4 @@
-module MMulToSMul(mmulToSMul) where
+module Transformations.MMulToSMul(mmulToSMul) where
 
 import Control.Monad.State
 import Data.List as L

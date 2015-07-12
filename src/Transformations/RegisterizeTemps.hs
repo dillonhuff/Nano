@@ -1,4 +1,4 @@
-module RegisterizeTemps(registerizeTemps,
+module Transformations.RegisterizeTemps(registerizeTemps,
                         registerizeTempsBelow) where
 
 import Data.List as L

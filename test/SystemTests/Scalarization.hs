@@ -3,13 +3,13 @@ module SystemTests.Scalarization(allScalarizationTests) where
 import Data.List as L
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Scalar
 import Dummies
 import Fuzz
 import IndexExpression
-import Registerization
+import Transformations.Registerization
 import Statement
 
 allScalarizationTests = TestLabel "All scalarization system tests" $

@@ -2,16 +2,16 @@ module SystemTests.LoopInvariantCodeMotion(allLoopInvariantCodeMotionTests) wher
 
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Scalar
-import CompactTemps
+import Transformations.CompactTemps
 import Dummies
-import Fusion
+import Transformations.Fusion
 import Fuzz
 import IndexExpression
-import LoopInvariantCodeMotion
-import Registerization
+import Transformations.LoopInvariantCodeMotion
+import Transformations.Registerization
 import Statement
 import TestUtils
 

@@ -1,4 +1,4 @@
-module LoopInvariantCodeMotion(pullCodeOutOfLoops) where
+module Transformations.LoopInvariantCodeMotion(pullCodeOutOfLoops) where
 
 import Data.List as L
 

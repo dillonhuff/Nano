@@ -3,12 +3,12 @@ module StatementInterchangeTests(allStatementInterchangeTests) where
 import Data.List as L
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import Dummies
 import IndexExpression
 import Module
 import Statement
-import StatementInterchange
+import Transformations.StatementInterchange
 
 allStatementInterchangeTests =
   TestLabel "All statement interchange tests" $ TestList

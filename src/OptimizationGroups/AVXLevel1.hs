@@ -2,23 +2,23 @@ module OptimizationGroups.AVXLevel1(avxLvl1Opts) where
 
 import Data.List as L
 
-import BlockDot
-import Blocking
-import CompactTemps
-import DeleteRedundantAssignments
+import Transformations.BlockDot
+import Transformations.Blocking
+import Transformations.CompactTemps
+import Transformations.DeleteRedundantAssignments
 import Dummies
-import Fusion
+import Transformations.Fusion
 import IndexExpression
-import InterchangeAndFuse
-import LoopInvariantCodeMotion
+import Transformations.InterchangeAndFuse
+import Transformations.LoopInvariantCodeMotion
 import Matrix
 import Operations
-import RegisterizeTemps
-import Registerization
-import SMulToBroadcast
-import SplitTemps
+import Transformations.RegisterizeTemps
+import Transformations.Registerization
+import Transformations.SMulToBroadcast
+import Transformations.SplitTemps
 import Statement
-import StatementInterchange
+import Transformations.StatementInterchange
 
 avxLvl1Opts n =
   (registerization n) ++ (tempReductionAVX n) ++ (blockAndFuseAVXLvl1 n)

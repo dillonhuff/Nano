@@ -15,8 +15,8 @@ import Data.List as L
 import Data.Map as M
 
 import Analysis.IndexExpression
-import Blocking
-import Fusion
+import Transformations.Blocking
+import Transformations.Fusion
 import IndexExpression
 import Matrix
 import Statement

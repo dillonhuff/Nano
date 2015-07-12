@@ -1,4 +1,4 @@
-module StatementInterchange(interchangeStmts,
+module Transformations.StatementInterchange(interchangeStmts,
                             canInterchange, iVarRanges) where
 
 import Data.List as L

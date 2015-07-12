@@ -3,7 +3,7 @@ module SystemTests.BlockingTests(allSystemBlockingTests) where
 import Data.List as L
 import Test.HUnit
 
-import Blocking
+import Transformations.Blocking
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Core
 import CBackEnd.CodeGeneration.Function
