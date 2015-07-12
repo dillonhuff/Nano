@@ -8,16 +8,21 @@ import CBackEnd.Timing
 import FrontEnd.Lexer
 import FrontEnd.Parser
 import Fuzz
+import MatrixOperation
 import Operations
 import OptimizationGroups.AVXLevel1
-import CBackEnd.Timing
+import PartitionSearch
 
 testFile = "testOp.lspc"
 
 main = do
   contents <- readFile testFile
   let parseRes = lexAndParseOperation testFile contents in
-    putStrLn $ show parseRes
+    case parseRes of
+      Left err -> putStrLn err
+      Right op -> putStrLn $ show $ applyOptimizations lv2Opts $ linearizeStmts "T_" $ matOpBody op
+
+lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
 
 lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
 

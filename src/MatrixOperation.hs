@@ -1,6 +1,7 @@
 module MatrixOperation(MatrixOperation,
                        matrixOperation,
                        MatrixStmt,
+                       matOpBody,
                        masg, dmasg,
                        MExpr,
                        mBinop, mUnop, mat, dmBinop, dmUnop, dmat,
@@ -26,6 +27,8 @@ instance Eq MatrixOperation where
     n1 == n2 && stmts1 == stmts2
 
 matrixOperation = MatrixOperation
+
+matOpBody (MatrixOperation _ b _) = b
 
 data MatrixStmt
   = MAsg MExpr MExpr SourcePos
