@@ -10,6 +10,7 @@ import FrontEnd.ParserTests
 import FusionTests
 import IndexExpressionTests
 import MatrixTests
+import MatrixOperationTests
 import StatementInterchangeTests
 
 allModuleTests = TestLabel "All module tests" $ TestList
@@ -20,5 +21,6 @@ allModuleTests = TestLabel "All module tests" $ TestList
                 IndexExpressionTests.allIndexExpressionTests,
                 MatrixTests.allMatrixTests,
                 allLexerTests,
+                allMatrixOperationTests,
                 allParserTests,
                 allStatementInterchangeTests]

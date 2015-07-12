@@ -4,12 +4,18 @@ module MatrixOperation(MatrixOperation,
                        masg, dmasg,
                        MExpr,
                        mBinop, mUnop, mat, dmBinop, dmUnop, dmat,
-                       BOp(..), UOp(..)) where
+                       BOp(..), UOp(..),
+                       linearizeStmts) where
 
+import Control.Monad
+import Control.Monad.State
+import Data.List as L
 import Text.Parsec.Pos
 
 import FrontEnd.Token
+import IndexExpression
 import Matrix
+import Statement
 
 data MatrixOperation
   = MatrixOperation String [MatrixStmt] SourcePos
@@ -65,3 +71,50 @@ data BOp
 data UOp
   = MTrans
     deriving (Eq, Ord, Show)
+
+linearizeStmts :: String -> [MatrixStmt] -> [Statement]
+linearizeStmts tempNamePrefix matStmts =
+  evalState (linearizeStmtsM matStmts) (tempNamePrefix, 0)
+
+linearizeStmtsM :: [MatrixStmt] -> State (String, Int) [Statement]
+linearizeStmtsM matStmts = do
+  resStmts <- liftM L.concat $ sequence $ L.map linearizeStmtM matStmts
+  return resStmts
+
+linearizeStmtM :: MatrixStmt -> State (String, Int) [Statement]
+linearizeStmtM (MAsg w e _) = do
+  (eRes, eStmts) <- linearizeMExpr e
+  (wRes, _) <- linearizeMExpr w
+  return $ eStmts ++ [matrixSet wRes eRes]
+
+linearizeMExpr :: MExpr -> State (String, Int) (Matrix, [Statement])
+linearizeMExpr (MBinop MAdd l r _) = do
+  (lr, lStmts) <- linearizeMExpr l
+  (rr, rStmts) <- linearizeMExpr r
+  t <- freshTemp lr
+  return $ (t, lStmts ++ rStmts ++ [matrixAdd t lr rr])
+linearizeMExpr (MBinop SMul l r _) = do
+  (lr, lStmts) <- linearizeMExpr l
+  (rr, rStmts) <- linearizeMExpr r
+  t <- freshTemp rr
+  return $ (t, lStmts ++ rStmts ++ [scalarMultiply t lr rr])
+linearizeMExpr (MBinop MMul l r _) = do
+  (lr, lStmts) <- linearizeMExpr l
+  (rr, rStmts) <- linearizeMExpr r
+  t <- freshTemp $ matrix (bufferName lr) (numRows lr) (numCols rr) (iConst 1) (numRows lr) (matProperties lr)
+  return $ (t, lStmts ++ rStmts ++ [setZero t, matrixMultiply t lr rr])
+linearizeMExpr (MUnop MTrans m _) = do
+  (mr, mStmts) <- linearizeMExpr m
+  t <- freshTemp $ matrix (bufferName mr) (numCols mr) (numRows mr) (iConst 1) (numCols mr) (matProperties mr)
+  return $ (t, mStmts ++ [matrixTranspose t mr])  
+linearizeMExpr (Mat m _) = return (m, [])
+
+freshTemp m = do
+  n <- freshName
+  return $ setName n $ setLocal m
+
+freshName :: State (String, Int) String
+freshName = do
+  (prefix, i) <- get
+  put $ (prefix, i + 1)
+  return $ prefix ++ show i
