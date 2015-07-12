@@ -4,8 +4,8 @@ import Test.HUnit
 
 import Analysis.Matrix
 import Dummies
-import IndexExpression
-import Matrix
+import Core.IndexExpression
+import Core.Matrix
 import Module
 
 allMatrixTests =

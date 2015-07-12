@@ -4,9 +4,9 @@ import Data.List as L
 
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.Syntax
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 
 toCStmtsFunction stmt =
   case isLoop stmt of

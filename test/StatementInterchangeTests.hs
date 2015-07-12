@@ -5,9 +5,9 @@ import Test.HUnit
 
 import Transformations.Blocking
 import Dummies
-import IndexExpression
+import Core.IndexExpression
 import Module
-import Statement
+import Core.Statement
 import Transformations.StatementInterchange
 
 allStatementInterchangeTests =

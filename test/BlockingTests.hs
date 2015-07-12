@@ -3,11 +3,11 @@ module BlockingTests(allBlockingTests) where
 import Test.HUnit
 
 import Transformations.Blocking
-import IndexExpression
-import Matrix
+import Core.IndexExpression
+import Core.Matrix
 import Module
-import Partition
-import Statement
+import Core.Partition
+import Core.Statement
 
 allBlockingTests = TestLabel "All blocking tests" $ TestList 
   [makeTestCases (blockMatrixAddMTest $ iVar "i") blockMatrixAddMCases,

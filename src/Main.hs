@@ -9,10 +9,10 @@ import CBackEnd.Timing
 import FrontEnd.Lexer
 import FrontEnd.Parser
 import Fuzz
-import MatrixOperation
+import Core.MatrixOperation
 import Operations
 import OptimizationGroups.AVXLevel1
-import PartitionSearch
+import Core.PartitionSearch
 
 testFile = "testOp.lspc"
 

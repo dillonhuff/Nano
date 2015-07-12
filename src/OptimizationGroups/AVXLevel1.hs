@@ -8,16 +8,16 @@ import Transformations.CompactTemps
 import Transformations.DeleteRedundantAssignments
 import Dummies
 import Transformations.Fusion
-import IndexExpression
+import Core.IndexExpression
 import Transformations.InterchangeAndFuse
 import Transformations.LoopInvariantCodeMotion
-import Matrix
+import Core.Matrix
 import Operations
 import Transformations.RegisterizeTemps
 import Transformations.Registerization
 import Transformations.SMulToBroadcast
 import Transformations.SplitTemps
-import Statement
+import Core.Statement
 import Transformations.StatementInterchange
 
 avxLvl1Opts n =

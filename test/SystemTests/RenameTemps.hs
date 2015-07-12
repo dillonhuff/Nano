@@ -12,10 +12,10 @@ import Transformations.CompactTemps
 import Dummies
 import Transformations.Fusion
 import Fuzz
-import IndexExpression
+import Core.IndexExpression
 import Transformations.RegisterizeTemps
 import Transformations.Registerization
-import Statement
+import Core.Statement
 import TestUtils
 
 registerizeTests =

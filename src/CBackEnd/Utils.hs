@@ -8,8 +8,8 @@ module CBackEnd.Utils(initializeBuffer, freeBuffer,
 import Data.List as L
 
 import CBackEnd.Syntax
-import IndexExpression
-import Matrix
+import Core.IndexExpression
+import Core.Matrix
 import System.Settings
 import System.Utils
 

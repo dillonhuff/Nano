@@ -5,7 +5,7 @@ module Analysis.IndexExpression(IRectangle, iRectangle,
                                 iRange,
                                 irStart, irEnd) where
 
-import IndexExpression
+import Core.IndexExpression
 
 data IRange
   = IRange IExpr IExpr

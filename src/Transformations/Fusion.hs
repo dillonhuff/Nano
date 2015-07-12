@@ -4,9 +4,9 @@ module Transformations.Fusion(canFuseIfAdjacent,
 import Data.List as L
 
 import Analysis.Loop
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 
 fuseInnerLoops :: [Statement] -> [Statement]
 fuseInnerLoops stmts = applyToLoopBodiesBU tryToFuseStmtList stmts

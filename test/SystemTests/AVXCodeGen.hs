@@ -10,14 +10,14 @@ import Transformations.CompactTemps
 import Dummies
 import Transformations.Fusion
 import Fuzz
-import IndexExpression
+import Core.IndexExpression
 import Transformations.LoopInvariantCodeMotion
 import Operations
 import Transformations.Registerization
 import Transformations.RegisterizeTemps
 import Transformations.SMulToBroadcast
 import Transformations.SplitTemps
-import Statement
+import Core.Statement
 import TestUtils
 
 allAVXCodeGenTests =

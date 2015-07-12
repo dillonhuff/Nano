@@ -16,7 +16,7 @@ import CBackEnd.CodeGeneration.Function
 import CBackEnd.SanityCheck
 import CBackEnd.Syntax
 import CBackEnd.Utils
-import Statement
+import Core.Statement
 import Utils
 
 applyTransforms :: [Statement -> [Statement]] -> [Statement] -> [Statement]

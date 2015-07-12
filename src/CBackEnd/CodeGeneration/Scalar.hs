@@ -3,9 +3,9 @@ module CBackEnd.CodeGeneration.Scalar(toScalarC) where
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.Syntax
 import CBackEnd.Utils
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 
 toScalarC stmt =
   case isLoop stmt of

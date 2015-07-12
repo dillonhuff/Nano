@@ -6,8 +6,8 @@ import Data.Map as M
 
 import Analysis.IndexExpression
 import Analysis.Matrix
-import IndexExpression
-import Statement
+import Core.IndexExpression
+import Core.Statement
 
 interchangeStmts :: [Statement] -> [Statement]
 interchangeStmts stmts =

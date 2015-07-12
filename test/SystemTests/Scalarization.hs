@@ -8,9 +8,9 @@ import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Scalar
 import Dummies
 import Fuzz
-import IndexExpression
+import Core.IndexExpression
 import Transformations.Registerization
-import Statement
+import Core.Statement
 
 allScalarizationTests = TestLabel "All scalarization system tests" $
                       TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls toScalarC scalarizationOpts op) compoundTestOperations

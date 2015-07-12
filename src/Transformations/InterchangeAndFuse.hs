@@ -4,7 +4,7 @@ import Data.List as L
 
 import Analysis.Loop
 import Transformations.Fusion
-import Statement
+import Core.Statement
 import Transformations.StatementInterchange
 
 interchangeAndFuse stmts = applyToLoopBodiesBU (tryToInterchangeAndFuse $ iVarRanges stmts) stmts

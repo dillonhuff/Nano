@@ -1,4 +1,4 @@
-module Statement(Statement,
+module Core.Statement(Statement,
                  matrixMultiply, matrixTranspose, matrixAdd, loop, scalarMultiply, matrixSet,
                  broadcast, elemWiseMultiply, setZero, accumulate,
                  isMatrixAdd, isMatrixTranspose, isMatrixMultiply, isLoop, isScalarMultiply, isMatrixSet,
@@ -16,8 +16,8 @@ module Statement(Statement,
 import Control.Monad
 import Data.List as L
 
-import IndexExpression
-import Matrix
+import Core.IndexExpression
+import Core.Matrix
 
 data Statement
   = Instr OpCode Matrix [Matrix]

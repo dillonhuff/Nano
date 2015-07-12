@@ -2,7 +2,7 @@ module Search.Exhaustive(search) where
 
 import Data.List as L
 
-import Statement
+import Core.Statement
 
 search :: (Monad m) =>
           Int ->

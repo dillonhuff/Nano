@@ -17,9 +17,9 @@ import Data.Map as M
 import Analysis.IndexExpression
 import Transformations.Blocking
 import Transformations.Fusion
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 
 a = constDblMat "A" 9 9 1 9
 b = constDblMat "B" 9 9 7 9

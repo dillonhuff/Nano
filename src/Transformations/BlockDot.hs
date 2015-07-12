@@ -4,9 +4,9 @@ import Control.Monad.State
 import Data.List as L
 
 import Transformations.Blocking
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 import Utils
 
 blockDot u uniqueVarPrefix stmts =

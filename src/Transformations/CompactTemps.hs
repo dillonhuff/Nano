@@ -4,8 +4,8 @@ import Data.List as L
 import Data.Maybe
 import Data.Foldable
 
-import Matrix
-import Statement
+import Core.Matrix
+import Core.Statement
 
 compactTemps stmts =
   let sspReplacementPairs = computeReplacements stmts in

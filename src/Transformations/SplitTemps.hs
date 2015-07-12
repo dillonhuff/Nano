@@ -3,8 +3,8 @@ module Transformations.SplitTemps(splitTemps) where
 import Data.List as L
 
 import Analysis.Matrix
-import Matrix
-import Statement
+import Core.Matrix
+import Core.Statement
 import Transformations.StatementInterchange
 
 splitTemps :: String -> [Statement] -> [Statement]

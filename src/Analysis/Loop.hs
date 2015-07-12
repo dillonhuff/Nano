@@ -4,8 +4,8 @@ module Analysis.Loop(sameIterationSpace,
 
 import Data.List as L
 
-import IndexExpression
-import Statement
+import Core.IndexExpression
+import Core.Statement
 
 sameIterationSpace :: Statement -> Statement -> Bool
 sameIterationSpace leftLoop rightLoop =

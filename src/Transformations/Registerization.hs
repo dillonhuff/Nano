@@ -6,9 +6,9 @@ import Data.List as L
 
 import Analysis.Matrix
 import Analysis.Statement
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 import Utils
 
 registerize :: Int -> String -> [Statement] -> [Statement]

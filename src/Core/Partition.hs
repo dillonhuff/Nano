@@ -1,9 +1,9 @@
-module Partition(Partition,
+module Core.Partition(Partition,
                  partition,
                  partShape, partBase,
                  Shape(..)) where
 
-import IndexExpression
+import Core.IndexExpression
 
 data Shape
   = Row

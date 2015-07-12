@@ -1,4 +1,4 @@
-module Type(Type, single, double, isDouble, isSingle) where
+module Core.Type(Type, single, double, isDouble, isSingle) where
 
 data Type
   = Single

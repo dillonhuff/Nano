@@ -11,9 +11,9 @@ import Data.List as L
 import Analysis.Matrix
 import CBackEnd.Syntax
 import CBackEnd.Utils
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 
 loopToCStmts toCStmts l =
   [cFor s e i b ""]

@@ -8,9 +8,9 @@ import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Function
 import Dummies
 import Fuzz
-import IndexExpression
+import Core.IndexExpression
 import Transformations.InterchangeAndFuse
-import Statement
+import Core.Statement
 
 allInterchangeAndFuseTests = TestLabel "All interchange and fuse system tests" $
                            TestList $ L.map

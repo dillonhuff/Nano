@@ -4,12 +4,12 @@ import Control.Monad.State
 import Data.List as L
 
 import Transformations.Blocking
-import IndexExpression
+import Core.IndexExpression
 import Transformations.InterchangeAndFuse
-import Matrix
+import Core.Matrix
 import Transformations.MMulToSMul
-import Partition
-import Statement
+import Core.Partition
+import Core.Statement
 
 partitionSearch :: String -> [Statement] -> [Statement]
 partitionSearch prefix stmts =

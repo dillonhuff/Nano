@@ -3,8 +3,8 @@ module CostModel.FlopsPlusTempAllocs(flopsPlusTempAllocs) where
 import Data.List as L
 
 import CostModel.Flops
-import Matrix
-import Statement
+import Core.Matrix
+import Core.Statement
 
 flopsPlusTempAllocs stmts = (flopCost stmts) + (tempAllocCost stmts)
 

@@ -4,9 +4,9 @@ module Transformations.RegisterizeTemps(registerizeTemps,
 import Data.List as L
 
 import Analysis.Matrix
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 import Utils
 
 registerizeTemps u stmts =

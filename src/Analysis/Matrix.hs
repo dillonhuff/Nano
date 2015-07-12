@@ -7,9 +7,9 @@ import Data.List as L
 import Data.Map as M
 
 import Analysis.IndexExpression
-import IndexExpression
-import Matrix
-import Partition
+import Core.IndexExpression
+import Core.Matrix
+import Core.Partition
 
 matricesOverlap :: Map IExpr (IExpr, IExpr, IExpr) -> Matrix -> Matrix -> Bool
 matricesOverlap ranges s t =

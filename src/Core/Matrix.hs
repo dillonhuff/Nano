@@ -1,4 +1,4 @@
-module Matrix(Matrix,
+module Core.Matrix(Matrix,
               matrix,
               rowPart, colPart,
               isMatrix, isVector, isScalar, isRowVector, isColVector, isNull,
@@ -18,10 +18,10 @@ module Matrix(Matrix,
 import Data.Map as M hiding (partition)
 
 import Analysis.IndexExpression
-import IndexExpression
-import Partition
-import Scope
-import Type
+import Core.IndexExpression
+import Core.Partition
+import Core.Scope
+import Core.Type
 
 data Matrix
   = Matrix String IExpr IExpr IExpr IExpr Properties

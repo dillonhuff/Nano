@@ -12,10 +12,10 @@ module Transformations.Blocking(blockMatrixAddM, blockMatrixAddN,
 import Data.List as L
 import Data.Maybe
 
-import IndexExpression
-import Matrix
-import Partition
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Partition
+import Core.Statement
 
 blockMatrixAddM :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixAddM indVar blkFactor stmt =

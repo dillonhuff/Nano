@@ -8,10 +8,10 @@ import Text.Parsec.Prim
 import Text.ParserCombinators.Parsec
 
 import FrontEnd.Token
-import IndexExpression
-import Matrix
-import MatrixOperation
-import Type
+import Core.IndexExpression
+import Core.Matrix
+import Core.MatrixOperation
+import Core.Type
 
 parser :: Parsec [Token] () a -> String -> [Token] -> Either String a
 parser p srcName toks = case parse p srcName toks of

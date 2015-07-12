@@ -9,10 +9,10 @@ import Transformations.CompactTemps
 import Dummies
 import Transformations.Fusion
 import Fuzz
-import IndexExpression
+import Core.IndexExpression
 import Transformations.LoopInvariantCodeMotion
 import Transformations.Registerization
-import Statement
+import Core.Statement
 import TestUtils
 
 allLoopInvariantCodeMotionTests =

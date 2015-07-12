@@ -3,11 +3,11 @@ module MatrixOperationTests(allMatrixOperationTests) where
 import Test.HUnit
 
 import Dummies
-import IndexExpression
-import Matrix
-import MatrixOperation
+import Core.IndexExpression
+import Core.Matrix
+import Core.MatrixOperation
 import Module
-import Statement
+import Core.Statement
 
 allMatrixOperationTests = TestLabel "allMatrixOperationTests" $ TestList
   [makeTestCases (linearizeStmts "T_") linearizeStmtsCases]

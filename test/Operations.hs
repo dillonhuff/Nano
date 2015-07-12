@@ -6,8 +6,8 @@ module Operations(daxpy, ddotsmul, daxpadd,
                   sblinfRM, sbigemvRM, smmRM, sgemmRM, sgemmsumRM) where
 
 import Dummies hiding (x, y, z, a, b, c)
-import Matrix
-import Statement
+import Core.Matrix
+import Core.Statement
 
 dgemmsumRM m n p =
   let alpha = constDblScalar "alpha"

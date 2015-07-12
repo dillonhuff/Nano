@@ -1,4 +1,4 @@
-module MatrixOperation(MatrixOperation,
+module Core.MatrixOperation(MatrixOperation,
                        matrixOperation,
                        MatrixStmt,
                        matOpBody,
@@ -14,9 +14,9 @@ import Data.List as L
 import Text.Parsec.Pos
 
 import FrontEnd.Token
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 
 data MatrixOperation
   = MatrixOperation String [MatrixStmt] SourcePos

@@ -1,8 +1,8 @@
 module Utils(duplicateInRegister, mkRegister, applyOptimizations) where
 
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 
 duplicateInRegister u rName a =
   setName rName $ mkRegister u a
@@ -13,7 +13,3 @@ applyOptimizations :: [[Statement] -> [Statement]] -> [Statement] -> [Statement]
 applyOptimizations [] stmts = stmts
 applyOptimizations (r:rest) stmts = r $ applyOptimizations rest stmts
 
-
-{-  case isRowVector m of
-    True -> setRegister $ matrix (bufferName m) (iConst 1) u u (iConst 1) (matProperties m)
-    False -> setRegister $ matrix (bufferName m) u (iConst 1) (iConst 1) u (matProperties m)-}

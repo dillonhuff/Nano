@@ -9,8 +9,8 @@ import CBackEnd.CodeGeneration.Function
 import CBackEnd.SanityCheck
 import CBackEnd.Syntax
 import CBackEnd.Utils
-import MatrixOperation
-import Statement
+import Core.MatrixOperation
+import Core.Statement
 import Utils
 
 optimizeOp matStmtOpts stmtOpts matStmts =

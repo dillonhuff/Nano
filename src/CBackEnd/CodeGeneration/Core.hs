@@ -8,8 +8,8 @@ import CBackEnd.CodeGeneration.Function
 import CBackEnd.CodeGeneration.Scalar
 import CBackEnd.Syntax
 import CBackEnd.Utils
-import Matrix
-import Statement
+import Core.Matrix
+import Core.Statement
 
 operationToC :: ([Statement] -> [(CType, String)]) ->
                 (Statement -> [CStmt String]) ->

@@ -10,10 +10,10 @@ import CBackEnd.CodeGeneration.Function
 import CBackEnd.SanityCheck
 import CBackEnd.SanityCheckHarness
 import Dummies
-import IndexExpression
-import Matrix
+import Core.IndexExpression
+import Core.Matrix
 import Module
-import Statement
+import Core.Statement
 
 allSystemBlockingTests =
   TestLabel "Single blocking tests" $ TestList

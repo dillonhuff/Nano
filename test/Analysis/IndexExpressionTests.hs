@@ -5,7 +5,7 @@ import Test.HUnit
 
 import Analysis.IndexExpression
 import Dummies
-import IndexExpression
+import Core.IndexExpression
 import Module
 
 allIndexExpressionTests =

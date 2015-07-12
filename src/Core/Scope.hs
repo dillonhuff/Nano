@@ -1,4 +1,4 @@
-module Scope(Scope, arg, local) where
+module Core.Scope(Scope, arg, local) where
 
 
 data Scope

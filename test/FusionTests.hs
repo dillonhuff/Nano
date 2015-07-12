@@ -6,9 +6,9 @@ import Test.HUnit
 import Transformations.Blocking
 import Dummies
 import Transformations.Fusion
-import IndexExpression
+import Core.IndexExpression
 import Module
-import Statement
+import Core.Statement
 
 allFusionTests = TestLabel "All fusion tests" $ TestList
                [makeTestCases canFuseTest cantFuseCases,

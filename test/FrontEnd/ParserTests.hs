@@ -5,12 +5,12 @@ import Data.Map as M
 import Test.HUnit
 
 import Dummies
-import IndexExpression
+import Core.IndexExpression
 import FrontEnd.Lexer
 import FrontEnd.Parser
 import FrontEnd.Token
-import Matrix
-import MatrixOperation
+import Core.Matrix
+import Core.MatrixOperation
 import Module
 
 allParserTests = TestLabel "allParserTests" $ TestList 

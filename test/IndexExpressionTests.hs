@@ -3,7 +3,7 @@ module IndexExpressionTests(allIndexExpressionTests) where
 import Data.List as L
 import Test.HUnit
 
-import IndexExpression
+import Core.IndexExpression
 import Module
 
 allIndexExpressionTests = TestLabel "All index expression tests" $ TestList

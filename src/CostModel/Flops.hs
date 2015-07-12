@@ -3,9 +3,9 @@ module CostModel.Flops(flopCost) where
 import Data.List as L
 
 import Analysis.Loop
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 
 flopCost :: [Statement] -> Double
 flopCost op = L.foldr addFlopCost 0 op

@@ -4,9 +4,9 @@ import Control.Monad.State
 import Data.List as L
 
 import Analysis.Matrix
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 
 smulToBroadcast uniqueVarPrefix stmts =
   evalState (expandStatementsBUM smulToBRDC stmts) (uniqueVarPrefix, 0)

@@ -9,8 +9,8 @@ import CBackEnd.CodeGeneration.Function
 import Dummies
 import Transformations.Fusion
 import Fuzz
-import IndexExpression
-import Statement
+import Core.IndexExpression
+import Core.Statement
 
 allFusionTests = TestLabel "All fusion fuzz tests" $
                  TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls toCStmtsFunction fusionOpts op) compoundTestOperations

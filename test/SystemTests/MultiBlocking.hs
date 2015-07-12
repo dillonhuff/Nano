@@ -9,8 +9,8 @@ import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Function
 import Dummies
 import Fuzz
-import IndexExpression
-import Statement
+import Core.IndexExpression
+import Core.Statement
 
 allMultiBlockingTests = TestLabel "All multi blocking tests" $
                         TestList $ L.map (\op -> TestCase $ assertRandomOptimizationsCorrect scalarVarDecls toCStmtsFunction blockingOptimizations op) testOperations

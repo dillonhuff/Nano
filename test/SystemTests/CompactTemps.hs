@@ -10,9 +10,9 @@ import Transformations.CompactTemps
 import Dummies
 import Transformations.Fusion
 import Fuzz
-import IndexExpression
+import Core.IndexExpression
 import Transformations.Registerization
-import Statement
+import Core.Statement
 import TestUtils
 
 allCompactTempsTests = TestLabel "All scalarization system tests" $

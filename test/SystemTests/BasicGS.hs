@@ -10,11 +10,11 @@ import CBackEnd.CodeGeneration.Function
 import CBackEnd.CodeGeneration.Scalar
 import Dummies hiding (daxpy, alpha, beta, x, y, z)
 import Fuzz
-import IndexExpression
-import Matrix
+import Core.IndexExpression
+import Core.Matrix
 import OptimizationGroups.AVXLevel1
 import PartitionSearch
-import Statement
+import Core.Statement
 
 allBasicGSTests =
   TestLabel "All basic general size tests" $

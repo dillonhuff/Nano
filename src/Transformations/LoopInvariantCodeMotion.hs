@@ -2,9 +2,9 @@ module Transformations.LoopInvariantCodeMotion(pullCodeOutOfLoops) where
 
 import Data.List as L
 
-import IndexExpression
-import Matrix
-import Statement
+import Core.IndexExpression
+import Core.Matrix
+import Core.Statement
 
 pullCodeOutOfLoops stmts =
   expandStatementsBU pullCodeOutOfLoop stmts

@@ -4,7 +4,7 @@ module Analysis.Statement(isScalarOp,
 import Data.List as L
 
 import Analysis.Matrix
-import Statement
+import Core.Statement
 
 isScalarOp :: Int -> Statement -> Bool
 isScalarOp u stmt = L.all (isRegisterizeable u) $ allOperands stmt

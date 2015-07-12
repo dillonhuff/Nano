@@ -2,7 +2,7 @@ module Transformations.DeleteRedundantAssignments(deleteRedundantAssignments) wh
 
 import Data.List as L
 
-import Statement
+import Core.Statement
 
 deleteRedundantAssignments :: [Statement] -> [Statement]
 deleteRedundantAssignments stmts =

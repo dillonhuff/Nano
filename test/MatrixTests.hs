@@ -4,9 +4,9 @@ import Data.List as L
 import Test.HUnit
 
 import Analysis.IndexExpression
-import IndexExpression
+import Core.IndexExpression
 import Dummies
-import Matrix
+import Core.Matrix
 import Module
 
 allMatrixTests = TestLabel "All matrix tests" $ TestList

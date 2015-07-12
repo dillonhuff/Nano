@@ -3,9 +3,9 @@ module Transformations.MMulToSMul(mmulToSMul) where
 import Control.Monad.State
 import Data.List as L
 
-import Matrix
-import Partition
-import Statement
+import Core.Matrix
+import Core.Partition
+import Core.Statement
 
 mmulToSMul stmts =
   expandStatementsBUM mmToSM stmts

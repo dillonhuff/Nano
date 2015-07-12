@@ -12,7 +12,7 @@ import Fuzz
 import Operations
 import OptimizationGroups.AVXLevel1
 import PartitionSearch
-import Statement
+import Core.Statement
 import TestUtils
 
 allFltLv2BlockingSearchTests =

@@ -20,7 +20,7 @@ module CBackEnd.Syntax(CTopLevelItem,
 
 import Data.List as L
 
-import Scope
+import Core.Scope
 
 data CTopLevelItem a
   = CInclude String
