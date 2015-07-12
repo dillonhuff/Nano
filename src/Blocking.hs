@@ -3,6 +3,7 @@ module Blocking(blockMatrixAddM, blockMatrixAddN,
                 blockScalarMultiplyM, blockScalarMultiplyN,
                 blockMatrixMultiplyM, blockMatrixMultiplyN, blockMatrixMultiplyP,
                 blockSetZeroM, blockSetZeroN,
+                blockSetM, blockSetN,
                 blockedLoop, computeResidual, blockingsInDir, operandsPartitionedByBlocking,
                 blockingApplies, block,
                 blockMAddM, blockMAddN, blockMTransM, blockMTransN, blockSMulM,
@@ -23,6 +24,14 @@ blockMatrixAddM indVar blkFactor stmt =
 blockMatrixAddN :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixAddN indVar blkFactor stmt =
   block blockMAddN indVar blkFactor stmt
+
+blockSetM :: IExpr -> IExpr -> Statement -> [Statement]
+blockSetM indVar blkFactor stmt =
+  block blockMSetM indVar blkFactor stmt
+
+blockSetN :: IExpr -> IExpr -> Statement -> [Statement]
+blockSetN indVar blkFactor stmt =
+  block blockMSetN indVar blkFactor stmt
 
 blockMatrixTransposeM :: IExpr -> IExpr -> Statement -> [Statement]
 blockMatrixTransposeM indVar blkFactor stmt =
@@ -64,6 +73,10 @@ blockMAddM =
   blocking isMatrixAdd (\stmt -> numRows $ operandWritten stmt) (Just Row, [Just Row, Just Row])
 blockMAddN =
   blocking isMatrixAdd (\stmt -> numCols $ operandWritten stmt) (Just Col, [Just Col, Just Col])
+blockMSetM =
+  blocking isMatrixSet (\stmt -> numRows $ operandWritten stmt) (Just Row, [Just Row])
+blockMSetN =
+  blocking isMatrixSet (\stmt -> numCols $ operandWritten stmt) (Just Col, [Just Col])
 blockMTransM =
   blocking isMatrixTranspose (\stmt -> numRows $ operandWritten stmt) (Just Row, [Just Col])
 blockMTransN =
@@ -86,6 +99,8 @@ blockZeroN =
 blockings =
   [blockMAddM,
    blockMAddN,
+   blockMSetM,
+   blockMSetN,
    blockMTransM,
    blockMTransN,
    blockSMulM,
@@ -134,7 +149,8 @@ blockingApplies (Blocking isTargetOp _ _) stmt = isTargetOp stmt
 
 block (Blocking isTargetOp aPartitionedDim partDirs) indVar blkFactor stmt =
   case isTargetOp stmt &&
-       (((isConst $ aPartitionedDim stmt) && (aPartitionedDim stmt > blkFactor)) || (isVar $ aPartitionedDim stmt))  of
+       (((isConst $ aPartitionedDim stmt) && (aPartitionedDim stmt > blkFactor))
+        || ((isVar $ aPartitionedDim stmt) && (not $ aPartitionedDim stmt == iConst 1)))  of
     True -> blkStmt aPartitionedDim indVar blkFactor partDirs stmt
     False -> [stmt]
 
