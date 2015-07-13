@@ -12,17 +12,18 @@ import Fuzz
 import Core.MatrixOperation
 import Operations
 import OptimizationGroups.AVXLevel1
-import Core.PartitionSearch
+import PartitionSearch
 
-testFile = "testOp.lspc"
+testFile = "madd.lspc"
 
 main = do
   contents <- readFile testFile
   let parseRes = lexAndParseOperation testFile contents in
     case parseRes of
       Left err -> putStrLn err
-      Right op ->
-        putStrLn $ timeOperationGS dimVals [] lv2Opts avxVarDeclsDouble toAVXDouble op
+      Right op -> do
+        timeRes <- timeOperationGS dimVals [] lv2Opts avxVarDeclsDouble toAVXDouble op
+        putStrLn timeRes
 
 lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
 
