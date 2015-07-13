@@ -3,6 +3,7 @@ module Reporting.Report(Report,
               reportName,
               writeReportHtml,
               intBarPlotComp, dblBarPlotComp, dblScatterPlotComp,
+              intDblLinePlot,
               strListComp) where
 
 import Control.Monad
@@ -26,12 +27,14 @@ data ReportComponent
   = IntBarPlot String String [(Int, Int)]
   | DblBarPlot String [String] [(String, [Double])]
   | DblScatterPlot String String String [(Double, Double)]
+  | IntDblLinePlot String String String [(String, [(Int, Double)])]
   | StrList String [String]
     deriving (Eq, Ord, Show)
 
 intBarPlotComp n seriesName sData = IntBarPlot n seriesName sData
 dblBarPlotComp n titles values = DblBarPlot n titles values
 dblScatterPlotComp title xTitle yTitle values = DblScatterPlot title xTitle yTitle values
+intDblLinePlot title xTitle yTitle series = IntDblLinePlot title xTitle yTitle series
 strListComp n strs = StrList n strs
 
 reportComponentToHtml :: String -> ReportComponent -> IO Html
@@ -45,6 +48,11 @@ reportComponentToHtml filePath (DblBarPlot pName pTitles pValues) = do
     normedChartName = normalizeString pName
 reportComponentToHtml filePath (DblScatterPlot pTitle pXTitle pYTitle pValues) = do
   simpleScatter (filePath ++ "/charts/" ++ normedChartName ++ ".png") pTitle pXTitle pYTitle pValues
+  return $ chartHtml normedChartName "alt tag"
+  where
+    normedChartName = normalizeString pTitle
+reportComponentToHtml filePath (IntDblLinePlot pTitle pXTitle pYTitle pSeries) = do
+  simpleIntDblLinePlot (filePath ++ "/charts/" ++ normedChartName ++ ".png") pTitle pXTitle pYTitle pSeries
   return $ chartHtml normedChartName "alt tag"
   where
     normedChartName = normalizeString pTitle

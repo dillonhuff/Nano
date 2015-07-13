@@ -1,5 +1,6 @@
 module Reporting.Plot(GChart, barChart, gChartToSVG,
-                      simpleBar, simpleScatter) where
+                      simpleBar, simpleScatter,
+                      simpleIntDblLinePlot) where
 
 import Control.Monad
 import Data.List as L
@@ -42,3 +43,10 @@ simpleScatter filePath chartTitle xTitle yTitle values = toFile def filePath $ d
     layout_y_axis . laxis_title .= yTitle
     layout_x_axis . laxis_title .= xTitle
     plot (points "" values)
+
+simpleIntDblLinePlot :: FilePath -> String -> String -> String -> [(String,[(Int, Double)])] -> IO ()
+simpleIntDblLinePlot filePath chartTitle xTitle yTitle series = toFile def filePath $ do
+    layout_title .= chartTitle
+    layout_y_axis . laxis_title .= yTitle
+    layout_x_axis . laxis_title .= xTitle
+    sequence_ $ L.map (\s -> plot $ (line (fst s) [(snd s)])) series

@@ -52,17 +52,3 @@ tearDownCodeGS bufsAndIVars = freeBuffers
   where
     argInfo = L.takeWhile (\b -> isCPtr $ bufType b) bufsAndIVars
     freeBuffers = L.map freeBuffer argInfo
-{-  let (transformedOp, _) = operationToC varDeclFunc codeGenFunc "transformedOp" $ applyOptimizations transformsToApply operation
-      (regularOp, bufsAndIVars) = operationToC scalarVarDecls toCStmtsFunction "op" operation
-      argInfo = L.takeWhile (\b -> isCPtr $ bufType b) bufsAndIVars
-      indInfo = L.dropWhile (\b -> isCPtr $ bufType b) bufsAndIVars
-      indDecls = bufDecls indInfo
-      indNames = L.map bufName indInfo
-      indVars = L.map cVar indNames
-      indInits = L.map (\indVar -> cExprSt (cAssign indVar (cIntLit 79)) "") indVars
-      scFuncall = \bufs -> [cExprSt (cFuncall (cFuncName regularOp) ((L.map (cVar . bufName) bufs) ++ indVars)) ""]
-      testFuncall = \bufs -> [cExprSt (cFuncall (cFuncName transformedOp) ((L.map (cVar . bufName) bufs) ++ indVars)) ""] in
-    do
-      scRes <- runSanityCheckGS "gs_timing" indDecls indInits scFuncall testFuncall regularOp transformedOp argInfo
-      putStrLn scRes
--}
