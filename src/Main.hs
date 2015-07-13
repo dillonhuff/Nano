@@ -17,6 +17,28 @@ import PartitionSearch
 import Reporting.Report
 import System.Settings
 
+testFile = "madd.lspc"
+
+main = do
+  contents <- readFile testFile
+  let parseRes = lexAndParseOperation testFile contents in
+    case parseRes of
+      Left err -> putStrLn err
+      Right op -> do
+        dimsAndTimes <- benchmarkOperationGS dimValsList [] lv2Opts avxVarDeclsDouble toAVXDouble op
+        let dtRes = L.map (\(dimVals, runTime) -> (snd $ head dimVals, runTime)) dimsAndTimes
+            rep = report "Timing_a_series" [intDblLinePlot "square matrix add" "m = n" "avg. cycles per run" [("lv2Opts", dtRes)]] in
+          writeReportHtml projectPath rep
+
+lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
+
+lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
+
+dimValsList = L.map (\(x, y) -> [("m", x), ("n", y)]) $ L.zip vs vs
+  where
+    vs = [1, 5..100]
+
+{-
 main = do
   writeReportHtml projectPath dummyReport
   putStrLn $ "Done"
@@ -44,7 +66,7 @@ vals frac = [(x, y) | (x,y) <- filter (\(x,_)-> x `mod` (m+1)==0) $ take n $ zip
   where
     n = 1001
     m = 0
-
+-}
 {-testFile = "madd.lspc"
 
 main = do
