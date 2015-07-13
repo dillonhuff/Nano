@@ -37,9 +37,9 @@ mainBlkedDot u stmt =
     let i = iVar iN
         xi = colPart i u x
         pi = rowPart i u p
-        t1 = duplicateInRegister u t1N xi
-        t2 = duplicateInRegister u t2N t1
-        ar = duplicateInRegister (iConst 1) aN alpha
+        t1 = duplicateInTemp t1N xi
+        t2 = duplicateInTemp t2N t1
+        ar = duplicateInTemp aN alpha
         body = [elemWiseMultiply t1 xi pi, matrixAdd t2 t1 t2] in
       return $ (setZero t2):(blockedLoop i (numCols x) u body):(matrixSet ar alpha):(accumulate ar ar t2):(matrixSet alpha ar):[]
 

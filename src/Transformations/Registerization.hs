@@ -19,9 +19,15 @@ tryToRegisterize :: Int -> Statement -> State (String, Int) [Statement]
 tryToRegisterize u stmt =
   case isLoop stmt of
     True -> return [stmt]
-    False -> case isScalarOp u stmt of
+    False -> case isScalarOp u stmt || isRegisterizeableACCU u stmt of
       True -> registerizeStmt u stmt
       False -> return [stmt]
+
+-- This is a hack. Registerization really check registerizeability on an operation
+-- by operation basis
+isRegisterizeableACCU u stmt =
+  opcode stmt == ACCU && isScalar (operandWritten stmt) &&
+  isScalar (operandRead 0 stmt) && isRegisterizeable u (operandRead 1 stmt)
 
 registerizeBelow :: Int -> String -> [Statement] -> [Statement]
 registerizeBelow u uniqueVarPrefix stmts =
@@ -47,7 +53,7 @@ registerizeStmt i stmt =
     EMUL -> registerizeEMUL u stmt
     BRDC -> return [stmt]
     ZERO -> registerizeZERO u stmt
-    ACCU -> return [stmt]
+    ACCU -> registerizeACCU u stmt
     _ -> error $ "registerizeStmt: Unsupported operation " ++ show stmt
 
 freshRegName :: State (String, Int) String
@@ -69,23 +75,6 @@ toRegister u m =
     False -> do
       rName <- freshRegName
       return $ duplicateInRegister u rName m
-  
-{-    let r1 = duplicateInRegister u r1Name a
-        r2 = duplicateInRegister u r2Name b
-        r3 = duplicateInRegister u r3Name c in-}
-
-{-
-  let c = operandWritten stmt
-      a = operandRead 0 stmt
-      b = operandRead 1 stmt in
-  do
-    r1Name <- freshRegName
-    r2Name <- freshRegName
-    r3Name <- freshRegName
-    let r1 = duplicateInRegister u r1Name a
-        r2 = duplicateInRegister u r2Name b
-        r3 = duplicateInRegister u r3Name c in
-      return [matrixSet r1 a, matrixSet r2 b, op r3 r1 r2, matrixSet c r3]-}
   
 registerizeMAdd u stmt =
   registerizeSymmetric matrixAdd u stmt
@@ -111,6 +100,23 @@ registerizeMMul u stmt =
               matrixSet r2 b,
               matrixSet r3 c,
               matrixMultiply r3 r1 r2,
+              matrixSet c r3]
+
+registerizeACCU u stmt =
+  let c = operandWritten stmt
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt in
+  do
+    r1Name <- freshRegName
+    r2Name <- freshRegName
+    r3Name <- freshRegName
+    let r1 = duplicateInRegister u r1Name a
+        r2 = duplicateInRegister u r2Name b
+        r3 = duplicateInRegister u r3Name c in
+      return [matrixSet r1 a,
+              matrixSet r2 b,
+              matrixSet r3 c,
+              accumulate r3 r1 r2,
               matrixSet c r3]
 
 registerizeTrans u stmt =

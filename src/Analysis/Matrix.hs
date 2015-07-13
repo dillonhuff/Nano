@@ -59,7 +59,7 @@ allMatIVars m =
 anyDisjointPartitions ranges s t =
   let sParts = partitionList s
       tParts = partitionList t in
-  L.and [areDisjoint ranges sp tp | sp <- sParts, tp <- tParts]
+  L.or [areDisjoint ranges sp tp | sp <- sParts, tp <- tParts]
 
 areDisjoint ranges p1 p2 =
   case partShape p1 == partShape p2 of
