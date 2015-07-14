@@ -41,7 +41,7 @@ mainBlkedDot u stmt =
         t2 = duplicateInTemp t2N t1
         ar = duplicateInTemp aN alpha
         body = [elemWiseMultiply t1 xi pi, matrixAdd t2 t1 t2] in
-      return $ (setZero t2):(blockedLoop i (numCols x) u body):(matrixPack ar alpha):(accumulate ar ar t2):(matrixUnpack alpha ar):[]
+      return $ (setZero t2):(blockedLoop i (numCols x) u body):(matrixSet ar alpha):(accumulate ar ar t2):(matrixSet alpha ar):[]
 
 residualBlkedDot u stmt =
   case isConst $ (numCols $ operandRead 0 stmt) of
@@ -56,7 +56,7 @@ residualBlkedDot u stmt =
           xr = colPart rs rl x
           pr = rowPart rs rl p
           t3 = duplicateInTemp t3N xr in
-        return [elemWiseMultiply t3 xr pr, matrixPack ar alpha, accumulate ar ar t3, matrixUnpack alpha ar]
+        return [elemWiseMultiply t3 xr pr, matrixSet ar alpha, accumulate ar ar t3, matrixSet alpha ar]
     False -> do
       i <- freshRegName
       let iV = iVar i
