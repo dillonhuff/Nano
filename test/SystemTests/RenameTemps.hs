@@ -14,7 +14,7 @@ import Transformations.Fusion
 import Fuzz
 import Core.IndexExpression
 import Transformations.RegisterizeTemps
-import Transformations.Registerization
+import Transformations.IntroducePacking
 import Core.Statement
 import TestUtils
 

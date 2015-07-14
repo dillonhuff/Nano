@@ -11,7 +11,7 @@ import Dummies
 import Transformations.Fusion
 import Fuzz
 import Core.IndexExpression
-import Transformations.Registerization
+import Transformations.IntroducePacking
 import Core.Statement
 import TestUtils
 
@@ -26,6 +26,6 @@ compactTests =
    ltc "scalar multiply then matrix multiply" scalarVarDecls toScalarC compactMMulOpts [scalarMultiply tr9c9 alpha a, matrixMultiply c tr9c9 b],
    ltc "matrix transpose then matrix add" scalarVarDecls toScalarC compactTransOpts [matrixTranspose tr9c9 a, matrixAdd c b tr9c9]]
 
-compactTempsOpts = (registerize 1 "r_"):compactTemps:preprocessingOpts
-compactMMulOpts = (registerize 1 "r_"):compactTemps:preprocessMMulOpts
-compactTransOpts = (registerize 1 "r_"):compactTemps:fuseInnerLoops:preprocessTransOpts
+compactTempsOpts = (pack 1 "r_"):compactTemps:preprocessingOpts
+compactMMulOpts = (pack 1 "r_"):compactTemps:preprocessMMulOpts
+compactTransOpts = (pack 1 "r_"):compactTemps:fuseInnerLoops:preprocessTransOpts

@@ -12,7 +12,7 @@ import Transformations.Fusion
 import Fuzz
 import Core.IndexExpression
 import Transformations.RegisterizeTemps
-import Transformations.Registerization
+import Transformations.IntroducePacking
 import Core.Statement
 import TestUtils
 
@@ -27,6 +27,6 @@ registerizeTests =
    ltc "scalar multiply then matrix multiply" scalarVarDecls toScalarC registerizeMMulOpts [scalarMultiply tr9c9 alpha a, matrixMultiply c tr9c9 b],
    ltc "matrix transpose then matrix multiply" scalarVarDecls toScalarC registerizeTransOpts [matrixTranspose tr9c9 a, matrixAdd c b tr9c9]]
 
-registerizeTempsOpts = (registerize 1 "r_"):(registerizeTemps 1):compactTemps:preprocessingOpts
-registerizeMMulOpts = (registerize 1 "r_"):(registerizeTemps 1):compactTemps:preprocessMMulOpts
-registerizeTransOpts = (registerize 1 "r_"):(registerizeTemps 1):compactTemps:fuseInnerLoops:preprocessTransOpts
+registerizeTempsOpts = (pack 1 "r_"):(registerizeTemps 1):compactTemps:preprocessingOpts
+registerizeMMulOpts = (pack 1 "r_"):(registerizeTemps 1):compactTemps:preprocessMMulOpts
+registerizeTransOpts = (pack 1 "r_"):(registerizeTemps 1):compactTemps:fuseInnerLoops:preprocessTransOpts

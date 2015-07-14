@@ -13,7 +13,7 @@ import Fuzz
 import Core.IndexExpression
 import Transformations.LoopInvariantCodeMotion
 import Operations
-import Transformations.Registerization
+import Transformations.IntroducePacking
 import Transformations.RegisterizeTemps
 import Transformations.SMulToBroadcast
 import Transformations.SplitTemps
@@ -33,7 +33,7 @@ avxTestCases =
    ltc "dot product" avxVarDeclsDouble toAVXDouble avxOptsSMulAdd [matrixMultiply alpha x1 y1],
    ltc "uneven size dot product" avxVarDeclsDouble toAVXDouble avxOptsSMulAdd [matrixMultiply alpha xu1 yu1]]
 
-avxOpts = pullCodeOutOfLoops:(registerize 4 "r_"):(smulToBroadcast "sm"):(registerizeTemps 4):compactTemps:fuseInnerLoops:avxBlocking
+avxOpts = pullCodeOutOfLoops:(pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTemps 4):compactTemps:fuseInnerLoops:avxBlocking
 
 avxBlocking =
   L.intersperse fuseInnerLoops $
@@ -41,7 +41,7 @@ avxBlocking =
   [blockMatrixAddM (iVar "i1") (iConst 4),
    blockScalarMultiplyM (iVar "i2") (iConst 4)]
 
-avxOptsSMulAdd = (registerizeBelow 4 "k_"):(registerize 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(blockDot 4 "d_"):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
+avxOptsSMulAdd = (packBelow 4 "k_"):(pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(blockDot 4 "d_"):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
 
 avxBlockingSMulAdd =
   L.map (\t -> expandStatementsBU t)

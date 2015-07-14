@@ -11,7 +11,7 @@ import Transformations.Fusion
 import Fuzz
 import Core.IndexExpression
 import Transformations.LoopInvariantCodeMotion
-import Transformations.Registerization
+import Transformations.IntroducePacking
 import Core.Statement
 import TestUtils
 
@@ -28,5 +28,5 @@ licmTests =
    ltc "scalar multiply then matrix multiply" scalarVarDecls toScalarC licmMMulOpts [scalarMultiply tr9c9 alpha a, matrixMultiply c tr9c9 b],
    ltc "dotmul" scalarVarDecls toScalarC licmMMulOpts [matrixMultiply alpha p x, scalarMultiply y alpha y]]
 
-licmTempsOpts = pullCodeOutOfLoops:(registerize 1 "r_"):compactTemps:preprocessingOpts
-licmMMulOpts = pullCodeOutOfLoops:(registerize 1 "r_"):compactTemps:preprocessMMulOpts
+licmTempsOpts = pullCodeOutOfLoops:(pack 1 "r_"):compactTemps:preprocessingOpts
+licmMMulOpts = pullCodeOutOfLoops:(pack 1 "r_"):compactTemps:preprocessMMulOpts

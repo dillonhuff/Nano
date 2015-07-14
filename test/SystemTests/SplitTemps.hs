@@ -13,7 +13,7 @@ import Fuzz
 import Core.IndexExpression
 import Transformations.LoopInvariantCodeMotion
 import Operations
-import Transformations.Registerization
+import Transformations.IntroducePacking
 import Transformations.RegisterizeTemps
 import Transformations.SMulToBroadcast
 import Transformations.SplitTemps
@@ -30,8 +30,8 @@ renameTempsCases =
    ltc "fused smul add" avxVarDeclsDouble toAVXDouble avxOptsSMulAddFuse [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1]]
 
 avxOptsSMulAddFuse =
-  (registerizeBelow 4 "k_"):
-  (registerize 4 "r_"):
+  (packBelow 4 "k_"):
+  (pack 4 "r_"):
   (smulToBroadcast "sm"):
   (registerizeTempsBelow 4):
   (registerizeTemps 4):
@@ -39,9 +39,9 @@ avxOptsSMulAddFuse =
   (splitTemps "t_"):
   ([interchangeAndFuse] ++ (L.intersperse interchangeAndFuse avxBlockingSMulAdd) ++ [interchangeAndFuse])
 
-avxOptsDAXPY = (registerizeBelow 4 "k_"):(registerize 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingDAXPY
+avxOptsDAXPY = (packBelow 4 "k_"):(pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingDAXPY
 
-avxOptsSMulAdd = (registerizeBelow 4 "k_"):(registerize 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
+avxOptsSMulAdd = (packBelow 4 "k_"):(pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
 
 avxBlockingDAXPY =
   L.map (\t -> expandStatementsBU t)
