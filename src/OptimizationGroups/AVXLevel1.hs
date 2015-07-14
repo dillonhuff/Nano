@@ -27,7 +27,7 @@ registerization n =
   [pullCodeOutOfLoops, deleteRedundantAssignments, pack n "r_"]
 
 tempReductionAVX n =
-  [registerizeTempsBelow n, registerizeTemps n, compactTemps, splitTemps "t_", smulToBroadcast "sm"]
+  [registerizeTemps n, compactTemps, splitTemps "t_", smulToBroadcast "sm"]
 
 blockAndFuseAVXLvl1 n =
   interchangeAndFuse:(blockDot n "d_"):interchangeAndFuse:(L.intersperse interchangeAndFuse (blockingOptimizationsAVXLVL1 n))
