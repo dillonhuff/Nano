@@ -1,5 +1,5 @@
 module Transformations.RegisterizeTemps(registerizeTemps,
-                        registerizeTempsBelow) where
+                                        registerizeTempsBelow) where
 
 import Data.List as L
 
@@ -12,8 +12,7 @@ import Utils
 registerizeTemps u stmts =
   registerizeTempsWith u (isRegisterizeable u) stmts
   
-registerizeTempsBelow u stmts = stmts
---  registerizeTempsWith u (isRegisterizeableBelow u) stmts
+registerizeTempsBelow u stmts = stmts --registerizeTempsWith u (isRegisterizeableBelow u) stmts
 
 registerizeTempsWith u f stmts =
   let allUnderlyingMats = L.nub $ L.concatMap (collectFromAllOperands underlyingMatrix) stmts

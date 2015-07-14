@@ -11,6 +11,7 @@ import FusionTests
 import IndexExpressionTests
 import MatrixTests
 import MatrixOperationTests
+import RegisterizeTempsTests
 import StatementInterchangeTests
 
 allModuleTests = TestLabel "All module tests" $ TestList
@@ -23,4 +24,5 @@ allModuleTests = TestLabel "All module tests" $ TestList
                 allLexerTests,
                 allMatrixOperationTests,
                 allParserTests,
+                allRegisterizeTempsTests,
                 allStatementInterchangeTests]
