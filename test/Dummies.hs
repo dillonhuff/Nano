@@ -19,6 +19,7 @@ import Transformations.Blocking
 import Transformations.Fusion
 import Core.IndexExpression
 import Core.Matrix
+import Core.MemLocation
 import Core.Statement
 
 a = constDblMat "A" 9 9 1 9

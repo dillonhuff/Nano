@@ -4,6 +4,7 @@ import Control.Monad.State
 import Data.List as L
 
 import Core.Matrix
+import Core.MemLocation
 import Core.Partition
 import Core.Statement
 
@@ -25,7 +26,7 @@ convertToSMul stmt =
       let c = operandWritten stmt
           a = operandRead 0 stmt
           b = operandRead 1 stmt
-          p = properties local (dataType a) (memory)
+          p = properties local (dataType a) memory
           t = matrix tN (numRows a) (numCols a) (rowStride a) (colStride a) p in
         return [scalarMultiply t b a, matrixAdd c t c]
     False -> do

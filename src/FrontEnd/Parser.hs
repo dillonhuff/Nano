@@ -11,6 +11,7 @@ import FrontEnd.Token
 import Core.IndexExpression
 import Core.Matrix
 import Core.MatrixOperation
+import Core.MemLocation
 import Core.Type
 
 parser :: Parsec [Token] () a -> String -> [Token] -> Either String a

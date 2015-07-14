@@ -12,13 +12,13 @@ module Core.Matrix(Matrix,
               Type,
               single, double,
               isDouble, isSingle,
-              arg, local, bufferScope,
-              register, memory) where
+              arg, local, bufferScope) where
 
 import Data.Map as M hiding (partition)
 
 import Analysis.IndexExpression
 import Core.IndexExpression
+import Core.MemLocation
 import Core.Partition
 import Core.Scope
 import Core.Type
@@ -213,15 +213,3 @@ properties = Properties
 propScope (Properties s _ _) = s
 propType (Properties _ t _) = t
 propMemLocation (Properties _ _ l) = l
-
-data MemLocation
-  = Memory
-  | Register
-    deriving (Eq, Ord)
-
-instance Show MemLocation where
-  show Memory = "M"
-  show Register = "R"
-
-memory = Memory
-register = Register

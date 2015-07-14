@@ -7,6 +7,7 @@ import Analysis.IndexExpression
 import Core.IndexExpression
 import Dummies
 import Core.Matrix
+import Core.MemLocation
 import Module
 
 allMatrixTests = TestLabel "All matrix tests" $ TestList

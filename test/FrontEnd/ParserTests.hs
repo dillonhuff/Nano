@@ -6,11 +6,12 @@ import Test.HUnit
 
 import Dummies
 import Core.IndexExpression
+import Core.Matrix
+import Core.MatrixOperation
+import Core.MemLocation
 import FrontEnd.Lexer
 import FrontEnd.Parser
 import FrontEnd.Token
-import Core.Matrix
-import Core.MatrixOperation
 import Module
 
 allParserTests = TestLabel "allParserTests" $ TestList 

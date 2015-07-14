@@ -5,9 +5,10 @@ import Test.HUnit
 import Transformations.Blocking
 import Core.IndexExpression
 import Core.Matrix
-import Module
+import Core.MemLocation
 import Core.Partition
 import Core.Statement
+import Module
 
 allBlockingTests = TestLabel "All blocking tests" $ TestList 
   [makeTestCases (blockMatrixAddMTest $ iVar "i") blockMatrixAddMCases,

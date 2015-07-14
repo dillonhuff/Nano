@@ -3,18 +3,19 @@ module SystemTests.BasicGS(allBasicGSTests) where
 import Data.List as L
 import Test.HUnit
 
-import Transformations.Blocking
 import CBackEnd.CodeGeneration.AVX.Double
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Function
 import CBackEnd.CodeGeneration.Scalar
-import Dummies hiding (daxpy, alpha, beta, x, y, z)
-import Fuzz
 import Core.IndexExpression
 import Core.Matrix
+import Core.MemLocation
+import Core.Statement
+import Dummies hiding (daxpy, alpha, beta, x, y, z)
+import Fuzz
 import OptimizationGroups.AVXLevel1
 import PartitionSearch
-import Core.Statement
+import Transformations.Blocking
 
 allBasicGSTests =
   TestLabel "All basic general size tests" $
