@@ -18,34 +18,57 @@ tryToPack :: Int -> Statement -> State (String, Int) [Statement]
 tryToPack u stmt =
   case isLoop stmt of
     True -> return [stmt]
-    False -> case isScalarOpBelow u stmt || isScalarOp u stmt || isPackableACCU u stmt ||
-             isPackableBRDC u stmt of
-      True -> packStmt u stmt
-      False -> return [stmt]
+    False -> packStmt u stmt
 
 -- This is a hack. Registerization really check packability on an operation
 -- by operation basis
+isPackable u stmt =
+  isScalarOpBelow u stmt || isScalarOp u stmt
+
 isPackableACCU u stmt =
-  opcode stmt == ACCU && isScalar (operandWritten stmt) &&
-  isScalar (operandRead 0 stmt) && isRegisterizeable u (operandRead 1 stmt)
+  (isPackable u stmt) ||
+  (opcode stmt == ACCU && isScalar (operandWritten stmt) &&
+   isScalar (operandRead 0 stmt) && isRegisterizeable u (operandRead 1 stmt))
 
 isPackableBRDC u stmt =
-  opcode stmt == BRDC && isScalar (operandRead 0 stmt) &&
-  isRegisterizeable u (operandWritten stmt)
+  isPackable u stmt ||
+  (opcode stmt == BRDC && isScalar (operandRead 0 stmt) &&
+   isRegisterizeable u (operandWritten stmt))
+
+isPackableEADD u stmt =
+  isPackable u stmt
+
+isPackableEMUL u stmt =
+  isPackable u stmt
+
+isPackableSMUL u stmt =
+  isPackable u stmt
+
+isPackableTRAN u stmt =
+  isPackable u stmt
+
+isPackableMMUL u stmt =
+  isPackable u stmt
+
+isPackableMSET u stmt =
+  isPackable u stmt
+
+isPackableZERO u stmt =
+  isPackable u stmt
 
 packStmt :: Int -> Statement -> State (String, Int) [Statement]
 packStmt i stmt =
   let u = iConst i in
   case opcode stmt of
-    EADD -> packMAdd u stmt
-    SMUL -> packSMul u stmt
-    TRAN -> packTrans u stmt
-    MMUL -> packMMul u stmt
-    MSET -> packTrans u stmt
-    EMUL -> packEMUL u stmt
-    BRDC -> packBRDC u stmt 
-    ZERO -> packZERO u stmt
-    ACCU -> packACCU u stmt
+    EADD -> if isPackableEADD i stmt then packMAdd u stmt else return [stmt]
+    SMUL -> if isPackableSMUL i stmt then packSMul u stmt else return [stmt]
+    TRAN -> if isPackableTRAN i stmt then packTrans u stmt else return [stmt]
+    MMUL -> if isPackableMMUL i stmt then packMMul u stmt else return [stmt]
+    MSET -> if isPackableMSET i stmt then packTrans u stmt else return [stmt]
+    EMUL -> if isPackableEMUL i stmt then packEMUL u stmt else return [stmt]
+    BRDC -> if isPackableBRDC i stmt then packBRDC u stmt else return [stmt]
+    ZERO -> if isPackableZERO i stmt then packZERO u stmt else return [stmt]
+    ACCU -> if isPackableACCU i stmt then packACCU u stmt else return [stmt]
     _ -> error $ "packStmt: Unsupported operation " ++ show stmt
 
 freshRegName :: State (String, Int) String
