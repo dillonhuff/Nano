@@ -19,7 +19,8 @@ tryToRegisterize :: Int -> Statement -> State (String, Int) [Statement]
 tryToRegisterize u stmt =
   case isLoop stmt of
     True -> return [stmt]
-    False -> case isScalarOp u stmt || isRegisterizeableACCU u stmt of
+    False -> case isScalarOp u stmt || isRegisterizeableACCU u stmt ||
+             isRegisterizeableBRDC u stmt of
       True -> registerizeStmt u stmt
       False -> return [stmt]
 
@@ -28,6 +29,10 @@ tryToRegisterize u stmt =
 isRegisterizeableACCU u stmt =
   opcode stmt == ACCU && isScalar (operandWritten stmt) &&
   isScalar (operandRead 0 stmt) && isRegisterizeable u (operandRead 1 stmt)
+
+isRegisterizeableBRDC u stmt =
+  opcode stmt == BRDC && isScalar (operandRead 0 stmt) &&
+  isRegisterizeable u (operandWritten stmt)
 
 registerizeBelow :: Int -> String -> [Statement] -> [Statement]
 registerizeBelow u uniqueVarPrefix stmts =
@@ -51,7 +56,7 @@ registerizeStmt i stmt =
     MMUL -> registerizeMMul u stmt
     MSET -> registerizeTrans u stmt
     EMUL -> registerizeEMUL u stmt
-    BRDC -> return [stmt]
+    BRDC -> registerizeBRDC u stmt 
     ZERO -> registerizeZERO u stmt
     ACCU -> registerizeACCU u stmt
     _ -> error $ "registerizeStmt: Unsupported operation " ++ show stmt
@@ -133,3 +138,11 @@ registerizeZERO u stmt =
     r1Name <- freshRegName
     let r = duplicateInRegister u r1Name a in
       return [setZero r, matrixSet a r]
+
+registerizeBRDC u stmt =
+  let a = operandWritten stmt
+      b = operandRead 0 stmt in
+  do
+    r1Name <- freshRegName
+    let r1 = duplicateInRegister u r1Name a in
+      return [broadcast r1 b, matrixSet a r1]
