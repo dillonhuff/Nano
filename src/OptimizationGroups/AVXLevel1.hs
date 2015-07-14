@@ -24,10 +24,10 @@ avxLvl1Opts n =
   (registerization n) ++ (tempReductionAVX n) ++ (blockAndFuseAVXLvl1 n)
 
 registerization n =
-  [pullCodeOutOfLoops, deleteRedundantAssignments, pack n "r_"]
+  [pullCodeOutOfLoops, deleteRedundantAssignments, registerizeTemps n, pack n "r_"]
 
 tempReductionAVX n =
-  [registerizeTemps n, compactTemps, splitTemps "t_", smulToBroadcast "sm"]
+  [compactTemps, splitTemps "t_", smulToBroadcast "sm"]
 
 blockAndFuseAVXLvl1 n =
   interchangeAndFuse:(blockDot n "d_"):interchangeAndFuse:(L.intersperse interchangeAndFuse (blockingOptimizationsAVXLVL1 n))

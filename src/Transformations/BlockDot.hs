@@ -52,10 +52,10 @@ residualBlkedDot u stmt =
           x = operandRead 0 stmt
           p = operandRead 1 stmt
           (rs, rl) = computeResidual u (numCols x)
-          ar = duplicateInRegister (iConst 1) arN alpha
+          ar = duplicateInTemp arN alpha
           xr = colPart rs rl x
           pr = rowPart rs rl p
-          t3 = duplicateInRegister u t3N xr in
+          t3 = duplicateInTemp t3N xr in
         return [elemWiseMultiply t3 xr pr, matrixSet ar alpha, accumulate ar ar t3, matrixSet alpha ar]
     False -> do
       i <- freshRegName

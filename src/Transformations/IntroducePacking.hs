@@ -18,7 +18,7 @@ tryToPack :: Int -> Statement -> State (String, Int) [Statement]
 tryToPack u stmt =
   case isLoop stmt of
     True -> return [stmt]
-    False -> packStmt u stmt
+    False -> if allOperandsInMemory stmt then packStmt u stmt else error $ "tryToPack: " ++ show stmt
 
 -- This is a hack. Registerization really check packability on an operation
 -- by operation basis

@@ -33,7 +33,7 @@ avxTestCases =
    ltc "dot product" avxVarDeclsDouble toAVXDouble avxOptsSMulAdd [matrixMultiply alpha x1 y1],
    ltc "uneven size dot product" avxVarDeclsDouble toAVXDouble avxOptsSMulAdd [matrixMultiply alpha xu1 yu1]]
 
-avxOpts = pullCodeOutOfLoops:(pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTemps 4):compactTemps:fuseInnerLoops:avxBlocking
+avxOpts = pullCodeOutOfLoops:(registerizeTemps 4):(pack 4 "r_"):(smulToBroadcast "sm"):compactTemps:fuseInnerLoops:avxBlocking
 
 avxBlocking =
   L.intersperse fuseInnerLoops $
@@ -41,7 +41,7 @@ avxBlocking =
   [blockMatrixAddM (iVar "i1") (iConst 4),
    blockScalarMultiplyM (iVar "i2") (iConst 4)]
 
-avxOptsSMulAdd = (pack 4 "r_"):(smulToBroadcast "sm"):(blockDot 4 "d_"):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
+avxOptsSMulAdd = (registerizeTemps 4):(pack 4 "r_"):(smulToBroadcast "sm"):(blockDot 4 "d_"):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
 
 avxBlockingSMulAdd =
   L.map (\t -> expandStatementsBU t)
