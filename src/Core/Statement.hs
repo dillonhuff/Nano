@@ -1,5 +1,6 @@
 module Core.Statement(Statement,
                  matrixMultiply, matrixTranspose, matrixAdd, loop, scalarMultiply, matrixSet,
+                 matrixPack, matrixUnpack,
                  broadcast, elemWiseMultiply, setZero, accumulate,
                  isMatrixAdd, isMatrixTranspose, isMatrixMultiply, isLoop, isScalarMultiply, isMatrixSet,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody, opcode,
@@ -34,7 +35,13 @@ accumulate c a b = Instr ACCU c [a, b]
 setZero a = Instr ZERO a []
 broadcast a b = Instr BRDC a [b]
 elemWiseMultiply c a b = Instr EMUL c [a, b]
-matrixSet a b = Instr MSET a [b]
+matrixPack a b = Instr PACK a [b]
+matrixUnpack a b = Instr UNPK a [b]
+matrixSet a b =
+  case (isRegister a && isRegister b) ||
+       (not (isRegister a) && not (isRegister b)) of
+    True -> Instr MSET a [b]
+    False -> error $ "matrixSet: Operands " ++ show a ++ "\nand\n" ++ show b ++ " are not both registers or both memory"
 matrixAdd c a b = Instr EADD c [a, b]
 matrixMultiply c a b = Instr MMUL c [a, b, c]
 matrixTranspose a b = Instr TRAN a [b]
@@ -130,4 +137,6 @@ data OpCode
   | BRDC
   | ZERO
   | ACCU
+  | PACK
+  | UNPK
     deriving (Eq, Ord, Show)

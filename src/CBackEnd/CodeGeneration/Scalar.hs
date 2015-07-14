@@ -16,7 +16,7 @@ toScalarC stmt =
         True -> scalarSMulToC stmt
         False -> case isMatrixMultiply stmt of
           True -> scalarMMulToC stmt
-          False -> case isMatrixTranspose stmt || isMatrixSet stmt of
+          False -> case isMatrixTranspose stmt || isMatrixSet stmt || opcode stmt == PACK || opcode stmt == UNPK of
             True -> scalarMSetToC stmt
             False -> error $ "toScalarC: Unsupported statement " ++ show stmt
 

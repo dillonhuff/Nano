@@ -48,28 +48,28 @@ fits_assign stmt =
   opcode stmt == MSET && allInRegister stmt
 
 fits_mm256_loadu_ps stmt =
-  opcode stmt == MSET && allType single stmt &&
+  opcode stmt == PACK && allType single stmt &&
   isContiguous (operandRead 0 stmt) &&
   isRegister (operandWritten stmt) &&
   isRegisterizeable 8 (operandWritten stmt) &&
   not (isRegister $ operandRead 0 stmt)
 
 fits_mm256_storeu_ps stmt =
-  opcode stmt == MSET && allType single stmt &&
+  opcode stmt == UNPK && allType single stmt &&
   isRegister (operandRead 0 stmt) &&
   isContiguous (operandWritten stmt) &&
   isRegisterizeable 8 (operandRead 0 stmt) &&
   not (isRegister $ operandWritten stmt)
 
 fits_mm256_maskload_ps stmt =
-  opcode stmt == MSET && allType single stmt &&
+  opcode stmt == PACK && allType single stmt &&
   isRegister (operandWritten stmt) &&
   isContiguous (operandRead 0 stmt) &&
   isRegisterizeableBelow 8 (operandWritten stmt) &&
   not (isRegister $ operandRead 0 stmt)
 
 fits_mm256_maskstore_ps stmt =
-  opcode stmt == MSET && allType single stmt &&
+  opcode stmt == UNPK && allType single stmt &&
   isRegister (operandRead 0 stmt) &&
   isContiguous (operandWritten stmt) &&
   isRegisterizeableBelow 8 (operandRead 0 stmt) &&

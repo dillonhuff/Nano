@@ -19,5 +19,15 @@ registerizeTempsWith u f stmts =
 tryToRegisterizeWith :: IExpr -> (Matrix -> Bool) -> Matrix -> [Statement] -> [Statement]
 tryToRegisterizeWith u registerizeableCondition m stmts =
   case registerizeableCondition m of
-    True -> expandStatementsBU (\st -> [applyToOperands (replaceSupermatrix m (mkRegister u m)) st]) stmts
+    True -> expandStatementsBU (\st -> registerizeTempInStmt u m st) stmts
     False -> stmts
+
+registerizeTempInStmt u m stmt =
+  case (opcode stmt == PACK && operandRead 0 stmt == m) || (opcode stmt == UNPK && operandWritten stmt == m) of
+    True -> [replacePKUNPKWithSet u m stmt]
+    False -> [applyToOperands (replaceSupermatrix m (mkRegister u m)) stmt]
+
+replacePKUNPKWithSet u m stmt =
+  let newWritten = replaceSupermatrix m (mkRegister u m) (operandWritten stmt)
+      newRead = replaceSupermatrix m (mkRegister u m) (operandRead 0 stmt) in
+  matrixSet newWritten newRead

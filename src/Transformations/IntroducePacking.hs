@@ -82,7 +82,7 @@ packSymmetric op u stmt =
     r1 <- toRegister u $ operandRead 0 stmt
     r2 <- toRegister u $ operandRead 1 stmt
     r3 <- toRegister u $ operandWritten stmt
-    return [matrixSet r1 (operandRead 0 stmt), matrixSet r2 (operandRead 1 stmt), op r3 r1 r2, matrixSet (operandWritten stmt) r3]
+    return [matrixPack r1 (operandRead 0 stmt), matrixPack r2 (operandRead 1 stmt), op r3 r1 r2, matrixUnpack (operandWritten stmt) r3]
 
 toRegister u m =
   case isRegister m of
@@ -111,11 +111,11 @@ packMMul u stmt =
     let r1 = duplicateInRegister u r1Name a
         r2 = duplicateInRegister u r2Name b
         r3 = duplicateInRegister u r3Name c in
-      return [matrixSet r1 a,
-              matrixSet r2 b,
-              matrixSet r3 c,
+      return [matrixPack r1 a,
+              matrixPack r2 b,
+              matrixPack r3 c,
               matrixMultiply r3 r1 r2,
-              matrixSet c r3]
+              matrixUnpack c r3]
 
 packACCU u stmt =
   let c = operandWritten stmt
@@ -128,11 +128,11 @@ packACCU u stmt =
     let r1 = duplicateInRegister u r1Name a
         r2 = duplicateInRegister u r2Name b
         r3 = duplicateInRegister u r3Name c in
-      return [matrixSet r1 a,
-              matrixSet r2 b,
-              matrixSet r3 c,
+      return [matrixPack r1 a,
+              matrixPack r2 b,
+              matrixPack r3 c,
               accumulate r3 r1 r2,
-              matrixSet c r3]
+              matrixUnpack c r3]
 
 packTrans u stmt =
   let a = operandWritten stmt
@@ -140,14 +140,14 @@ packTrans u stmt =
   do
     r1Name <- freshRegName
     let r1 = duplicateInRegister u r1Name b in
-      return [matrixSet r1 b, matrixSet a r1]
+      return [matrixPack r1 b, matrixUnpack a r1]
 
 packZERO u stmt =
   let a = operandWritten stmt in
   do
     r1Name <- freshRegName
     let r = duplicateInRegister u r1Name a in
-      return [setZero r, matrixSet a r]
+      return [setZero r, matrixUnpack a r]
 
 packBRDC u stmt =
   let a = operandWritten stmt
@@ -155,4 +155,4 @@ packBRDC u stmt =
   do
     r1Name <- freshRegName
     let r1 = duplicateInRegister u r1Name a in
-      return [broadcast r1 b, matrixSet a r1]
+      return [broadcast r1 b, matrixUnpack a r1]
