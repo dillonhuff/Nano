@@ -24,7 +24,7 @@ avxLvl1Opts n =
   (registerization n) ++ (tempReductionAVX n) ++ (blockAndFuseAVXLvl1 n)
 
 registerization n =
-  [pullCodeOutOfLoops, deleteRedundantAssignments, packBelow n "k_", pack n "r_"]
+  [pullCodeOutOfLoops, deleteRedundantAssignments, pack n "r_"]
 
 tempReductionAVX n =
   [registerizeTempsBelow n, registerizeTemps n, compactTemps, splitTemps "t_", smulToBroadcast "sm"]

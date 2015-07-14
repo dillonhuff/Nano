@@ -1,5 +1,4 @@
-module Transformations.IntroducePacking(pack,
-                                        packBelow) where
+module Transformations.IntroducePacking(pack) where
 
 import Control.Monad.State
 import Data.List as L
@@ -19,7 +18,7 @@ tryToPack :: Int -> Statement -> State (String, Int) [Statement]
 tryToPack u stmt =
   case isLoop stmt of
     True -> return [stmt]
-    False -> case isScalarOp u stmt || isPackableACCU u stmt ||
+    False -> case isScalarOpBelow u stmt || isScalarOp u stmt || isPackableACCU u stmt ||
              isPackableBRDC u stmt of
       True -> packStmt u stmt
       False -> return [stmt]
@@ -33,18 +32,6 @@ isPackableACCU u stmt =
 isPackableBRDC u stmt =
   opcode stmt == BRDC && isScalar (operandRead 0 stmt) &&
   isRegisterizeable u (operandWritten stmt)
-
-packBelow :: Int -> String -> [Statement] -> [Statement]
-packBelow u uniqueVarPrefix stmts =
-  evalState (expandStatementsBUM (tryToPackBelow u) stmts) (uniqueVarPrefix, 0)
-
-tryToPackBelow :: Int -> Statement -> State (String, Int) [Statement]
-tryToPackBelow u stmt =
-  case isLoop stmt of
-    True -> return [stmt]
-    False -> case isScalarOpBelow u stmt of
-      True -> packStmt u stmt
-      False -> return [stmt]
 
 packStmt :: Int -> Statement -> State (String, Int) [Statement]
 packStmt i stmt =

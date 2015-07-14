@@ -41,7 +41,7 @@ avxBlocking =
   [blockMatrixAddM (iVar "i1") (iConst 4),
    blockScalarMultiplyM (iVar "i2") (iConst 4)]
 
-avxOptsSMulAdd = (packBelow 4 "k_"):(pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(blockDot 4 "d_"):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
+avxOptsSMulAdd = (pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(blockDot 4 "d_"):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
 
 avxBlockingSMulAdd =
   L.map (\t -> expandStatementsBU t)

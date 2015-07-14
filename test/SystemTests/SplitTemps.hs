@@ -30,7 +30,6 @@ renameTempsCases =
    ltc "fused smul add" avxVarDeclsDouble toAVXDouble avxOptsSMulAddFuse [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1]]
 
 avxOptsSMulAddFuse =
-  (packBelow 4 "k_"):
   (pack 4 "r_"):
   (smulToBroadcast "sm"):
   (registerizeTempsBelow 4):
@@ -39,9 +38,9 @@ avxOptsSMulAddFuse =
   (splitTemps "t_"):
   ([interchangeAndFuse] ++ (L.intersperse interchangeAndFuse avxBlockingSMulAdd) ++ [interchangeAndFuse])
 
-avxOptsDAXPY = (packBelow 4 "k_"):(pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingDAXPY
+avxOptsDAXPY = (pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingDAXPY
 
-avxOptsSMulAdd = (packBelow 4 "k_"):(pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
+avxOptsSMulAdd = (pack 4 "r_"):(smulToBroadcast "sm"):(registerizeTempsBelow 4):(registerizeTemps 4):compactTemps:(splitTemps "t_"):avxBlockingSMulAdd
 
 avxBlockingDAXPY =
   L.map (\t -> expandStatementsBU t)
