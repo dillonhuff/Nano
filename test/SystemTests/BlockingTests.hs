@@ -87,8 +87,8 @@ blockTransCases =
 
 testBlocking blkFunc (blkFactor, stmt) =
   let blockedStmt = blkFunc (iVar "i") blkFactor stmt
-      (cBlocked, _) = operationToC scalarVarDecls toCStmtsFunction "blocked" blockedStmt
-      (cUnBlocked, unBlockedArgs) = operationToC scalarVarDecls toCStmtsFunction "unblocked" [stmt] in
+      (cBlocked, _) = operationToC scalarVarDecls stmtsToCFunctions "blocked" blockedStmt
+      (cUnBlocked, unBlockedArgs) = operationToC scalarVarDecls stmtsToCFunctions "unblocked" [stmt] in
   do
     scRes <- runSanityCheck "blockingTest" cUnBlocked cBlocked unBlockedArgs
     return $ scRes == "true\n"

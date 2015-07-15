@@ -13,7 +13,7 @@ import Transformations.IntroducePacking
 import Core.Statement
 
 allScalarizationTests = TestLabel "All scalarization system tests" $
-                      TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls toScalarC scalarizationOpts op) compoundTestOperations
+                      TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls stmtsToScalarC scalarizationOpts op) compoundTestOperations
 
 scalarizationOpts = (pack 1 "r_"):blockingOpts
 

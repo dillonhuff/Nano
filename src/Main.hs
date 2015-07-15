@@ -25,7 +25,7 @@ main = do
     case parseRes of
       Left err -> putStrLn err
       Right op -> do
-        dimsAndTimes <- benchmarkOperationGS dimValsList [] lv2Opts avxVarDeclsDouble toAVXDouble op
+        dimsAndTimes <- benchmarkOperationGS dimValsList [] lv2Opts avxVarDeclsDouble stmtsToAVXDouble op
         let dtRes = L.map (\(dimVals, runTime) -> (snd $ head dimVals, runTime)) dimsAndTimes
             rep = report "Timing_a_series" [intDblLinePlot "square matrix add" "m = n" "avg. cycles per run" [("lv2Opts", dtRes)]] in
           writeReportHtml projectPath rep
@@ -75,7 +75,7 @@ main = do
     case parseRes of
       Left err -> putStrLn err
       Right op -> do
-        timeRes <- timeOperationGS dimVals [] lv2Opts avxVarDeclsDouble toAVXDouble op
+        timeRes <- timeOperationGS dimVals [] lv2Opts avxVarDeclsDouble stmtsToAVXDouble op
         putStrLn timeRes
 
 lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]

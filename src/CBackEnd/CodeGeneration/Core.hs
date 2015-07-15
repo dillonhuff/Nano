@@ -12,7 +12,7 @@ import Core.Matrix
 import Core.Statement
 
 operationToC :: ([Statement] -> [(CType, String)]) ->
-                (Statement -> [CStmt String]) ->
+                ([Statement] -> [CStmt String]) ->
                 String ->
                 [Statement] ->
                 (CTopLevelItem String, [BufferInfo])
@@ -31,4 +31,4 @@ funcBody codeGenFunc stmts = body
     tempBufInfo = L.filter (\info -> bufScope info == local) bufInfo
     tempBufAllocation = L.map initializeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
     tempBufFreeing = L.map freeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
-    body = tempBufAllocation ++ (L.concatMap codeGenFunc stmts) ++ tempBufFreeing
+    body = tempBufAllocation ++ (codeGenFunc stmts) ++ tempBufFreeing

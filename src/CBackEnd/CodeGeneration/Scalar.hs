@@ -1,4 +1,6 @@
-module CBackEnd.CodeGeneration.Scalar(toScalarC) where
+module CBackEnd.CodeGeneration.Scalar(stmtsToScalarC) where
+
+import Data.List as L
 
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.Syntax
@@ -7,6 +9,9 @@ import Core.IndexExpression
 import Core.Matrix
 import Core.Statement
 
+stmtsToScalarC stmts =
+  L.concatMap toScalarC stmts
+  
 toScalarC stmt =
   case isLoop stmt of
     True -> loopToCStmts toScalarC stmt

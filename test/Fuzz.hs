@@ -46,16 +46,27 @@ assertRandomOptimizationsCorrect varDeclFunc codeGenFunc possibleOptimizations o
   transformsToApply <- selectTransforms possibleOptimizations
   assertOptimizationsCorrect varDeclFunc codeGenFunc transformsToApply operation
 
+assertOptimizationsCorrect :: ([Statement] -> [(CType, String)]) ->
+                              ([Statement] -> [CStmt String]) ->
+                              ([[Statement] -> [Statement]]) ->
+                              [Statement] ->
+                              IO ()
 assertOptimizationsCorrect varDeclFunc codeGenFunc transformsToApply operation =
   let (transformedOp, _) = operationToC varDeclFunc codeGenFunc "transformedOp" $ applyOptimizations transformsToApply operation
-      (regularOp, argInfo) = operationToC scalarVarDecls toCStmtsFunction "op" operation in
+      (regularOp, argInfo) = operationToC scalarVarDecls stmtsToCFunctions "op" operation in
     do
       scRes <- runSanityCheck "fuzzTest" regularOp transformedOp argInfo
       assertEqual (failMessageInfo transformedOp regularOp argInfo) "true\n" scRes
 
+
+assertOptimizationsCorrectGS :: ([Statement] -> [(CType, String)]) ->
+                                ([Statement] -> [CStmt String]) ->
+                                ([[Statement] -> [Statement]]) ->
+                                [Statement] ->
+                                IO ()
 assertOptimizationsCorrectGS varDeclFunc codeGenFunc transformsToApply operation =
   let (transformedOp, _) = operationToC varDeclFunc codeGenFunc "transformedOp" $ applyOptimizations transformsToApply operation
-      (regularOp, bufsAndIVars) = operationToC scalarVarDecls toCStmtsFunction "op" operation
+      (regularOp, bufsAndIVars) = operationToC scalarVarDecls stmtsToCFunctions "op" operation
       argInfo = L.takeWhile (\b -> isCPtr $ bufType b) bufsAndIVars
       indInfo = L.dropWhile (\b -> isCPtr $ bufType b) bufsAndIVars
       indDecls = bufDecls indInfo

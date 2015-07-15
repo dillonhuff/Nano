@@ -1,4 +1,4 @@
-module CBackEnd.CodeGeneration.AVX.Single(avxVarDeclsSingle, toAVXSingle) where
+module CBackEnd.CodeGeneration.AVX.Single(avxVarDeclsSingle, stmtsToAVXSingle) where
 
 import Data.List as L
 
@@ -19,7 +19,10 @@ avxVarDeclsSingle stmts = decls
     regs = L.filter (\info -> not $ isCPtr $ bufType info) tempBufInfo
     regDecls = L.map (\info -> (cM256dReg, bufName info)) regs
     decls = iVarDecls ++ regDecls ++ tempBufferDecls
-  
+
+stmtsToAVXSingle stmts =
+  L.concatMap toAVXSingle stmts
+
 toAVXSingle stmt =
   case opcode stmt of
     LOOP -> loopToCStmts toAVXSingle stmt

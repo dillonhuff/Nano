@@ -25,13 +25,13 @@ allAVXCodeGenTests =
   TestList $ avxTestCases
 
 avxTestCases =
-  [ltc "vector add" avxVarDeclsDouble toAVXDouble avxOpts [matrixAdd x y z],
-   ltc "vector smul" avxVarDeclsDouble toAVXDouble avxOpts [scalarMultiply x alpha x],
-   ltc "daxpy" avxVarDeclsDouble toAVXDouble avxOpts (daxpy 16),
-   ltc "matrix add even" avxVarDeclsDouble toAVXDouble avxOptsSMulAdd [matrixAdd m1 m2 m3],
-   ltc "matrix add uneven" avxVarDeclsDouble toAVXDouble avxOptsSMulAdd [matrixAdd n1 n2 n3],
-   ltc "dot product" avxVarDeclsDouble toAVXDouble avxOptsSMulAdd [matrixMultiply alpha x1 y1],
-   ltc "uneven size dot product" avxVarDeclsDouble toAVXDouble avxOptsSMulAdd [matrixMultiply alpha xu1 yu1]]
+  [ltc "vector add" avxVarDeclsDouble stmtsToAVXDouble avxOpts [matrixAdd x y z],
+   ltc "vector smul" avxVarDeclsDouble stmtsToAVXDouble avxOpts [scalarMultiply x alpha x],
+   ltc "daxpy" avxVarDeclsDouble stmtsToAVXDouble avxOpts (daxpy 16),
+   ltc "matrix add even" avxVarDeclsDouble stmtsToAVXDouble avxOptsSMulAdd [matrixAdd m1 m2 m3],
+   ltc "matrix add uneven" avxVarDeclsDouble stmtsToAVXDouble avxOptsSMulAdd [matrixAdd n1 n2 n3],
+   ltc "dot product" avxVarDeclsDouble stmtsToAVXDouble avxOptsSMulAdd [matrixMultiply alpha x1 y1],
+   ltc "uneven size dot product" avxVarDeclsDouble stmtsToAVXDouble avxOptsSMulAdd [matrixMultiply alpha xu1 yu1]]
 
 avxOpts = pullCodeOutOfLoops:(registerizeTemps 4):(pack 4 "r_"):(smulToBroadcast "sm"):compactTemps:fuseInnerLoops:avxBlocking
 

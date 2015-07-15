@@ -1,4 +1,4 @@
-module CBackEnd.CodeGeneration.AVX.Double(avxVarDeclsDouble, toAVXDouble) where
+module CBackEnd.CodeGeneration.AVX.Double(avxVarDeclsDouble, stmtsToAVXDouble) where
 
 import Data.List as L
 
@@ -19,7 +19,10 @@ avxVarDeclsDouble stmts = decls
     regs = L.filter (\info -> not $ isCPtr $ bufType info) tempBufInfo
     regDecls = L.map (\info -> (cM256dReg, bufName info)) regs
     decls = iVarDecls ++ regDecls ++ tempBufferDecls
-  
+
+stmtsToAVXDouble stmts =
+  L.concatMap toAVXDouble stmts
+
 toAVXDouble stmt =
   case opcode stmt of
     LOOP -> loopToCStmts toAVXDouble stmt

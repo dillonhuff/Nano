@@ -25,9 +25,9 @@ allSplitTempsTests =
   TestList renameTempsCases
 
 renameTempsCases =
-  [ltc "daxpy 19" avxVarDeclsDouble toAVXDouble avxOptsDAXPY (daxpy 19),
-   ltc "smul add" avxVarDeclsDouble toAVXDouble avxOptsSMulAdd [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1],
-   ltc "fused smul add" avxVarDeclsDouble toAVXDouble avxOptsSMulAddFuse [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1]]
+  [ltc "daxpy 19" avxVarDeclsDouble stmtsToAVXDouble avxOptsDAXPY (daxpy 19),
+   ltc "smul add" avxVarDeclsDouble stmtsToAVXDouble avxOptsSMulAdd [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1],
+   ltc "fused smul add" avxVarDeclsDouble stmtsToAVXDouble avxOptsSMulAddFuse [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1]]
 
 avxOptsSMulAddFuse =
   (registerizeTemps 4):

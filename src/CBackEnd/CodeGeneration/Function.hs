@@ -1,4 +1,4 @@
-module CBackEnd.CodeGeneration.Function(toCStmtsFunction) where
+module CBackEnd.CodeGeneration.Function(stmtsToCFunctions) where
 
 import Data.List as L
 
@@ -8,6 +8,9 @@ import Core.IndexExpression
 import Core.Matrix
 import Core.Statement
 
+stmtsToCFunctions stmts =
+  L.concatMap toCStmtsFunction stmts
+  
 toCStmtsFunction stmt =
   case isLoop stmt of
     True -> loopToCStmts toCStmtsFunction stmt

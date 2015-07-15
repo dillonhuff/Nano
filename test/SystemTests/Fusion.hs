@@ -13,7 +13,7 @@ import Core.IndexExpression
 import Core.Statement
 
 allFusionTests = TestLabel "All fusion fuzz tests" $
-                 TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls toCStmtsFunction fusionOpts op) compoundTestOperations
+                 TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls stmtsToCFunctions fusionOpts op) compoundTestOperations
 
 fusionOpts = fuseInnerLoops:blockingOpts
 
