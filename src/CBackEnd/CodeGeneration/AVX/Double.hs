@@ -37,10 +37,9 @@ fits_mm256_add_pd stmt =
 fits_mm256_mul_pd stmt =
   opcode stmt == EMUL && allInRegister stmt && allVectorEQ 4 stmt && allType double stmt
 
-fits_mm256_fmadd_pd stmt = False
-{-  opcode stmt == MMUL && allInRegister stmt &&
-  allVectorEQ 4 stmt && allType double stmt &&
-  isScalar (operandWritten stmt)-}
+fits_mm256_fmadd_pd stmt =
+  opcode stmt == MMUL && allInRegister stmt &&
+  allVectorEQ 4 stmt && allType double stmt
 
 fits_mm256_broadcast_sd stmt =
   opcode stmt == BRDC && isRegister (operandWritten stmt) &&

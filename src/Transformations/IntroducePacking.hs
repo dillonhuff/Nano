@@ -46,7 +46,8 @@ isPackableTRAN u stmt =
   isPackable u stmt
 
 isPackableMMUL u stmt =
-  isPackable u stmt
+  isPackable u stmt &&
+  isScalar (operandWritten stmt)
 
 isPackableMSET u stmt =
   isPackable u stmt
