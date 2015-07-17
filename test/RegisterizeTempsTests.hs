@@ -7,14 +7,14 @@ import Core.Matrix
 import Core.Statement
 import Module
 import Operations
-import OptimizationGroups.AVXLevel1
+import OptimizationGroups.Level1
 import Utils
 
 allRegisterizeTempsTests = TestLabel "allRegisterizeTempsTests" $ TestList
   [makeTestCases countInMemTemps level1Cases]
 
 level1Cases =
-  L.map (\(stmts, n) -> (applyOptimizations (avxLvl1Opts 4) stmts, n))
+  L.map (\(stmts, n) -> (applyOptimizations (lvl1Opts 4) stmts, n))
   [(ddotsmul 16, 0),
    (ddotsmul 19, 0),
    (daxpy 16, 0),

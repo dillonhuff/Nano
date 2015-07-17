@@ -10,7 +10,7 @@ import CBackEnd.CodeGeneration.AVX.Double
 import Dummies
 import Fuzz
 import Operations
-import OptimizationGroups.AVXLevel1
+import OptimizationGroups.Level1
 import PartitionSearch
 import Core.Statement
 import TestUtils
@@ -79,7 +79,7 @@ lv2BlockingCasesColStride =
    ltc "mvmul" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixMultiply y1 m1_cs yc1],
    ltc "dgemv" avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dgemvCM 4 15)]
 
-lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
+lv2Opts = (lvl1Opts 4) ++ [partitionSearch "b_"]
 
 m1_cs = constDblMat "M1" 8 8 1 8
 m2_cs = constDblMat "M2" 8 8 1 8

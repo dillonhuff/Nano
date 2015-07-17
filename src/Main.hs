@@ -12,7 +12,7 @@ import FrontEnd.Lexer
 import FrontEnd.Parser
 import Fuzz
 import Operations
-import OptimizationGroups.AVXLevel1
+import OptimizationGroups.Level1
 import PartitionSearch
 import Reporting.Report
 import System.Settings
@@ -30,7 +30,7 @@ main = do
             rep = report "Timing_a_series" [intDblLinePlot "square matrix add" "m = n" "avg. cycles per run" [("lv2Opts", dtRes)]] in
           writeReportHtml projectPath rep
 
-lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
+lv2Opts = (lvl1Opts 4) ++ [partitionSearch "b_"]
 
 lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
 
@@ -78,7 +78,7 @@ main = do
         timeRes <- timeOperationGS dimVals [] lv2Opts avxVarDeclsDouble stmtsToAVXDouble op
         putStrLn timeRes
 
-lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
+lv2Opts = (lvl1Opts 4) ++ [partitionSearch "b_"]
 
 lexAndParseOperation fName str = (lexString fName str) >>= (parseOperation fName)
 

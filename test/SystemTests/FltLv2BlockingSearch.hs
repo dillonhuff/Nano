@@ -10,7 +10,7 @@ import CBackEnd.CodeGeneration.AVX.Single
 import Dummies hiding (alpha, beta)
 import Fuzz
 import Operations
-import OptimizationGroups.AVXLevel1
+import OptimizationGroups.Level1
 import PartitionSearch
 import Core.Statement
 import TestUtils
@@ -79,7 +79,7 @@ fltLv2BlockingCasesColStride =
    ltc "mvmul" avxVarDeclsSingle stmtsToAVXSingle lv2Opts [matrixMultiply y1 m1_cs yc1],
    ltc "sgemv" avxVarDeclsSingle stmtsToAVXSingle lv2Opts (sgemvCM 4 15)]
 
-lv2Opts = (avxLvl1Opts 8) ++ [partitionSearch "b_"]
+lv2Opts = (lvl1Opts 8) ++ [partitionSearch "b_"]
 
 m1_cs = constFltMat "M1" 8 8 1 8
 m2_cs = constFltMat "M2" 8 8 1 8

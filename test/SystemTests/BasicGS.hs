@@ -13,7 +13,7 @@ import Core.MemLocation
 import Core.Statement
 import Dummies hiding (daxpy, alpha, beta, x, y, z)
 import Fuzz
-import OptimizationGroups.AVXLevel1
+import OptimizationGroups.Level1
 import PartitionSearch
 import Transformations.Blocking
 
@@ -22,16 +22,16 @@ allBasicGSTests =
   TestList $ L.map TestCase
   [assertOptimizationsCorrectGS scalarVarDecls stmtsToCFunctions [] (dscal (iVar "m")),
    assertOptimizationsCorrectGS scalarVarDecls stmtsToScalarC blockingT (dscal (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (avxLvl1Opts 4) (dvadd (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (avxLvl1Opts 4) (dvadd2 (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (avxLvl1Opts 4) (dscal (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (avxLvl1Opts 4) (daxpy (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (lvl1Opts 4) (dvadd (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (lvl1Opts 4) (dvadd2 (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (lvl1Opts 4) (dscal (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (lvl1Opts 4) (daxpy (iVar "m")),
    assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dmaddRM (iVar "m") (iVar "n")),
    assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dgemvRM (iVar "m") (iVar "n")),
    assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dmmulRM (iVar "m") (iVar "n") (iVar "p")),
    assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dmaddSetRM (iVar "m") (iVar "m"))]
 
-lv2Opts = (avxLvl1Opts 4) ++ [partitionSearch "b_"]
+lv2Opts = (lvl1Opts 4) ++ [partitionSearch "b_"]
 
 blockingT =
   L.map (\t -> expandStatementsBU t)
