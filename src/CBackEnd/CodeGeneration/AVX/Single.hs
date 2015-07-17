@@ -3,6 +3,7 @@ module CBackEnd.CodeGeneration.AVX.Single(avxVarDeclsSingle, stmtsToAVXSingle) w
 import Data.List as L
 
 import Analysis.Matrix
+import CBackEnd.CodeGeneration.AVX.Common
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.Syntax
 import CBackEnd.Utils
@@ -26,10 +27,7 @@ stmtsToAVXSingle stmts =
 toAVXSingle stmt =
   case opcode stmt of
     LOOP -> loopToCStmts toAVXSingle stmt
-    _ -> toAVXIntrinsic stmt
-
-toAVXIntrinsic stmt =
-  firstToMatch avxInstructions stmt
+    _ -> firstToMatch avxSingleInstructions stmt
 
 fits_mm256_add_ps stmt =
   opcode stmt == EADD && allInRegister stmt && allVectorEQ 8 stmt && allType single stmt
