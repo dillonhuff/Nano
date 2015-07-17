@@ -32,18 +32,19 @@ toAVXIntrinsic stmt =
   firstToMatch avxInstructions stmt
 
 fits_mm256_add_pd stmt =
-  opcode stmt == EADD && allInRegister stmt && allVectorLEQ 4 stmt && allType double stmt
+  opcode stmt == EADD && allInRegister stmt && allVectorEQ 4 stmt && allType double stmt
 
 fits_mm256_mul_pd stmt =
-  opcode stmt == EMUL && allInRegister stmt && allVectorLEQ 4 stmt && allType double stmt
+  opcode stmt == EMUL && allInRegister stmt && allVectorEQ 4 stmt && allType double stmt
 
-fits_mm256_fmadd_pd stmt =
-  opcode stmt == MMUL && allInRegister stmt &&
-  allVectorLEQ 4 stmt && allType double stmt &&
-  isScalar (operandWritten stmt)
+fits_mm256_fmadd_pd stmt = False
+{-  opcode stmt == MMUL && allInRegister stmt &&
+  allVectorEQ 4 stmt && allType double stmt &&
+  isScalar (operandWritten stmt)-}
 
 fits_mm256_broadcast_sd stmt =
   opcode stmt == BRDC && isRegister (operandWritten stmt) &&
+  isRegisterizeable 4 (operandWritten stmt) &&
   not (isRegister (operandRead 0 stmt)) && isScalar (operandRead 0 stmt) &&
   allType double stmt
 
@@ -55,12 +56,14 @@ fits_mm256_loadu_pd stmt =
   isContiguous (operandRead 0 stmt) &&
   isRegister (operandWritten stmt) &&
   isRegisterizeable 4 (operandWritten stmt) &&
+  isRegisterizeable 4 (operandRead 0 stmt) &&
   not (isRegister $ operandRead 0 stmt)
 
 fits_mm256_storeu_pd stmt =
   opcode stmt == UNPK && allType double stmt &&
   isRegister (operandRead 0 stmt) &&
   isContiguous (operandWritten stmt) &&
+  isRegisterizeable 4 (operandWritten stmt) &&
   isRegisterizeable 4 (operandRead 0 stmt) &&
   not (isRegister $ operandWritten stmt)
 
@@ -68,30 +71,30 @@ fits_mm256_maskload_pd stmt =
   opcode stmt == PACK && allType double stmt &&
   isRegister (operandWritten stmt) &&
   isContiguous (operandRead 0 stmt) &&
-  isRegisterizeableBelow 4 (operandWritten stmt) &&
+  isRegisterizeableBelow 4 (operandRead 0 stmt) &&
   not (isRegister $ operandRead 0 stmt)
 
 fits_mm256_maskstore_pd stmt =
   opcode stmt == UNPK && allType double stmt &&
   isRegister (operandRead 0 stmt) &&
   isContiguous (operandWritten stmt) &&
-  isRegisterizeableBelow 4 (operandRead 0 stmt) &&
+  isRegisterizeableBelow 4 (operandWritten stmt) &&
   not (isRegister $ operandWritten stmt)
 
 fits_mm256_setzero_pd stmt =
   opcode stmt == ZERO && allType double stmt &&
   isRegister (operandWritten stmt) &&
-  (isRegisterizeableBelow 4 (operandWritten stmt) || isRegisterizeable 4 (operandWritten stmt))
+  isRegisterizeable 4 (operandWritten stmt)
 
 fits_accum4 stmt =
   opcode stmt == ACCU && allType double stmt &&
   isRegister (operandWritten stmt) && isRegister (operandRead 1 stmt) &&
-  isRegisterizeable 1 (operandWritten stmt) && isRegisterizeable 4 (operandRead 1 stmt)
+  allInRegister stmt && allVectorEQ 4 stmt
 
-fits_accumBelow4 stmt =
+{-fits_accumBelow4 stmt =
   opcode stmt == ACCU && allType double stmt &&
   isRegister (operandWritten stmt) && isRegister (operandRead 1 stmt) &&
-  isRegisterizeable 1 (operandWritten stmt) && isRegisterizeableBelow 4 (operandRead 1 stmt)
+  isRegisterizeable 1 (operandWritten stmt) && isRegisterizeableBelow 4 (operandRead 1 stmt)-}
 
 fits_rrbroadcast stmt =
   opcode stmt == BRDC && allInRegister stmt &&
@@ -104,7 +107,7 @@ rrbroadcast stmt =
       t1 = cFuncall "_mm256_permute2f128_pd" [t0, t0, cVar "0b00100010"] in
   [cExprSt (cAssign (cVar $ bufferName c) t1) ""]
 
-accumBelow4 stmt =
+{-accumBelow4 stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt
       b = operandRead 1 stmt
@@ -113,7 +116,7 @@ accumBelow4 stmt =
       t5 = cFuncall "_mm256_permute4x64_pd" [t4, cVar "0b11011000"]
       t6 = cFuncall "_mm256_hadd_pd" [t5, cFuncall "_mm256_setzero_pd" []]
       t7 = cFuncall "_mm256_add_pd" [t6, cVar $ bufferName a] in
-  [cExprSt (cAssign (cVar $ bufferName c) t7) ""]  
+  [cExprSt (cAssign (cVar $ bufferName c) t7) ""]  -}
   
 accum4 stmt =
   let c = operandWritten stmt
@@ -144,5 +147,4 @@ avxInstructions =
    (fits_mm256_maskstore_pd, \stmt -> fc "_mm256_maskstore_pd" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]),
    (fits_accum4, \stmt -> accum4 stmt),
    (fits_rrbroadcast, \stmt -> rrbroadcast stmt),
-   (fits_accumBelow4, \stmt -> accumBelow4 stmt),
    (fits_assign, \stmt -> [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""])]

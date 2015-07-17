@@ -4,7 +4,8 @@ module CBackEnd.CodeGeneration.Common(loopToCStmts,
                                       bufferInfoList, firstToMatch,
                                       fc, afc, regWName, matRExpr, regName,
                                       allInRegister, allType, regFuncall,
-                                      allVectorLEQ, matWExpr) where
+                                      allVectorEQ,
+                                      matWExpr) where
 
 import Data.List as L
 
@@ -75,8 +76,8 @@ afc lname fname args = [cExprSt (cAssign (cVar lname) (cFuncall fname args)) ""]
 
 allInRegister stmt = L.all isRegister $ allOperands stmt
 
-allVectorLEQ n stmt =
-  (L.all (\m -> isVector m || isScalar m) $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) <= n) $ allOperands stmt)
+--allVectorLEQ n stmt =
+--  (L.all (\m -> isVector m || isScalar m) $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) <= n) $ allOperands stmt)
 
 allVectorEQ n stmt =
   (L.all isVector $ allOperands stmt) && (L.all (\m -> max (constVal $ numRows m) (constVal $ numCols m) == n) $ allOperands stmt)

@@ -77,17 +77,17 @@ freshRegName = do
 
 packSymmetric op u stmt =
   do
-    r1 <- toRegister u $ operandRead 0 stmt
-    r2 <- toRegister u $ operandRead 1 stmt
-    r3 <- toRegister u $ operandWritten stmt
+    r1 <- packToRegister u $ operandRead 0 stmt
+    r2 <- packToRegister u $ operandRead 1 stmt
+    r3 <- packToRegister u $ operandWritten stmt
     return [matrixPack r1 (operandRead 0 stmt), matrixPack r2 (operandRead 1 stmt), op r3 r1 r2, matrixUnpack (operandWritten stmt) r3]
 
-toRegister u m =
+packToRegister u m =
   case isRegister m of
     True -> return m
     False -> do
       rName <- freshRegName
-      return $ duplicateInRegister u rName m
+      return $ packInRegister u rName m
   
 packMAdd u stmt =
   packSymmetric matrixAdd u stmt
@@ -103,54 +103,44 @@ packMMul u stmt =
       a = operandRead 0 stmt
       b = operandRead 1 stmt in
   do
-    r1Name <- freshRegName
-    r2Name <- freshRegName
-    r3Name <- freshRegName
-    let r1 = duplicateInRegister u r1Name a
-        r2 = duplicateInRegister u r2Name b
-        r3 = duplicateInRegister u r3Name c in
-      return [matrixPack r1 a,
-              matrixPack r2 b,
-              matrixPack r3 c,
-              matrixMultiply r3 r1 r2,
-              matrixUnpack c r3]
+    r1 <- packToRegister u a
+    r2 <- packToRegister u b
+    r3 <- packToRegister u c
+    return [matrixPack r1 a,
+            matrixPack r2 b,
+            matrixPack r3 c,
+            matrixMultiply r3 r1 r2,
+            matrixUnpack c r3]
 
 packACCU u stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt
       b = operandRead 1 stmt in
   do
-    r1Name <- freshRegName
-    r2Name <- freshRegName
-    r3Name <- freshRegName
-    let r1 = duplicateInRegister u r1Name a
-        r2 = duplicateInRegister u r2Name b
-        r3 = duplicateInRegister u r3Name c in
-      return [matrixPack r1 a,
-              matrixPack r2 b,
-              matrixPack r3 c,
-              accumulate r3 r1 r2,
-              matrixUnpack c r3]
+    r1 <- packToRegister u a
+    r2 <- packToRegister u b
+    r3 <- packToRegister u c
+    return [matrixPack r1 a,
+            matrixPack r2 b,
+            matrixPack r3 c,
+            accumulate r3 r1 r2,
+            matrixUnpack c r3]
 
 packTrans u stmt =
   let a = operandWritten stmt
       b = operandRead 0 stmt in
   do
-    r1Name <- freshRegName
-    let r1 = duplicateInRegister u r1Name b in
-      return [matrixPack r1 b, matrixUnpack a r1]
+    r1 <- packToRegister u b
+    return [matrixPack r1 b, matrixUnpack a r1]
 
 packZERO u stmt =
-  let a = operandWritten stmt in
   do
-    r1Name <- freshRegName
-    let r = duplicateInRegister u r1Name a in
-      return [setZero r, matrixUnpack a r]
+    r <- packToRegister u $ operandWritten stmt
+    return [setZero r, matrixUnpack (operandWritten stmt) r]
 
 packBRDC u stmt =
   let a = operandWritten stmt
       b = operandRead 0 stmt in
   do
-    r1Name <- freshRegName
-    let r1 = duplicateInRegister u r1Name a in
-      return [broadcast r1 b, matrixUnpack a r1]
+    r <- packToRegister u $ a
+    return [broadcast r b, matrixUnpack a r]

@@ -32,14 +32,14 @@ toAVXIntrinsic stmt =
   firstToMatch avxInstructions stmt
 
 fits_mm256_add_ps stmt =
-  opcode stmt == EADD && allInRegister stmt && allVectorLEQ 8 stmt && allType single stmt
+  opcode stmt == EADD && allInRegister stmt && allVectorEQ 8 stmt && allType single stmt
 
 fits_mm256_mul_ps stmt =
-  opcode stmt == EMUL && allInRegister stmt && allVectorLEQ 8 stmt && allType single stmt
+  opcode stmt == EMUL && allInRegister stmt && allVectorEQ 8 stmt && allType single stmt
 
 fits_mm256_fmadd_ps stmt =
   opcode stmt == MMUL && allInRegister stmt &&
-  allVectorLEQ 8 stmt && allType single stmt &&
+  allVectorEQ 8 stmt && allType single stmt &&
   isScalar (operandWritten stmt)
 
 fits_mm256_broadcast_ss stmt =
@@ -55,12 +55,14 @@ fits_mm256_loadu_ps stmt =
   isContiguous (operandRead 0 stmt) &&
   isRegister (operandWritten stmt) &&
   isRegisterizeable 8 (operandWritten stmt) &&
+  isRegisterizeable 8 (operandRead 0 stmt) &&
   not (isRegister $ operandRead 0 stmt)
 
 fits_mm256_storeu_ps stmt =
   opcode stmt == UNPK && allType single stmt &&
   isRegister (operandRead 0 stmt) &&
   isContiguous (operandWritten stmt) &&
+  isRegisterizeable 8 (operandWritten stmt) &&
   isRegisterizeable 8 (operandRead 0 stmt) &&
   not (isRegister $ operandWritten stmt)
 
@@ -68,14 +70,14 @@ fits_mm256_maskload_ps stmt =
   opcode stmt == PACK && allType single stmt &&
   isRegister (operandWritten stmt) &&
   isContiguous (operandRead 0 stmt) &&
-  isRegisterizeableBelow 8 (operandWritten stmt) &&
+  isRegisterizeableBelow 8 (operandRead 0 stmt) &&
   not (isRegister $ operandRead 0 stmt)
 
 fits_mm256_maskstore_ps stmt =
   opcode stmt == UNPK && allType single stmt &&
   isRegister (operandRead 0 stmt) &&
   isContiguous (operandWritten stmt) &&
-  isRegisterizeableBelow 8 (operandRead 0 stmt) &&
+  isRegisterizeableBelow 8 (operandWritten stmt) &&
   not (isRegister $ operandWritten stmt)
 
 fits_mm256_setzero_ps stmt =
