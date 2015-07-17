@@ -16,18 +16,22 @@ import Transformations.InterchangeAndFuse
 import Transformations.LoopInvariantCodeMotion
 import Transformations.RegisterizeTemps
 import Transformations.IntroducePacking
+import Transformations.ScalarMMULToFMA
 import Transformations.SMulToBroadcast
 import Transformations.SplitTemps
 import Transformations.StatementInterchange
 
 lvl1Opts n =
-  (registerization n) ++ (tempReduction n) ++ (blockAndFuseLvl1 n)
+  (registerization n) ++ (tempReduction n) ++ cleanup ++ (blockAndFuseLvl1 n)
 
 registerization n =
   [pullCodeOutOfLoops, deleteRedundantAssignments, registerizeTemps n, pack n "r_"]
 
 tempReduction n =
-  [compactTemps, splitTemps "t_", smulToBroadcast "sm"]
+  [compactTemps, splitTemps "t_"]
+
+cleanup =
+  [smulToBroadcast "sm", scalarMMULToFMA "fma"]
 
 blockAndFuseLvl1 n =
   interchangeAndFuse:(blockDot n "d_"):interchangeAndFuse:(L.intersperse interchangeAndFuse (blockingOptimizationsLVL1 n))

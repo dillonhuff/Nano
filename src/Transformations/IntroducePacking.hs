@@ -45,9 +45,13 @@ isPackableSMUL u stmt =
 isPackableTRAN u stmt =
   isPackable u stmt
 
-isPackableMMUL u stmt =
+{-isPackableMMUL u stmt =
   isPackable u stmt &&
-  isScalar (operandWritten stmt)
+  isScalar (operandWritten stmt)-}
+
+isPackableFMA u stmt =
+  opcode stmt == FMA &&
+  isPackable u stmt
 
 isPackableMSET u stmt =
   isPackable u stmt
@@ -62,13 +66,15 @@ packStmt i stmt =
     EADD -> if isPackableEADD i stmt then packMAdd u stmt else return [stmt]
     SMUL -> if isPackableSMUL i stmt then packSMul u stmt else return [stmt]
     TRAN -> if isPackableTRAN i stmt then packTrans u stmt else return [stmt]
-    MMUL -> if isPackableMMUL i stmt then packMMul u stmt else return [stmt]
+    FMA -> if isPackableFMA i stmt then packFMA u stmt else return [stmt]
     MSET -> if isPackableMSET i stmt then packTrans u stmt else return [stmt]
     EMUL -> if isPackableEMUL i stmt then packEMUL u stmt else return [stmt]
     BRDC -> if isPackableBRDC i stmt then packBRDC u stmt else return [stmt]
     ZERO -> if isPackableZERO i stmt then packZERO u stmt else return [stmt]
     ACCU -> if isPackableACCU i stmt then packACCU u stmt else return [stmt]
     _ -> error $ "packStmt: Unsupported operation " ++ show stmt
+
+--    MMUL -> if isPackableMMUL i stmt then packMMul u stmt else return [stmt]
 
 freshRegName :: State (String, Int) String
 freshRegName = do
@@ -81,7 +87,10 @@ packSymmetric op u stmt =
     r1 <- packToRegister u $ operandRead 0 stmt
     r2 <- packToRegister u $ operandRead 1 stmt
     r3 <- packToRegister u $ operandWritten stmt
-    return [matrixPack r1 (operandRead 0 stmt), matrixPack r2 (operandRead 1 stmt), op r3 r1 r2, matrixUnpack (operandWritten stmt) r3]
+    return [matrixPack r1 (operandRead 0 stmt),
+            matrixPack r2 (operandRead 1 stmt),
+            op r3 r1 r2,
+            matrixUnpack (operandWritten stmt) r3]
 
 packToRegister u m =
   case isRegister m of
@@ -99,7 +108,7 @@ packEMUL u stmt =
 packSMul u stmt =
   packSymmetric scalarMultiply u stmt
 
-packMMul u stmt =
+{-packMMul u stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt
       b = operandRead 1 stmt in
@@ -111,6 +120,20 @@ packMMul u stmt =
             matrixPack r2 b,
             matrixPack r3 c,
             matrixMultiply r3 r1 r2,
+            matrixUnpack c r3]-}
+
+packFMA u stmt =
+  let c = operandWritten stmt
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt in
+  do
+    r1 <- packToRegister u a
+    r2 <- packToRegister u b
+    r3 <- packToRegister u c
+    return [matrixPack r1 a,
+            matrixPack r2 b,
+            matrixPack r3 c,
+            fusedMultiplyAdd r3 r1 r2,
             matrixUnpack c r3]
 
 packACCU u stmt =

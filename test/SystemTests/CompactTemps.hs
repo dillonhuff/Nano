@@ -3,19 +3,21 @@ module SystemTests.CompactTemps(allCompactTempsTests) where
 import Data.List as L
 import Test.HUnit
 
-import Transformations.Blocking
+
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Scalar
-import Transformations.CompactTemps
-import Dummies
-import Transformations.Fusion
-import Fuzz
 import Core.IndexExpression
-import Transformations.IntroducePacking
 import Core.Statement
+import Dummies
+import Fuzz
 import TestUtils
+import Transformations.Blocking
+import Transformations.CompactTemps
+import Transformations.Fusion
+import Transformations.IntroducePacking
+import Transformations.ScalarMMULToFMA
 
-allCompactTempsTests = TestLabel "All scalarization system tests" $
+allCompactTempsTests = TestLabel "allCompactTempsTests" $
                       TestList $ compactTests
 
 compactTests =
@@ -26,6 +28,6 @@ compactTests =
    ltc "scalar multiply then matrix multiply" scalarVarDecls stmtsToScalarC compactMMulOpts [scalarMultiply tr9c9 alpha a, matrixMultiply c tr9c9 b],
    ltc "matrix transpose then matrix add" scalarVarDecls stmtsToScalarC compactTransOpts [matrixTranspose tr9c9 a, matrixAdd c b tr9c9]]
 
-compactTempsOpts = (pack 1 "r_"):compactTemps:preprocessingOpts
-compactMMulOpts = (pack 1 "r_"):compactTemps:preprocessMMulOpts
-compactTransOpts = (pack 1 "r_"):compactTemps:fuseInnerLoops:preprocessTransOpts
+compactTempsOpts = (pack 1 "r_"):(scalarMMULToFMA "fma"):compactTemps:preprocessingOpts
+compactMMulOpts = (pack 1 "r_"):(scalarMMULToFMA "fma"):compactTemps:preprocessMMulOpts
+compactTransOpts = (pack 1 "r_"):(scalarMMULToFMA "fma"):compactTemps:fuseInnerLoops:preprocessTransOpts

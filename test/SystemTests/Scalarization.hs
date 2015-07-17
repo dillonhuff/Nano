@@ -3,19 +3,20 @@ module SystemTests.Scalarization(allScalarizationTests) where
 import Data.List as L
 import Test.HUnit
 
-import Transformations.Blocking
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Scalar
+import Core.IndexExpression
+import Core.Statement
 import Dummies
 import Fuzz
-import Core.IndexExpression
+import Transformations.Blocking
 import Transformations.IntroducePacking
-import Core.Statement
+import Transformations.ScalarMMULToFMA
 
 allScalarizationTests = TestLabel "All scalarization system tests" $
                       TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls stmtsToScalarC scalarizationOpts op) compoundTestOperations
 
-scalarizationOpts = (pack 1 "r_"):blockingOpts
+scalarizationOpts = (pack 1 "r_"):(scalarMMULToFMA "fma"):blockingOpts
 
 blockingOpts = 
   L.map (\t -> expandStatementsBU t)

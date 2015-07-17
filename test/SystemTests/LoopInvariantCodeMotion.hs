@@ -2,18 +2,19 @@ module SystemTests.LoopInvariantCodeMotion(allLoopInvariantCodeMotionTests) wher
 
 import Test.HUnit
 
-import Transformations.Blocking
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Scalar
-import Transformations.CompactTemps
-import Dummies
-import Transformations.Fusion
-import Fuzz
 import Core.IndexExpression
+import Core.Statement
+import Dummies
+import Fuzz
+import TestUtils
+import Transformations.Blocking
+import Transformations.CompactTemps
+import Transformations.Fusion
 import Transformations.LoopInvariantCodeMotion
 import Transformations.IntroducePacking
-import Core.Statement
-import TestUtils
+import Transformations.ScalarMMULToFMA
 
 allLoopInvariantCodeMotionTests =
   TestLabel "All loop invariant code motion system tests" $
@@ -28,5 +29,5 @@ licmTests =
    ltc "scalar multiply then matrix multiply" scalarVarDecls stmtsToScalarC licmMMulOpts [scalarMultiply tr9c9 alpha a, matrixMultiply c tr9c9 b],
    ltc "dotmul" scalarVarDecls stmtsToScalarC licmMMulOpts [matrixMultiply alpha p x, scalarMultiply y alpha y]]
 
-licmTempsOpts = pullCodeOutOfLoops:(pack 1 "r_"):compactTemps:preprocessingOpts
-licmMMulOpts = pullCodeOutOfLoops:(pack 1 "r_"):compactTemps:preprocessMMulOpts
+licmTempsOpts = pullCodeOutOfLoops:(pack 1 "r_"):compactTemps:(scalarMMULToFMA "fma"):preprocessingOpts
+licmMMulOpts = pullCodeOutOfLoops:(pack 1 "r_"):compactTemps:(scalarMMULToFMA "fma"):preprocessMMulOpts

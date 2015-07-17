@@ -19,7 +19,7 @@ toScalarC stmt =
       True -> scalarMAddToC stmt
       False -> case isScalarMultiply stmt of
         True -> scalarSMulToC stmt
-        False -> case isMatrixMultiply stmt of
+        False -> case isMatrixMultiply stmt || opcode stmt == FMA of
           True -> scalarMMulToC stmt
           False -> case isMatrixTranspose stmt || isMatrixSet stmt || opcode stmt == PACK || opcode stmt == UNPK of
             True -> scalarMSetToC stmt

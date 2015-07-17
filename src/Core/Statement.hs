@@ -1,6 +1,6 @@
 module Core.Statement(Statement,
                  matrixMultiply, matrixTranspose, matrixAdd, loop, scalarMultiply, matrixSet,
-                 matrixPack, matrixUnpack,
+                 matrixPack, matrixUnpack, fusedMultiplyAdd,
                  broadcast, elemWiseMultiply, setZero, accumulate,
                  isMatrixAdd, isMatrixTranspose, isMatrixMultiply, isLoop, isScalarMultiply, isMatrixSet,
                  loopStart, loopEnd, loopInc, loopInductionVariable, loopBody, opcode,
@@ -26,11 +26,10 @@ data Statement
     deriving (Eq, Ord)
 
 instance Show Statement where
---  show (Instr MSET a [b]) = "\n" ++ show a ++ " = " ++ show b
---  show (Instr EADD c [a, b]) = "\n" ++ show c ++ " = " ++ show a ++ " + " ++ show b
   show (Instr other w args) = "\n" ++ show other ++ " " ++ show w ++ " " ++ show args
   show (Loop v s b e body) = "for " ++ v ++ " " ++ show s ++ ":" ++ show b ++ ":" ++ show e ++ " " ++ (L.concatMap show body) ++ "\nend"
 
+fusedMultiplyAdd c a b = Instr FMA c [a, b, c]
 accumulate c a b = Instr ACCU c [a, b]
 setZero a = Instr ZERO a []
 broadcast a b = Instr BRDC a [b]
@@ -139,4 +138,5 @@ data OpCode
   | ACCU
   | PACK
   | UNPK
+  | FMA
     deriving (Eq, Ord, Show)

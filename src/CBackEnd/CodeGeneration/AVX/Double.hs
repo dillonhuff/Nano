@@ -38,7 +38,7 @@ fits_mm256_mul_pd stmt =
   opcode stmt == EMUL && allInRegister stmt && allVectorEQ 4 stmt && allType double stmt
 
 fits_mm256_fmadd_pd stmt =
-  opcode stmt == MMUL && allInRegister stmt &&
+  opcode stmt == FMA && allInRegister stmt &&
   allVectorEQ 4 stmt && allType double stmt
 
 fits_mm256_broadcast_sd stmt =
@@ -130,7 +130,6 @@ accum4 stmt =
 mask n =
   cFuncall "_mm256_set_epi32" $ maskArgs n
 
--- Also datatype depenent
 maskArgs n =
   (L.replicate (2*(4 - n)) (cIntLit 0)) ++ (L.replicate (2*n) (cIntLit (-1)))
 
