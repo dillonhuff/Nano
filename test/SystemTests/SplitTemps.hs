@@ -4,7 +4,7 @@ import Data.List as L
 import Test.HUnit
 
 import Transformations.Blocking
-import CBackEnd.CodeGeneration.AVX.Double
+import CBackEnd.CodeGeneration.AVX.Common
 import Transformations.CompactTemps
 import Dummies
 import Transformations.InterchangeAndFuse
@@ -25,9 +25,9 @@ allSplitTempsTests =
   TestList renameTempsCases
 
 renameTempsCases =
-  [ltc "daxpy 19" avxVarDeclsDouble stmtsToAVXDouble avxOptsDAXPY (daxpy 19),
-   ltc "smul add" avxVarDeclsDouble stmtsToAVXDouble avxOptsSMulAdd [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1],
-   ltc "fused smul add" avxVarDeclsDouble stmtsToAVXDouble avxOptsSMulAddFuse [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1]]
+  [ltc "daxpy 19" avxVarDecls stmtsToAVX avxOptsDAXPY (daxpy 19),
+   ltc "smul add" avxVarDecls stmtsToAVX avxOptsSMulAdd [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1],
+   ltc "fused smul add" avxVarDecls stmtsToAVX avxOptsSMulAddFuse [scalarMultiply tr9c9 alpha m3, matrixAdd m1 tr9c9 m1]]
 
 avxOptsSMulAddFuse =
   (registerizeTemps 4):

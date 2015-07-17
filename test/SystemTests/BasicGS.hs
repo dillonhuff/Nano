@@ -3,7 +3,7 @@ module SystemTests.BasicGS(allBasicGSTests) where
 import Data.List as L
 import Test.HUnit
 
-import CBackEnd.CodeGeneration.AVX.Double
+import CBackEnd.CodeGeneration.AVX.Common
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.CodeGeneration.Function
 import CBackEnd.CodeGeneration.Scalar
@@ -22,14 +22,14 @@ allBasicGSTests =
   TestList $ L.map TestCase
   [assertOptimizationsCorrectGS scalarVarDecls stmtsToCFunctions [] (dscal (iVar "m")),
    assertOptimizationsCorrectGS scalarVarDecls stmtsToScalarC blockingT (dscal (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (lvl1Opts 4) (dvadd (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (lvl1Opts 4) (dvadd2 (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (lvl1Opts 4) (dscal (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble (lvl1Opts 4) (daxpy (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dmaddRM (iVar "m") (iVar "n")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dgemvRM (iVar "m") (iVar "n")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dmmulRM (iVar "m") (iVar "n") (iVar "p")),
-   assertOptimizationsCorrectGS avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dmaddSetRM (iVar "m") (iVar "m"))]
+   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX (lvl1Opts 4) (dvadd (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX (lvl1Opts 4) (dvadd2 (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX (lvl1Opts 4) (dscal (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX (lvl1Opts 4) (daxpy (iVar "m")),
+   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX lv2Opts (dmaddRM (iVar "m") (iVar "n")),
+   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX lv2Opts (dgemvRM (iVar "m") (iVar "n")),
+   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX lv2Opts (dmmulRM (iVar "m") (iVar "n") (iVar "p")),
+   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX lv2Opts (dmaddSetRM (iVar "m") (iVar "m"))]
 
 lv2Opts = (lvl1Opts 4) ++ [partitionSearch "b_"]
 

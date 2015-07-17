@@ -6,7 +6,7 @@ import Data.List as L
 import Test.HUnit
 
 import Transformations.Blocking
-import CBackEnd.CodeGeneration.AVX.Double
+import CBackEnd.CodeGeneration.AVX.Common
 import Dummies
 import Fuzz
 import Operations
@@ -21,20 +21,20 @@ allLv2BlockingSearchTests =
 
 lv2BlockingCasesRowStride =
   TestLabel "Row stride" $ TestList $
-  [ltc "row major matrix add" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixAdd m1 m2 m3],
-   ltc "row major matrix add with residual" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixAdd n1 n2 n3],
-   ltc "row major matrix add twice" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixAdd t1 m1 m2, matrixAdd m3 t1 t1],
-   ltc "row major matrix add twice with residual" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixAdd lt1 l1 l2, matrixAdd l3 lt1 l2],
-   ltc "scalar matrix multiply" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [scalarMultiply m1 alpha m1],
-   ltc "scalar matrix multiply with residual" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [scalarMultiply k1 alpha k2],
-   ltc "smul then add" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [scalarMultiply kt1 alpha k2, matrixAdd k3 k2 kt1],
-   ltc "dot product then smul with residual" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1 alpha k1],
-   ltc "mvmul" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixMultiply y1 m1 yc1],
-   ltc "gemv" avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dgemvRM 18 9),
-   ltc "blinf" avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dblinfRM 24 24),
-   ltc "dbigemv" avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dbigemvRM 8 8),
-   ltc "dgemm" avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dgemmRM 15 17 22),
-   ltc "dgemmsum" avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dgemmsumRM 3 16 9)]
+  [ltc "row major matrix add" avxVarDecls stmtsToAVX lv2Opts [matrixAdd m1 m2 m3],
+   ltc "row major matrix add with residual" avxVarDecls stmtsToAVX lv2Opts [matrixAdd n1 n2 n3],
+   ltc "row major matrix add twice" avxVarDecls stmtsToAVX lv2Opts [matrixAdd t1 m1 m2, matrixAdd m3 t1 t1],
+   ltc "row major matrix add twice with residual" avxVarDecls stmtsToAVX lv2Opts [matrixAdd lt1 l1 l2, matrixAdd l3 lt1 l2],
+   ltc "scalar matrix multiply" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply m1 alpha m1],
+   ltc "scalar matrix multiply with residual" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply k1 alpha k2],
+   ltc "smul then add" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply kt1 alpha k2, matrixAdd k3 k2 kt1],
+   ltc "dot product then smul with residual" avxVarDecls stmtsToAVX lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1 alpha k1],
+   ltc "mvmul" avxVarDecls stmtsToAVX lv2Opts [matrixMultiply y1 m1 yc1],
+   ltc "gemv" avxVarDecls stmtsToAVX lv2Opts (dgemvRM 18 9),
+   ltc "blinf" avxVarDecls stmtsToAVX lv2Opts (dblinfRM 24 24),
+   ltc "dbigemv" avxVarDecls stmtsToAVX lv2Opts (dbigemvRM 8 8),
+   ltc "dgemm" avxVarDecls stmtsToAVX lv2Opts (dgemmRM 15 17 22),
+   ltc "dgemmsum" avxVarDecls stmtsToAVX lv2Opts (dgemmsumRM 3 16 9)]
 
 m1 = constDblMat "M1" 8 8 8 1
 m2 = constDblMat "M2" 8 8 8 1
@@ -68,16 +68,16 @@ yu1 = constDblMat "y" 11 1 1 1
 
 lv2BlockingCasesColStride =
   TestLabel "Column stride" $ TestList $
-  [ltc "row major matrix add" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixAdd m1_cs m2_cs m3_cs],
-   ltc "row major matrix add with residual" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixAdd n1_cs n2_cs n3_cs],
-   ltc "row major matrix add twice" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixAdd t1_cs m1_cs m2_cs, matrixAdd m3_cs t1_cs t1_cs],
-   ltc "row major matrix add twice with residual" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixAdd lt1_cs l1_cs l2_cs, matrixAdd l3_cs lt1_cs l2_cs],
-   ltc "scalar matrix multiply" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [scalarMultiply m1_cs alpha m1_cs],
-   ltc "scalar matrix multiply with residual" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [scalarMultiply k1_cs alpha k2_cs],
-   ltc "smul then add" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [scalarMultiply kt1_cs alpha k2_cs, matrixAdd k3_cs k2_cs kt1_cs],
-   ltc "dot product then smul with residual" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1_cs alpha k1_cs],
-   ltc "mvmul" avxVarDeclsDouble stmtsToAVXDouble lv2Opts [matrixMultiply y1 m1_cs yc1],
-   ltc "dgemv" avxVarDeclsDouble stmtsToAVXDouble lv2Opts (dgemvCM 4 15)]
+  [ltc "row major matrix add" avxVarDecls stmtsToAVX lv2Opts [matrixAdd m1_cs m2_cs m3_cs],
+   ltc "row major matrix add with residual" avxVarDecls stmtsToAVX lv2Opts [matrixAdd n1_cs n2_cs n3_cs],
+   ltc "row major matrix add twice" avxVarDecls stmtsToAVX lv2Opts [matrixAdd t1_cs m1_cs m2_cs, matrixAdd m3_cs t1_cs t1_cs],
+   ltc "row major matrix add twice with residual" avxVarDecls stmtsToAVX lv2Opts [matrixAdd lt1_cs l1_cs l2_cs, matrixAdd l3_cs lt1_cs l2_cs],
+   ltc "scalar matrix multiply" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply m1_cs alpha m1_cs],
+   ltc "scalar matrix multiply with residual" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply k1_cs alpha k2_cs],
+   ltc "smul then add" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply kt1_cs alpha k2_cs, matrixAdd k3_cs k2_cs kt1_cs],
+   ltc "dot product then smul with residual" avxVarDecls stmtsToAVX lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1_cs alpha k1_cs],
+   ltc "mvmul" avxVarDecls stmtsToAVX lv2Opts [matrixMultiply y1 m1_cs yc1],
+   ltc "dgemv" avxVarDecls stmtsToAVX lv2Opts (dgemvCM 4 15)]
 
 lv2Opts = (lvl1Opts 4) ++ [partitionSearch "b_"]
 
