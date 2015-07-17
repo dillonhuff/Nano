@@ -1,5 +1,7 @@
-module CBackEnd.CodeGeneration.AVX.Common(avxSingleInstructions,
-                                          avxDoubleInstructions) where
+module CBackEnd.CodeGeneration.AVX.Common(avxInstructions,
+                                          avxSingleInstructions,
+                                          avxDoubleInstructions,
+                                          avxVarDecls) where
 
 import Data.List as L
 
@@ -10,6 +12,16 @@ import CBackEnd.Utils
 import Core.IndexExpression
 import Core.Matrix
 import Core.Statement
+
+avxVarDecls stmts = decls
+  where
+    iVarDecls = inductionVariableDecls stmts
+    bufInfo = bufferInfoList stmts
+    tempBufInfo = L.filter (\info -> bufScope info == local) bufInfo
+    tempBufferDecls = bufDecls $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
+    regs = L.filter (\info -> not $ isCPtr $ bufType info) tempBufInfo
+    regDecls = L.map (\info -> (cM256dReg, bufName info)) regs
+    decls = iVarDecls ++ regDecls ++ tempBufferDecls
 
 fits_mm256_add len tp stmt =
   opcode stmt == EADD && allInRegister stmt && allVectorEQ len stmt && allType tp stmt
@@ -103,6 +115,8 @@ accum4 stmt =
       t7 = cFuncall "_mm256_add_pd" [t6, cVar $ bufferName a] in
   [cExprSt (cAssign (cVar $ bufferName c) t7) ""]
 
+avxInstructions = avxSingleInstructions ++ avxDoubleInstructions
+
 avxSingleInstructions =
   [(fits_mm256_add 8 single, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_ps" stmt)) ""]),
    (fits_mm256_mul 8 single, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_ps" stmt)) ""]),
@@ -128,4 +142,3 @@ avxDoubleInstructions =
    (fits_accum4, \stmt -> accum4 stmt),
    (fits_rrbroadcast, \stmt -> rrbroadcast stmt),
    (fits_assign, \stmt -> [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""])]
-
