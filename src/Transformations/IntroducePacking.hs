@@ -20,8 +20,6 @@ tryToPack u stmt =
     True -> return [stmt]
     False -> if allOperandsInMemory stmt then packStmt u stmt else error $ "tryToPack: " ++ show stmt
 
--- This is a hack. Registerization really check packability on an operation
--- by operation basis
 isPackable u stmt =
   isScalarOpBelow u stmt || isScalarOp u stmt
 
