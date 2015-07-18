@@ -45,10 +45,6 @@ isPackableSMUL u stmt =
 isPackableTRAN u stmt =
   isPackable u stmt
 
-{-isPackableMMUL u stmt =
-  isPackable u stmt &&
-  isScalar (operandWritten stmt)-}
-
 isPackableFMA u stmt =
   opcode stmt == FMA &&
   isPackable u stmt
@@ -74,31 +70,6 @@ packStmt i stmt =
     ACCU -> if isPackableACCU i stmt then packACCU u stmt else return [stmt]
     _ -> error $ "packStmt: Unsupported operation " ++ show stmt
 
---    MMUL -> if isPackableMMUL i stmt then packMMul u stmt else return [stmt]
-
-freshRegName :: State (String, Int) String
-freshRegName = do
-  (prefix, i) <- get
-  put $ (prefix, i + 1)
-  return $ prefix ++ show i
-
-packSymmetric op u stmt =
-  do
-    r1 <- packToRegister u $ operandRead 0 stmt
-    r2 <- packToRegister u $ operandRead 1 stmt
-    r3 <- packToRegister u $ operandWritten stmt
-    return [matrixPack r1 (operandRead 0 stmt),
-            matrixPack r2 (operandRead 1 stmt),
-            op r3 r1 r2,
-            matrixUnpack (operandWritten stmt) r3]
-
-packToRegister u m =
-  case isRegister m of
-    True -> return m
-    False -> do
-      rName <- freshRegName
-      return $ packInRegister u rName m
-  
 packMAdd u stmt =
   packSymmetric matrixAdd u stmt
 
@@ -108,47 +79,9 @@ packEMUL u stmt =
 packSMul u stmt =
   packSymmetric scalarMultiply u stmt
 
-{-packMMul u stmt =
-  let c = operandWritten stmt
-      a = operandRead 0 stmt
-      b = operandRead 1 stmt in
-  do
-    r1 <- packToRegister u a
-    r2 <- packToRegister u b
-    r3 <- packToRegister u c
-    return [matrixPack r1 a,
-            matrixPack r2 b,
-            matrixPack r3 c,
-            matrixMultiply r3 r1 r2,
-            matrixUnpack c r3]-}
+packFMA u stmt = packTripleOp fusedMultiplyAdd u stmt
 
-packFMA u stmt =
-  let c = operandWritten stmt
-      a = operandRead 0 stmt
-      b = operandRead 1 stmt in
-  do
-    r1 <- packToRegister u a
-    r2 <- packToRegister u b
-    r3 <- packToRegister u c
-    return [matrixPack r1 a,
-            matrixPack r2 b,
-            matrixPack r3 c,
-            fusedMultiplyAdd r3 r1 r2,
-            matrixUnpack c r3]
-
-packACCU u stmt =
-  let c = operandWritten stmt
-      a = operandRead 0 stmt
-      b = operandRead 1 stmt in
-  do
-    r1 <- packToRegister u a
-    r2 <- packToRegister u b
-    r3 <- packToRegister u c
-    return [matrixPack r1 a,
-            matrixPack r2 b,
-            matrixPack r3 c,
-            accumulate r3 r1 r2,
-            matrixUnpack c r3]
+packACCU u stmt = packTripleOp accumulate u stmt
 
 packTrans u stmt =
   let a = operandWritten stmt
@@ -168,3 +101,41 @@ packBRDC u stmt =
   do
     r <- packToRegister u $ a
     return [broadcast r b, matrixUnpack a r]
+
+packSymmetric op u stmt =
+  do
+    r1 <- packToRegister u $ operandRead 0 stmt
+    r2 <- packToRegister u $ operandRead 1 stmt
+    r3 <- packToRegister u $ operandWritten stmt
+    return [matrixPack r1 (operandRead 0 stmt),
+            matrixPack r2 (operandRead 1 stmt),
+            op r3 r1 r2,
+            matrixUnpack (operandWritten stmt) r3]
+
+packTripleOp op u stmt =
+  let c = operandWritten stmt
+      a = operandRead 0 stmt
+      b = operandRead 1 stmt in
+  do
+    r1 <- packToRegister u a
+    r2 <- packToRegister u b
+    r3 <- packToRegister u c
+    return [matrixPack r1 a,
+            matrixPack r2 b,
+            matrixPack r3 c,
+            op r3 r1 r2,
+            matrixUnpack c r3]
+  
+packToRegister u m =
+  case isRegister m of
+    True -> return m
+    False -> do
+      rName <- freshRegName
+      return $ packInRegister u rName m
+  
+freshRegName :: State (String, Int) String
+freshRegName = do
+  (prefix, i) <- get
+  put $ (prefix, i + 1)
+  return $ prefix ++ show i
+
