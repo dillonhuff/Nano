@@ -125,7 +125,7 @@ packTripleOp op u stmt =
             matrixPack r3 c,
             op r3 r1 r2,
             matrixUnpack c r3]
-  
+
 packToRegister u m =
   case isRegister m of
     True -> return m
