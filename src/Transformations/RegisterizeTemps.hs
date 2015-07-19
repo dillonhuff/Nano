@@ -25,9 +25,9 @@ tryToRegisterizeWith u registerizeableCondition m stmts =
 registerizeTempInStmt u m stmt =
   case (opcode stmt == PACK && operandRead 0 stmt == m) || (opcode stmt == UNPK && operandWritten stmt == m) of
     True -> [replacePKUNPKWithSet u m stmt]
-    False -> [applyToOperands (replaceSupermatrix m (mkRegister u m)) stmt]
+    False -> [applyToOperands (replaceSupermatrix m (packInRegister u (bufferName m) m)) stmt]
 
 replacePKUNPKWithSet u m stmt =
-  let newWritten = replaceSupermatrix m (mkRegister u m) (operandWritten stmt)
-      newRead = replaceSupermatrix m (mkRegister u m) (operandRead 0 stmt) in
+  let newWritten = replaceSupermatrix m (packInRegister u (bufferName m) m) (operandWritten stmt)
+      newRead = replaceSupermatrix m (packInRegister u (bufferName m) m) (operandRead 0 stmt) in
   matrixSet newWritten newRead

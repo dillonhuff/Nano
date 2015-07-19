@@ -183,18 +183,18 @@ partitionList _ = []
 setName n (Matrix _ nr nc rs rc p) = Matrix n nr nc rs rc p
 setName n (SubMatrix shp v l m p) = SubMatrix shp v l (setName n m) p
 
-setRegister (Matrix n nr nc rs rc (Properties s t l)) =
-  Matrix n nr nc rs rc (Properties local t register)
-setRegister (SubMatrix shp v l m (Properties s t _)) =
-  SubMatrix shp v l (setRegister m) (Properties local t register)
+setRegister format (Matrix n nr nc rs rc (Properties s t l)) =
+  Matrix n nr nc rs rc (Properties local t $ registerGroup format)
+setRegister format (SubMatrix shp v l m (Properties s t _)) =
+  SubMatrix shp v l (setRegister format m) (Properties local t $ registerGroup format)
 
 setLocal (Matrix n nr nc rs rc (Properties _ t l)) =
   Matrix n nr nc rs rc (Properties local t l)
 setLocal (SubMatrix shp v l m (Properties _ t loc)) =
   SubMatrix shp v l (setLocal m) (Properties local t loc)
 
-isRegister (Matrix _ _ _ _ _ p) = propMemLocation p == register
-isRegister (SubMatrix _ _ _ _ p) = propMemLocation p == register
+isRegister (Matrix _ _ _ _ _ p) = isRegisterGroup $ propMemLocation p
+isRegister (SubMatrix _ _ _ _ p) = isRegisterGroup $ propMemLocation p
 
 partitionedBy i (Matrix _ nr nc rs cs _) =
   containsSubExpr i nr || containsSubExpr i nc || containsSubExpr i rs || containsSubExpr i cs

@@ -31,7 +31,7 @@ fits_mm256_fmadd len tp stmt =
 
 fits_rrbroadcast stmt =
   opcode stmt == BRDC && allInRegister stmt &&
-  isScalar (operandRead 0 stmt) && allType double stmt
+  allType double stmt
 
 fits_accum4 stmt =
   opcode stmt == ACCU && allType double stmt &&
