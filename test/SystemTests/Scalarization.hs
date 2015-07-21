@@ -14,7 +14,7 @@ import Transformations.IntroducePacking
 import Transformations.ScalarMMULToFMA
 
 allScalarizationTests = TestLabel "All scalarization system tests" $
-                      TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls stmtsToScalarC scalarizationOpts op) compoundTestOperations
+                      TestList $ L.map (\op -> TestCase $ assertOptimizationsCorrect stmtsToScalarC scalarizationOpts op) compoundTestOperations
 
 scalarizationOpts = (pack 1 "r_"):(scalarMMULToFMA "fma"):blockingOpts
 

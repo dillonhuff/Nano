@@ -11,24 +11,25 @@ import CBackEnd.Utils
 import Core.Matrix
 import Core.Statement
 
-operationToC :: ([Statement] -> [(CType, String)]) ->
-                ([Statement] -> [CStmt String]) ->
+operationToC :: ([Statement] -> ([(CType, String)], [CStmt String])) ->
                 String ->
                 [Statement] ->
                 (CTopLevelItem String, [BufferInfo])
-operationToC varDeclFunc codeGenFunc funcName stmts =
+operationToC codeGenFunc funcName stmts =
   (cFunction, argInfo) 
   where
-    localVarDecls = varDeclFunc stmts
+    (localVarDecls, body) = codeGenFunc stmts
     bufInfo = bufferInfoList stmts
     argInfo = L.filter (\info -> bufScope info == arg) bufInfo
     argDecls = L.map (\info -> (bufType info, bufName info)) argInfo
-    cFunction = cFuncDecl cVoid funcName argDecls (cBlock localVarDecls $ funcBody codeGenFunc stmts)
+    cFunction = cFuncDecl cVoid funcName argDecls (cBlock localVarDecls $ funcBody body bufInfo)
 
-funcBody codeGenFunc stmts = body
+funcBody :: [CStmt String] ->
+            [BufferInfo] ->
+            [CStmt String]
+funcBody bodyStmts bufInfo = body
   where
-    bufInfo = bufferInfoList stmts
     tempBufInfo = L.filter (\info -> bufScope info == local) bufInfo
     tempBufAllocation = L.map initializeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
     tempBufFreeing = L.map freeBuffer $ L.filter (\info -> isCPtr $ bufType info) tempBufInfo
-    body = tempBufAllocation ++ (codeGenFunc stmts) ++ tempBufFreeing
+    body = tempBufAllocation ++ bodyStmts ++ tempBufFreeing

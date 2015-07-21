@@ -1,8 +1,7 @@
 module CBackEnd.CodeGeneration.AVX.Common(stmtsToAVX,
                                           avxInstructions,
                                           avxSingleInstructions,
-                                          avxDoubleInstructions,
-                                          avxVarDecls) where
+                                          avxDoubleInstructions) where
 
 import Data.List as L
 
@@ -27,7 +26,7 @@ avxVarDecls stmts = decls
     decls = iVarDecls ++ regDecls ++ tempBufferDecls
 
 stmtsToAVX stmts =
-  L.concatMap toAVX stmts
+  (avxVarDecls stmts, L.concatMap toAVX stmts)
 
 toAVX stmt =
   case opcode stmt of

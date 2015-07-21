@@ -25,13 +25,13 @@ allAVXCodeGenTests =
   TestList $ avxTestCases
 
 avxTestCases =
-  [ltc "vector add" avxVarDecls stmtsToAVX avxOpts [matrixAdd x y z],
-   ltc "vector smul" avxVarDecls stmtsToAVX avxOpts [scalarMultiply x alpha x],
-   ltc "daxpy" avxVarDecls stmtsToAVX avxOpts (daxpy 16),
-   ltc "matrix add even" avxVarDecls stmtsToAVX avxOptsSMulAdd [matrixAdd m1 m2 m3],
-   ltc "matrix add uneven" avxVarDecls stmtsToAVX avxOptsSMulAdd [matrixAdd n1 n2 n3],
-   ltc "dot product" avxVarDecls stmtsToAVX avxOptsSMulAdd [matrixMultiply alpha x1 y1],
-   ltc "uneven size dot product" avxVarDecls stmtsToAVX avxOptsSMulAdd [matrixMultiply alpha xu1 yu1]]
+  [ltc "vector add" stmtsToAVX avxOpts [matrixAdd x y z],
+   ltc "vector smul" stmtsToAVX avxOpts [scalarMultiply x alpha x],
+   ltc "daxpy" stmtsToAVX avxOpts (daxpy 16),
+   ltc "matrix add even" stmtsToAVX avxOptsSMulAdd [matrixAdd m1 m2 m3],
+   ltc "matrix add uneven" stmtsToAVX avxOptsSMulAdd [matrixAdd n1 n2 n3],
+   ltc "dot product" stmtsToAVX avxOptsSMulAdd [matrixMultiply alpha x1 y1],
+   ltc "uneven size dot product" stmtsToAVX avxOptsSMulAdd [matrixMultiply alpha xu1 yu1]]
 
 avxOpts = pullCodeOutOfLoops:(registerizeTemps 4):(pack 4 "r_"):(smulToBroadcast "sm"):compactTemps:fuseInnerLoops:avxBlocking
 

@@ -21,20 +21,20 @@ allFltLv2BlockingSearchTests =
 
 fltLv2BlockingCasesRowStride =
   TestLabel "Row stride" $ TestList $
-  [ltc "row major matrix add" avxVarDecls stmtsToAVX lv2Opts [matrixAdd m1 m2 m3],
-   ltc "row major matrix add with residual" avxVarDecls stmtsToAVX lv2Opts [matrixAdd n1 n2 n3],
-   ltc "row major matrix add twice" avxVarDecls stmtsToAVX lv2Opts [matrixAdd t1 m1 m2, matrixAdd m3 t1 t1],
-   ltc "row major matrix add twice with residual" avxVarDecls stmtsToAVX lv2Opts [matrixAdd lt1 l1 l2, matrixAdd l3 lt1 l2],
-   ltc "scalar matrix multiply" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply m1 alpha m1],
-   ltc "scalar matrix multiply with residual" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply k1 alpha k2],
-   ltc "smul then add" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply kt1 alpha k2, matrixAdd k3 k2 kt1],
---   ltc "dot product then smul with residual" avxVarDecls stmtsToAVX lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1 alpha k1],
---   ltc "mvmul" avxVarDecls stmtsToAVX lv2Opts [matrixMultiply y1 m1 yc1],
---   ltc "sgemv" avxVarDecls stmtsToAVX lv2Opts (sgemvRM 18 9),
---   ltc "sblinf" avxVarDecls stmtsToAVX lv2Opts (sblinfRM 24 24),
---   ltc "sbigemv" avxVarDecls stmtsToAVX lv2Opts (sbigemvRM 8 8),
-   ltc "sgemm" avxVarDecls stmtsToAVX lv2Opts (sgemmRM 15 17 22)]
---   ltc "sgemmsum" avxVarDecls stmtsToAVX lv2Opts (sgemmsumRM 3 16 9)]
+  [ltc "row major matrix add" stmtsToAVX lv2Opts [matrixAdd m1 m2 m3],
+   ltc "row major matrix add with residual" stmtsToAVX lv2Opts [matrixAdd n1 n2 n3],
+   ltc "row major matrix add twice" stmtsToAVX lv2Opts [matrixAdd t1 m1 m2, matrixAdd m3 t1 t1],
+   ltc "row major matrix add twice with residual" stmtsToAVX lv2Opts [matrixAdd lt1 l1 l2, matrixAdd l3 lt1 l2],
+   ltc "scalar matrix multiply" stmtsToAVX lv2Opts [scalarMultiply m1 alpha m1],
+   ltc "scalar matrix multiply with residual" stmtsToAVX lv2Opts [scalarMultiply k1 alpha k2],
+   ltc "smul then add" stmtsToAVX lv2Opts [scalarMultiply kt1 alpha k2, matrixAdd k3 k2 kt1],
+--   ltc "dot product then smul with residual" stmtsToAVX lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1 alpha k1],
+--   ltc "mvmul" stmtsToAVX lv2Opts [matrixMultiply y1 m1 yc1],
+--   ltc "sgemv" stmtsToAVX lv2Opts (sgemvRM 18 9),
+--   ltc "sblinf" stmtsToAVX lv2Opts (sblinfRM 24 24),
+--   ltc "sbigemv" stmtsToAVX lv2Opts (sbigemvRM 8 8),
+   ltc "sgemm" stmtsToAVX lv2Opts (sgemmRM 15 17 22)]
+--   ltc "sgemmsum" stmtsToAVX lv2Opts (sgemmsumRM 3 16 9)]
 
 m1 = constFltMat "M1" 8 8 8 1
 m2 = constFltMat "M2" 8 8 8 1
@@ -68,16 +68,16 @@ yu1 = constFltMat "y" 11 1 1 1
 
 fltLv2BlockingCasesColStride =
   TestLabel "Col Stride" $ TestList $
-  [ltc "row major matrix add" avxVarDecls stmtsToAVX lv2Opts [matrixAdd m1_cs m2_cs m3_cs],
-   ltc "row major matrix add with residual" avxVarDecls stmtsToAVX lv2Opts [matrixAdd n1_cs n2_cs n3_cs],
-   ltc "row major matrix add twice" avxVarDecls stmtsToAVX lv2Opts [matrixAdd t1_cs m1_cs m2_cs, matrixAdd m3_cs t1_cs t1_cs],
-   ltc "row major matrix add twice with residual" avxVarDecls stmtsToAVX lv2Opts [matrixAdd lt1_cs l1_cs l2_cs, matrixAdd l3_cs lt1_cs l2_cs],
-   ltc "scalar matrix multiply" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply m1_cs alpha m1_cs],
-   ltc "scalar matrix multiply with residual" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply k1_cs alpha k2_cs],
-   ltc "smul then add" avxVarDecls stmtsToAVX lv2Opts [scalarMultiply kt1_cs alpha k2_cs, matrixAdd k3_cs k2_cs kt1_cs],
---   ltc "dot product then smul with residual" avxVarDecls stmtsToAVX lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1_cs alpha k1_cs],
-   ltc "mvmul" avxVarDecls stmtsToAVX lv2Opts [matrixMultiply y1 m1_cs yc1],
-   ltc "sgemv" avxVarDecls stmtsToAVX lv2Opts (sgemvCM 4 15)]
+  [ltc "row major matrix add" stmtsToAVX lv2Opts [matrixAdd m1_cs m2_cs m3_cs],
+   ltc "row major matrix add with residual" stmtsToAVX lv2Opts [matrixAdd n1_cs n2_cs n3_cs],
+   ltc "row major matrix add twice" stmtsToAVX lv2Opts [matrixAdd t1_cs m1_cs m2_cs, matrixAdd m3_cs t1_cs t1_cs],
+   ltc "row major matrix add twice with residual" stmtsToAVX lv2Opts [matrixAdd lt1_cs l1_cs l2_cs, matrixAdd l3_cs lt1_cs l2_cs],
+   ltc "scalar matrix multiply" stmtsToAVX lv2Opts [scalarMultiply m1_cs alpha m1_cs],
+   ltc "scalar matrix multiply with residual" stmtsToAVX lv2Opts [scalarMultiply k1_cs alpha k2_cs],
+   ltc "smul then add" stmtsToAVX lv2Opts [scalarMultiply kt1_cs alpha k2_cs, matrixAdd k3_cs k2_cs kt1_cs],
+--   ltc "dot product then smul with residual" stmtsToAVX lv2Opts [matrixMultiply alpha x1 y1, scalarMultiply k1_cs alpha k1_cs],
+   ltc "mvmul" stmtsToAVX lv2Opts [matrixMultiply y1 m1_cs yc1],
+   ltc "sgemv" stmtsToAVX lv2Opts (sgemvCM 4 15)]
 
 lv2Opts = (lvl1Opts 8) ++ [partitionSearch "b_"]
 

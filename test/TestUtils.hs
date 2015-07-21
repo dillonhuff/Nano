@@ -4,5 +4,5 @@ import Test.HUnit
 
 import Fuzz
 
-ltc testName varDeclFunc codeGenFunc optimizations operation =
-  TestLabel testName $ TestCase $ assertOptimizationsCorrect varDeclFunc codeGenFunc optimizations operation
+ltc testName codeGenFunc optimizations operation =
+  TestLabel testName $ TestCase $ assertOptimizationsCorrect codeGenFunc optimizations operation

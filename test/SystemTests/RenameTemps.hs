@@ -19,12 +19,12 @@ import Core.Statement
 import TestUtils
 
 registerizeTests =
-  [ltc "matrix add" scalarVarDecls stmtsToScalarC registerizeTempsOpts [matrixAdd a b c],
-   ltc "two matrix adds" scalarVarDecls stmtsToScalarC registerizeTempsOpts [matrixAdd tr9c9 b b, matrixAdd a tr9c9 tr9c9],
-   ltc "second two matrix adds" scalarVarDecls stmtsToScalarC registerizeTempsOpts [matrixAdd tr9c9 a a, matrixAdd a b tr9c9],
-   ltc "scalar multiply then matrix add" scalarVarDecls stmtsToScalarC registerizeTempsOpts [scalarMultiply tr9c9 alpha a, matrixAdd a tr9c9 tr9c9],
-   ltc "scalar multiply then matrix multiply" scalarVarDecls stmtsToScalarC registerizeMMulOpts [scalarMultiply tr9c9 alpha a, matrixMultiply c tr9c9 b],
-   ltc "matrix transpose then matrix multiply" scalarVarDecls stmtsToScalarC registerizeTransOpts [matrixTranspose tr9c9 a, matrixAdd c b tr9c9]]
+  [ltc "matrix add" stmtsToScalarC registerizeTempsOpts [matrixAdd a b c],
+   ltc "two matrix adds" stmtsToScalarC registerizeTempsOpts [matrixAdd tr9c9 b b, matrixAdd a tr9c9 tr9c9],
+   ltc "second two matrix adds" stmtsToScalarC registerizeTempsOpts [matrixAdd tr9c9 a a, matrixAdd a b tr9c9],
+   ltc "scalar multiply then matrix add" stmtsToScalarC registerizeTempsOpts [scalarMultiply tr9c9 alpha a, matrixAdd a tr9c9 tr9c9],
+   ltc "scalar multiply then matrix multiply" stmtsToScalarC registerizeMMulOpts [scalarMultiply tr9c9 alpha a, matrixMultiply c tr9c9 b],
+   ltc "matrix transpose then matrix multiply" stmtsToScalarC registerizeTransOpts [matrixTranspose tr9c9 a, matrixAdd c b tr9c9]]
 
 registerizeTempsOpts = (registerize 1 "r_"):(registerizeTemps 1):compactTemps:preprocessingOpts
 registerizeMMulOpts = (registerize 1 "r_"):(registerizeTemps 1):compactTemps:preprocessMMulOpts

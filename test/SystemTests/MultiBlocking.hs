@@ -13,4 +13,4 @@ import Core.IndexExpression
 import Core.Statement
 
 allMultiBlockingTests = TestLabel "All multi blocking tests" $
-                        TestList $ L.map (\op -> TestCase $ assertRandomOptimizationsCorrect scalarVarDecls stmtsToCFunctions blockingOptimizations op) testOperations
+                        TestList $ L.map (\op -> TestCase $ assertRandomOptimizationsCorrect stmtsToCFunctions blockingOptimizations op) testOperations

@@ -14,7 +14,7 @@ import Core.Statement
 
 allInterchangeAndFuseTests = TestLabel "All interchange and fuse system tests" $
                            TestList $ L.map
-                                    (\op -> TestCase $ assertOptimizationsCorrect scalarVarDecls stmtsToCFunctions interchangeAndFuseOpts op)
+                                    (\op -> TestCase $ assertOptimizationsCorrect stmtsToCFunctions interchangeAndFuseOpts op)
                                     compoundTestOperations
 
 interchangeAndFuseOpts = interchangeAndFuse:blockingOpts

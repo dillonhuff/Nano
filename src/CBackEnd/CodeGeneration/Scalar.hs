@@ -10,7 +10,7 @@ import Core.Matrix
 import Core.Statement
 
 stmtsToScalarC stmts =
-  L.concatMap toScalarC stmts
+  (scalarVarDecls stmts, L.concatMap toScalarC stmts)
   
 toScalarC stmt =
   case isLoop stmt of

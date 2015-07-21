@@ -30,18 +30,8 @@ rrbroadcast stmt =
       a = operandRead 0 stmt in
   [cExprSt (cFuncall "RRBROADCAST" [cVar $ bufferName $ a, cVar $ bufferName c]) ""]
 
---      t0 = cFuncall "_mm256_unpacklo_pd" [cVar $ bufferName $ a, cVar $ bufferName a]
---      t1 = cFuncall "_mm256_permute2f128_pd" [t0, t0, cVar "0b00100010"] in
-{-  [cExprSt (cAssign (cVar $ bufferName c) t1) ""]-}
-
 accum4 stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt
       b = operandRead 1 stmt in
   [cExprSt (cFuncall "ACCUM4" [cVar $ bufferName $ a, cVar $ bufferName $ b, cVar $ bufferName c]) ""]
-
-{-      t4 = cFuncall "_mm256_hadd_pd" [cVar $ bufferName b, cFuncall "_mm256_setzero_pd" []]
-      t5 = cFuncall "_mm256_permute4x64_pd" [t4, cVar "0b11011000"]
-      t6 = cFuncall "_mm256_hadd_pd" [t5, cFuncall "_mm256_setzero_pd" []]
-      t7 = cFuncall "_mm256_add_pd" [t6, cVar $ bufferName a] in
-  [cExprSt (cAssign (cVar $ bufferName c) t7) ""]-}

@@ -20,16 +20,16 @@ import Transformations.Blocking
 allBasicGSTests =
   TestLabel "All basic general size tests" $
   TestList $ L.map TestCase
-  [assertOptimizationsCorrectGS scalarVarDecls stmtsToCFunctions [] (dscal (iVar "m")),
-   assertOptimizationsCorrectGS scalarVarDecls stmtsToScalarC blockingT (dscal (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX (lvl1Opts 4) (dvadd (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX (lvl1Opts 4) (dvadd2 (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX (lvl1Opts 4) (dscal (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX (lvl1Opts 4) (daxpy (iVar "m")),
-   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX lv2Opts (dmaddRM (iVar "m") (iVar "n")),
-   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX lv2Opts (dgemvRM (iVar "m") (iVar "n")),
-   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX lv2Opts (dmmulRM (iVar "m") (iVar "n") (iVar "p")),
-   assertOptimizationsCorrectGS avxVarDecls stmtsToAVX lv2Opts (dmaddSetRM (iVar "m") (iVar "m"))]
+  [assertOptimizationsCorrectGS stmtsToCFunctions [] (dscal (iVar "m")),
+   assertOptimizationsCorrectGS stmtsToScalarC blockingT (dscal (iVar "m")),
+   assertOptimizationsCorrectGS stmtsToAVX (lvl1Opts 4) (dvadd (iVar "m")),
+   assertOptimizationsCorrectGS stmtsToAVX (lvl1Opts 4) (dvadd2 (iVar "m")),
+   assertOptimizationsCorrectGS stmtsToAVX (lvl1Opts 4) (dscal (iVar "m")),
+   assertOptimizationsCorrectGS stmtsToAVX (lvl1Opts 4) (daxpy (iVar "m")),
+   assertOptimizationsCorrectGS stmtsToAVX lv2Opts (dmaddRM (iVar "m") (iVar "n")),
+   assertOptimizationsCorrectGS stmtsToAVX lv2Opts (dgemvRM (iVar "m") (iVar "n")),
+   assertOptimizationsCorrectGS stmtsToAVX lv2Opts (dmmulRM (iVar "m") (iVar "n") (iVar "p")),
+   assertOptimizationsCorrectGS stmtsToAVX lv2Opts (dmaddSetRM (iVar "m") (iVar "m"))]
 
 lv2Opts = (lvl1Opts 4) ++ [partitionSearch "b_"]
 
