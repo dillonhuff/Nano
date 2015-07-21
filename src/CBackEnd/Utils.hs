@@ -2,7 +2,7 @@ module CBackEnd.Utils(initializeBuffer, freeBuffer,
                       bufSizeExpr,
                       bufDecls,
                       setArgToRandValuesCode,
-                      compileAndRunC, mainFunc,
+                      compileAndRunC, mainFunc, deleteDataFile,
                       matrixLocExpr) where
 
 import Data.List as L
@@ -41,6 +41,10 @@ compileAndRunC testName codeItems =
     writeFile (cFileName testName) codeString
     runCommandStrict $ compileString testName
     runCommandStrict $ runString testName  
+
+deleteDataFile :: FilePath -> IO ()
+deleteDataFile dataFile = do
+  runCommandStrict $ deleteFileString dataFile
 
 mainFunc :: [String] -> FilePath -> CTopLevelItem String
 mainFunc harnessFuncs resultFilePath =

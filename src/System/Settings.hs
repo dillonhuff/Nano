@@ -1,10 +1,11 @@
 module System.Settings(compileString,
-                      projectPath,
-                      testPath,
-                      runString,
-                      dataFileName,
-                      cFileName,
-                      executableFileName) where
+                       deleteFileString,
+                       projectPath,
+                       testPath,
+                       runString,
+                       dataFileName,
+                       cFileName,
+                       executableFileName) where
 
 import Data.List as L
 
@@ -19,3 +20,4 @@ executableFileName opName = evalPath ++ opName
 
 compileString opName = "clang -O3 -mavx -march=native -mfma -o " ++ (executableFileName opName) ++ " " ++ (cFileName opName) ++ " " ++ (cFileName "utils")
 runString opName = executableFileName opName
+deleteFileString filePath = "rm -f " ++ filePath

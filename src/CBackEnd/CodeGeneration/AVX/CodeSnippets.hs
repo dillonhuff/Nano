@@ -27,10 +27,12 @@ maskDblArgs n =
 
 rrbroadcast stmt =
   let c = operandWritten stmt
-      a = operandRead 0 stmt
-      t0 = cFuncall "_mm256_unpacklo_pd" [cVar $ bufferName $ a, cVar $ bufferName a]
-      t1 = cFuncall "_mm256_permute2f128_pd" [t0, t0, cVar "0b00100010"] in
-  [cExprSt (cAssign (cVar $ bufferName c) t1) ""]
+      a = operandRead 0 stmt in
+  [cExprSt (cFuncall "RRBROADCAST" [cVar $ bufferName $ a, cVar $ bufferName c]) ""]
+
+--      t0 = cFuncall "_mm256_unpacklo_pd" [cVar $ bufferName $ a, cVar $ bufferName a]
+--      t1 = cFuncall "_mm256_permute2f128_pd" [t0, t0, cVar "0b00100010"] in
+{-  [cExprSt (cAssign (cVar $ bufferName c) t1) ""]-}
 
 accum4 stmt =
   let c = operandWritten stmt
@@ -42,3 +44,5 @@ accum4 stmt =
       t7 = cFuncall "_mm256_add_pd" [t6, cVar $ bufferName a] in
   [cExprSt (cAssign (cVar $ bufferName c) t7) ""]
 
+
+--  [cExprSt (cFuncall "ACCUM4" [cVar $ bufferName $ a, cVar $ bufferName $ b, cVar $ bufferName c]) ""]-}

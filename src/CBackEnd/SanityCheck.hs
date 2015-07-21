@@ -15,11 +15,14 @@ runSanityCheck testName scFunc testFunc argInfo =
   let scHarness = sanityCheckHarness (cFuncName scFunc) (cFuncName testFunc) argInfo
       scHeader = cInclude "\"utils.h\""
       avxHeader = cInclude "<immintrin.h>"
+      avxMacrosHeader = cInclude "\"avx_macros.h\""
       scMain = mainFunc ["sanity_check"] (dataFileName testName)
-      codeItems = [avxHeader, scHeader, scFunc, testFunc, scHarness, scMain] in
+      codeItems = [avxHeader, scHeader, avxMacrosHeader, scFunc, testFunc, scHarness, scMain] in
   do
     compileAndRunC testName codeItems
-    readFileShowingContents $ dataFileName testName
+    contents <- readFileShowingContents $ dataFileName testName
+    deleteDataFile $ dataFileName testName
+    return contents
 
 runSanityCheckGS :: FilePath ->
                     [(CType, String)] ->
@@ -34,8 +37,11 @@ runSanityCheckGS testName decls setupCode scFuncall testFuncall scFunc testFunc 
   let scHarness = sanityCheckHarnessS decls setupCode scFuncall testFuncall argInfo
       scHeader = cInclude "\"utils.h\""
       avxHeader = cInclude "<immintrin.h>"
+      avxMacrosHeader = cInclude "\"avx_macros.h\""
       scMain = mainFunc ["sanity_check"] (dataFileName testName)
-      codeItems = [avxHeader, scHeader, scFunc, testFunc, scHarness, scMain] in
+      codeItems = [avxHeader, scHeader, avxMacrosHeader, scFunc, testFunc, scHarness, scMain] in
   do
     compileAndRunC testName codeItems
-    readFileShowingContents $ dataFileName testName
+    contents <- readFileShowingContents $ dataFileName testName
+    deleteDataFile $ dataFileName testName
+    return contents

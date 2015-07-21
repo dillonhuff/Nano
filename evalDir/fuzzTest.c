@@ -1,5 +1,6 @@
 #include <immintrin.h>
 #include "utils.h"
+#include "avx_macros.h"
 void op(double* A, double* C, double* alpha){
 	double* tr9c9;
 	tr9c9 = malloc((sizeof(double) * 81));
