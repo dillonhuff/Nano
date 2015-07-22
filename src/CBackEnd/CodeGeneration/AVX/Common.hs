@@ -39,9 +39,6 @@ toAVX stmt =
 
 avxInstructions = avxSingleInstructions ++ avxDoubleInstructions
 
-ra stmt instrName =
-  [cExprSt (cAssign (regWName stmt) (regFuncall instrName stmt)) ""]
-
 avxSingleInstructions =
   [(fits_mm256_add 8 single, mm256_add_ps),
    (fits_mm256_mul 8 single, mm256_mul_ps),
@@ -58,10 +55,8 @@ mm256_add_ps stmt = ra stmt "_mm256_add_ps"
 mm256_mul_ps stmt = ra stmt "_mm256_mul_ps"
 mm256_fmadd_ps stmt = ra stmt "_mm256_fmadd_ps"
 mm256_setzero_ps stmt = afc (bufferName $ operandWritten stmt) "_mm256_setzero_ps" []
-mm256_broadcast_ss stmt =
-  [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_ss" [matRExpr 0 stmt])) ""]
-mm256_loadu_ps stmt =
-  [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_loadu_ps" [matRExpr 0 stmt])) ""]
+mm256_broadcast_ss stmt = loadInstr stmt "_mm256_broadcast_ss"
+mm256_loadu_ps stmt = loadInstr stmt "_mm256_loadu_ps"
 mm256_storeu_ps stmt =
   fc "_mm256_storeu_ps" [matWExpr stmt, matRExpr 0 stmt]
 mm256_maskload_ps stmt =
@@ -87,10 +82,8 @@ mm256_add_pd stmt = ra stmt "_mm256_add_pd"
 mm256_mul_pd stmt = ra stmt "_mm256_mul_pd"
 mm256_fmadd_pd stmt = ra stmt "_mm256_fmadd_pd"
 mm256_setzero_pd stmt = afc (bufferName $ operandWritten stmt) "_mm256_setzero_pd" []
-mm256_broadcast_pd stmt =
-  [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_sd" [matRExpr 0 stmt])) ""]
-mm256_loadu_pd stmt =
-  [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_loadu_pd" [matRExpr 0 stmt])) ""]
+mm256_broadcast_pd stmt = loadInstr stmt "_mm256_broadcast_sd"
+mm256_loadu_pd stmt = loadInstr stmt "_mm256_loadu_pd"
 mm256_storeu_pd stmt =
   fc "_mm256_storeu_pd" [matWExpr stmt, matRExpr 0 stmt]
 mm256_maskload_pd stmt =
@@ -102,3 +95,9 @@ assign stmt =
 
 vecWidth m =
   max (constVal $ numRows m) (constVal $ numCols m)
+
+loadInstr stmt instrName =
+  [cExprSt (cAssign (regWName stmt) (cFuncall instrName [matRExpr 0 stmt])) ""]
+  
+ra stmt instrName =
+  [cExprSt (cAssign (regWName stmt) (regFuncall instrName stmt)) ""]
