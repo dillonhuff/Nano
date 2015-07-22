@@ -15,6 +15,13 @@ import Core.IndexExpression
 import Core.Matrix
 import Core.Statement
 
+stmtsToAVX stmts =
+  let (cgVars, body) = toAVXStmts stmts in
+  (avxVarDecls stmts ++ cgVars, body)
+
+toAVXStmts stmts =
+  ([], L.concatMap toAVX stmts)
+
 avxVarDecls stmts = decls
   where
     iVarDecls = inductionVariableDecls stmts
@@ -25,9 +32,6 @@ avxVarDecls stmts = decls
     regDecls = L.map (\info -> (cM256dReg, bufName info)) regs
     decls = iVarDecls ++ regDecls ++ tempBufferDecls
 
-stmtsToAVX stmts =
-  (avxVarDecls stmts, L.concatMap toAVX stmts)
-
 toAVX stmt =
   case opcode stmt of
     LOOP -> loopToCStmts toAVX stmt
@@ -35,10 +39,13 @@ toAVX stmt =
 
 avxInstructions = avxSingleInstructions ++ avxDoubleInstructions
 
+ra stmt instrName =
+  [cExprSt (cAssign (regWName stmt) (regFuncall instrName stmt)) ""]
+
 avxSingleInstructions =
-  [(fits_mm256_add 8 single, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_ps" stmt)) ""]),
-   (fits_mm256_mul 8 single, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_ps" stmt)) ""]),
-   (fits_mm256_fmadd 8 single, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_fmadd_ps" stmt)) ""]),
+  [(fits_mm256_add 8 single, \stmt -> ra stmt "_mm256_add_ps"),
+   (fits_mm256_mul 8 single, \stmt -> ra stmt "_mm256_mul_ps"),
+   (fits_mm256_fmadd 8 single, \stmt -> ra stmt "_mm256_fmadd_ps"),
    (fits_mm256_setzero 8 single, \stmt -> afc (bufferName $ operandWritten stmt) "_mm256_setzero_ps" []),
    (fits_mm256_broadcast 8 single, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_ss" [matRExpr 0 stmt])) ""]),
    (fits_mm256_loadu 8 single, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_loadu_ps" [matRExpr 0 stmt])) ""]),
@@ -48,9 +55,9 @@ avxSingleInstructions =
    (fits_assign, \stmt -> [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""])]
 
 avxDoubleInstructions =
-  [(fits_mm256_add 4 double, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_add_pd" stmt)) ""]),
-   (fits_mm256_mul 4 double, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_mul_pd" stmt)) ""]),
-   (fits_mm256_fmadd 4 double, \stmt -> [cExprSt (cAssign (regWName stmt) (regFuncall "_mm256_fmadd_pd" stmt)) ""]),
+  [(fits_mm256_add 4 double, \stmt -> ra stmt "_mm256_add_pd"),
+   (fits_mm256_mul 4 double, \stmt -> ra stmt "_mm256_mul_pd"),
+   (fits_mm256_fmadd 4 double, \stmt -> ra stmt "_mm256_fmadd_pd"),
    (fits_mm256_setzero 4 double, \stmt -> afc (bufferName $ operandWritten stmt) "_mm256_setzero_pd" []),
    (fits_mm256_broadcast 4 double, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_broadcast_sd" [matRExpr 0 stmt])) ""]),
    (fits_mm256_loadu 4 double, \stmt -> [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_loadu_pd" [matRExpr 0 stmt])) ""]),
