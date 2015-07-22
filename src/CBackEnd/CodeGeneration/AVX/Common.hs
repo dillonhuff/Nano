@@ -65,8 +65,9 @@ mm256_loadu_ps stmt =
 mm256_storeu_ps stmt =
   fc "_mm256_storeu_ps" [matWExpr stmt, matRExpr 0 stmt]
 mm256_maskload_ps stmt =
-  [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_ps" [matRExpr 0 stmt, mask $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]
-mm256_maskstore_ps stmt = fc "_mm256_maskstore_ps" [matWExpr stmt, mask $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]
+  [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_ps" [matRExpr 0 stmt, mask $ vecWidth $ operandRead 0 stmt])) ""]
+mm256_maskstore_ps stmt =
+  fc "_mm256_maskstore_ps" [matWExpr stmt, mask $ vecWidth $ operandWritten stmt, matRExpr 0 stmt]
 
 avxDoubleInstructions =
   [(fits_mm256_add 4 double, mm256_add_pd),
@@ -93,8 +94,11 @@ mm256_loadu_pd stmt =
 mm256_storeu_pd stmt =
   fc "_mm256_storeu_pd" [matWExpr stmt, matRExpr 0 stmt]
 mm256_maskload_pd stmt =
-  [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_pd" [matRExpr 0 stmt, maskDbl $ max (constVal $ numRows $ operandRead 0 stmt) (constVal $ numCols $ operandRead 0 stmt)])) ""]
-mm256_maskstore_pd stmt = fc "_mm256_maskstore_pd" [matWExpr stmt, maskDbl $ max (constVal $ numRows $ operandWritten stmt) (constVal $ numCols $ operandWritten stmt), matRExpr 0 stmt]
+  [cExprSt (cAssign (regWName stmt) (cFuncall "_mm256_maskload_pd" [matRExpr 0 stmt, maskDbl $ vecWidth $ operandRead 0 stmt])) ""]
+mm256_maskstore_pd stmt =
+  fc "_mm256_maskstore_pd" [matWExpr stmt, maskDbl $ vecWidth $ operandWritten stmt, matRExpr 0 stmt]
 assign stmt =
   [cExprSt (cAssign (regWName stmt) (regName $ operandRead 0 stmt)) ""]
 
+vecWidth m =
+  max (constVal $ numRows m) (constVal $ numCols m)
