@@ -59,7 +59,7 @@ packStmt :: Int -> Statement -> State (String, Int) [Statement]
 packStmt i stmt =
   let u = iConst i in
   case opcode stmt of
-    EADD -> if isPackableEADD i stmt then packMAdd u stmt else return [stmt]
+    EADD -> if isPackableEADD i stmt then packEAdd u stmt else return [stmt]
     SMUL -> if isPackableSMUL i stmt then packSMul u stmt else return [stmt]
     TRAN -> if isPackableTRAN i stmt then packTrans u stmt else return [stmt]
     FMA -> if isPackableFMA i stmt then packFMA u stmt else return [stmt]
@@ -70,7 +70,7 @@ packStmt i stmt =
     ACCU -> if isPackableACCU i stmt then packACCU u stmt else return [stmt]
     _ -> error $ "packStmt: Unsupported operation " ++ show stmt
 
-packMAdd u stmt =
+packEAdd u stmt =
   packSymmetric matrixAdd u stmt
 
 packEMUL u stmt =

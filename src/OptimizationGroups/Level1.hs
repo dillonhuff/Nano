@@ -1,4 +1,7 @@
-module OptimizationGroups.Level1(lvl1Opts) where
+module OptimizationGroups.Level1(lvl1Opts,
+                                 registerization,
+                                 tempReduction,
+                                 cleanup) where
 
 import Data.List as L
 
