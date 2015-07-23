@@ -1,7 +1,8 @@
 module Analysis.Matrix(allMatIVars,
                        matricesOverlap,
                        isRegisterizeable,
-                       isRegisterizeableBelow) where
+                       isRegisterizeableBelow,
+                       isLEQ) where
 
 import Data.List as L
 import Data.Map as M
@@ -28,6 +29,11 @@ accessOverlap iRanges s t = do
   tR <- accessedRectangle iRanges t
   return $ rectanglesOverlap sR tR
 
+isLEQ m n op =
+  isFixedSize op &&
+  (constVal $ numRows op) <= m &&
+  (constVal $ numCols op) <= n
+  
 isRegisterizeable u op =
   case isFixedSize op of
     True ->

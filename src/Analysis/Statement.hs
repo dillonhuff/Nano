@@ -1,5 +1,6 @@
 module Analysis.Statement(isScalarOp,
                           isScalarOpBelow,
+                          isRegisterGroupOp,
                           allOperandsInMemory) where
 
 import Data.List as L
@@ -16,3 +17,6 @@ isScalarOpBelow u stmt = L.all (isRegisterizeableBelow u) $ allOperands stmt
 
 allOperandsInMemory :: Statement -> Bool
 allOperandsInMemory stmt = L.all (\m -> not $ isRegister m) $ allOperands stmt
+
+isRegisterGroupOp :: Int -> Int -> Statement -> Bool
+isRegisterGroupOp m n stmt = L.all (isLEQ m n) $ allOperands stmt

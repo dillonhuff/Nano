@@ -1,7 +1,7 @@
 module CBackEnd.CodeGeneration.Common(loopToCStmts, loopToCStmtsM,
                                       scalarVarDecls, inductionVariableDecls,
                                       matToCExpr,
-                                      bufferInfoList, firstToMatch,
+                                      bufferInfoList,
                                       fc, afc, regWName, matRExpr, regName,
                                       allInRegister, allType, regFuncall,
                                       allVectorEQ,
@@ -106,8 +106,3 @@ matRExpr n stmt =
   case isRegister $ operandRead n stmt of
     True -> cVar $ bufferName $ operandRead n stmt
     False -> matToCExpr $ operandRead n stmt
-
-firstToMatch :: (Show a) => [(a -> Bool, a -> b)] -> a -> b
-firstToMatch [] stmt = error $ "firstToMatch: no matches for " ++ show stmt
-firstToMatch ((cond, f):rest) stmt =
-  if cond stmt then f stmt else firstToMatch rest stmt

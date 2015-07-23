@@ -16,6 +16,7 @@ import CBackEnd.Utils
 import Core.IndexExpression
 import Core.Matrix
 import Core.Statement
+import Matching
 
 stmtsToAVX stmts =
   let (body, cgs) = runState (toAVXStmts stmts) $ codeGenState "cgr"
