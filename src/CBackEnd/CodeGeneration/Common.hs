@@ -1,4 +1,4 @@
-module CBackEnd.CodeGeneration.Common(loopToCStmts,
+module CBackEnd.CodeGeneration.Common(loopToCStmts, loopToCStmtsM,
                                       scalarVarDecls, inductionVariableDecls,
                                       matToCExpr,
                                       bufferInfoList, firstToMatch,
@@ -7,6 +7,7 @@ module CBackEnd.CodeGeneration.Common(loopToCStmts,
                                       allVectorEQ,
                                       matWExpr) where
 
+import Control.Monad
 import Data.List as L
 
 import Analysis.Matrix
@@ -24,6 +25,15 @@ loopToCStmts toCStmts l =
     e = cLEQ v (iExprToCExpr $ loopEnd l)
     i = cAssign v (cAdd v (iExprToCExpr $ loopInc l))
     b = cBlock [] $ L.concatMap toCStmts $ loopBody l
+
+loopToCStmtsM toCStmts l = do
+  newStmts <- liftM L.concat $ sequence $ L.map toCStmts $ loopBody l
+  let v = iExprToCExpr $ iVar $ loopInductionVariable l
+      s = cAssign v (iExprToCExpr $ loopStart l)
+      e = cLEQ v (iExprToCExpr $ loopEnd l)
+      i = cAssign v (cAdd v (iExprToCExpr $ loopInc l))
+      b = cBlock [] newStmts in
+    return [cFor s e i b ""]
 
 scalarVarDecls :: [Statement] -> [(CType, String)]
 scalarVarDecls stmts = localVarDecls
@@ -97,8 +107,7 @@ matRExpr n stmt =
     True -> cVar $ bufferName $ operandRead n stmt
     False -> matToCExpr $ operandRead n stmt
 
-firstToMatch :: [(Statement -> Bool, Statement -> [CStmt String])] -> Statement -> [CStmt String]
+firstToMatch :: (Show a) => [(a -> Bool, a -> b)] -> a -> b
 firstToMatch [] stmt = error $ "firstToMatch: no matches for " ++ show stmt
 firstToMatch ((cond, f):rest) stmt =
   if cond stmt then f stmt else firstToMatch rest stmt
-

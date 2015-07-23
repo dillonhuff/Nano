@@ -3,9 +3,11 @@ module CBackEnd.CodeGeneration.AVX.Common(stmtsToAVX,
                                           avxSingleInstructions,
                                           avxDoubleInstructions) where
 
+import Control.Monad.State
 import Data.List as L
 
 import Analysis.Matrix
+import CBackEnd.CodeGeneration.AVX.CodeGenState
 import CBackEnd.CodeGeneration.AVX.CodeSnippets
 import CBackEnd.CodeGeneration.AVX.OpcodeTests
 import CBackEnd.CodeGeneration.Common
@@ -16,11 +18,14 @@ import Core.Matrix
 import Core.Statement
 
 stmtsToAVX stmts =
-  let (cgVars, body) = toAVXStmts stmts in
+  let (body, cgs) = runState (toAVXStmts stmts) $ codeGenState "cgr"
+      cgVars = codeGenVars cgs in
   (avxVarDecls stmts ++ cgVars, body)
 
-toAVXStmts stmts =
-  ([], L.concatMap toAVX stmts)
+toAVXStmts :: [Statement] -> State CodeGenState [CStmt String]
+toAVXStmts stmts = do
+  newStmts <- liftM L.concat $ sequence $ L.map toAVX stmts
+  return newStmts
 
 avxVarDecls stmts = decls
   where
@@ -32,10 +37,11 @@ avxVarDecls stmts = decls
     regDecls = L.map (\info -> (cM256dReg, bufName info)) regs
     decls = iVarDecls ++ regDecls ++ tempBufferDecls
 
+toAVX :: Statement -> State CodeGenState [CStmt String]
 toAVX stmt =
   case opcode stmt of
-    LOOP -> loopToCStmts toAVX stmt
-    _ -> firstToMatch avxInstructions stmt
+    LOOP -> loopToCStmtsM toAVX stmt
+    _ -> return $ firstToMatch avxInstructions stmt
 
 avxInstructions = avxSingleInstructions ++ avxDoubleInstructions
 
