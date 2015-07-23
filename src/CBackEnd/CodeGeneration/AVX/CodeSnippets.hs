@@ -5,6 +5,7 @@ module CBackEnd.CodeGeneration.AVX.CodeSnippets(mask,
 
 import Data.List as L
 
+import CBackEnd.CodeGeneration.AVX.CodeGenState
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.Syntax
 import CBackEnd.Utils
@@ -28,10 +29,16 @@ maskDblArgs n =
 rrbroadcast stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt in
-  [cExprSt (cFuncall "RRBROADCAST" [cVar $ bufferName $ a, cVar $ bufferName c]) ""]
+  do
+    t0 <- freshTempVar
+    return [cExprSt (cFuncall "RRBROADCAST" [t0, cVar $ bufferName $ a, cVar $ bufferName c]) ""]
 
 accum4 stmt =
   let c = operandWritten stmt
       a = operandRead 0 stmt
       b = operandRead 1 stmt in
-  [cExprSt (cFuncall "ACCUM4" [cVar $ bufferName $ a, cVar $ bufferName $ b, cVar $ bufferName c]) ""]
+  do
+    t0 <- freshTempVar
+    t1 <- freshTempVar
+    t2 <- freshTempVar
+    return [cExprSt (cFuncall "ACCUM4" [t0, t1, t2, cVar $ bufferName $ a, cVar $ bufferName $ b, cVar $ bufferName c]) ""]
