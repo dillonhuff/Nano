@@ -11,6 +11,7 @@ import SystemTests.InterchangeAndFuse
 import SystemTests.LoopInvariantCodeMotion
 import SystemTests.FltLv2BlockingSearch
 import SystemTests.Lv2BlockingSearch
+import SystemTests.MicroBlockedAVX
 import SystemTests.MultiBlocking
 import SystemTests.RegisterizeTemps
 import SystemTests.Scalarization
@@ -25,6 +26,7 @@ allSystemTests = TestLabel "All sytem tests" $ TestList
                 allLoopInvariantCodeMotionTests,
                 allFltLv2BlockingSearchTests,
                 allLv2BlockingSearchTests,
+                allMicroBlockedAVXTests,
                 allMultiBlockingTests,
                 allRegisterizeTempsTests,
                 allSplitTempsTests,

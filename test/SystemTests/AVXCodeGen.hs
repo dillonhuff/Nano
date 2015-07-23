@@ -22,7 +22,7 @@ import TestUtils
 
 allAVXCodeGenTests =
   TestLabel "All AVX code generation tests" $
-  TestList $ avxTestCases
+  TestList avxTestCases
 
 avxTestCases =
   [ltc "vector add" stmtsToAVX avxOpts [matrixAdd x y z],
