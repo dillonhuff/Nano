@@ -38,7 +38,11 @@ isPackableBRDC u stmt =
 
 isPackableEADD u stmt =
   opcode stmt == EADD &&
-  (isPackable u stmt || isRegisterGroupOp u u stmt)
+  isPackable u stmt
+
+isPackableSquareEADD u stmt =
+  opcode stmt == EADD &&
+  isRegisterGroupOp u u stmt
 
 isPackableEMUL u stmt =
   opcode stmt == EMUL &&
@@ -71,6 +75,7 @@ packStmt i stmt =
 
 possiblePackings i u =
   [(isPackableEADD i, packEAdd u),
+   (isPackableSquareEADD i, packSquareEADD u),
    (isPackableSMUL i, packSMul u),
    (isPackableTRAN i, packTrans u), 
    (isPackableFMA i, packFMA u),
@@ -80,10 +85,16 @@ possiblePackings i u =
    (isPackableZERO i, packZERO u),
    (isPackableACCU i, packACCU u)]
 
-packEAdd u stmt =
-  case isPackable (constVal u) stmt of
-    True -> packSymmetric matrixAdd u stmt
-    False -> error $ "packEADD: " ++ show stmt
+packEAdd u stmt = packSymmetric matrixAdd u stmt
+
+packSquareEADD u stmt = do
+  r1 <- packToRegisterGroup u u $ operandRead 0 stmt
+  r2 <- packToRegisterGroup u u $ operandRead 1 stmt
+  r3 <- packToRegisterGroup u u $ operandWritten stmt
+  return [matrixPack r1 (operandRead 0 stmt),
+          matrixPack r2 (operandRead 1 stmt),
+          matrixAdd r3 r1 r2,
+          matrixUnpack (operandWritten stmt) r3]  
 
 packEMUL u stmt =
   packSymmetric elemWiseMultiply u stmt
@@ -144,7 +155,14 @@ packToRegister u m =
     False -> do
       rName <- freshRegName
       return $ packInRegister u rName m
-  
+
+packToRegisterGroup m n op =
+  case isRegister op of
+    True -> return op
+    False -> do
+      rName <- freshRegName
+      return $ packInRegisterGroup m n rName op
+
 freshRegName :: State (String, Int) String
 freshRegName = do
   (prefix, i) <- get
