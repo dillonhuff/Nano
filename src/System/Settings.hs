@@ -9,7 +9,7 @@ module System.Settings(compileString,
 
 import Data.List as L
 
-projectPath = "/Users/dillon/Haskell/Nano/"
+projectPath = "/Users/dillon/Haskell/HPC/Nano/"
 dataFilePath = projectPath ++ "runData/"
 evalPath = projectPath ++ "evalDir/"
 testPath = projectPath ++ "libs/"

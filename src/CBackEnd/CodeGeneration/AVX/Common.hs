@@ -80,7 +80,10 @@ avxDoubleInstructions =
    (fits_mm256_loadu 4 double, mm256_loadu_pd), 
    (fits_mm256_storeu 4 double, mm256_storeu_pd),
    (fits_mm256_maskload 4 double, mm256_maskload_pd),
-   (fits_mm256_maskstore 4 double, mm256_maskstore_pd), 
+   (fits_mm256_maskstore 4 double, mm256_maskstore_pd),
+   (fits_unpack 4 4 double, unpack_dbl_4x4),
+   (fits_pack 4 4 double, pack_dbl_4x4),
+   (fits_eadd 4 4 double, eadd_dbl_4x4),
    (fits_accum4, accum4),
    (fits_rrbroadcast, rrbroadcast),
    (fits_assign, assign)]

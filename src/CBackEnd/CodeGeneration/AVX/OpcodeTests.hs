@@ -9,9 +9,13 @@ module CBackEnd.CodeGeneration.AVX.OpcodeTests(fits_mm256_add,
                                                fits_mm256_setzero,
                                                fits_assign,
                                                fits_accum4,
-                                               fits_rrbroadcast) where
+                                               fits_rrbroadcast,
+                                               fits_pack,
+                                               fits_unpack,
+                                               fits_eadd) where
 
 import Analysis.Matrix
+import Analysis.Statement
 import CBackEnd.CodeGeneration.Common
 import CBackEnd.Syntax
 import CBackEnd.Utils
@@ -20,7 +24,12 @@ import Core.Matrix
 import Core.Statement
 
 fits_mm256_add len tp stmt =
-  opcode stmt == EADD && allInRegister stmt && allVectorEQ len stmt && allType tp stmt
+  opcode stmt == EADD && allInRegister stmt &&
+  allVectorEQ len stmt && allType tp stmt
+
+fits_eadd m n tp stmt =
+  opcode stmt == EADD && allInRegister stmt &&
+  isRegisterGroupOp m n stmt
 
 fits_mm256_mul len tp stmt =
   opcode stmt == EMUL && allInRegister stmt && allVectorEQ len stmt && allType tp stmt
@@ -54,12 +63,24 @@ fits_mm256_loadu len tp stmt =
   isRegisterizeable len (operandRead 0 stmt) &&
   not (isRegister $ operandRead 0 stmt)
 
+fits_pack m n tp stmt =
+  opcode stmt == PACK && allType tp stmt &&
+  isRegister (operandWritten stmt) &&
+  not (isRegister $ operandRead 0 stmt) &&
+  isRegisterGroupOp m n stmt
+
 fits_mm256_storeu len tp stmt =
   opcode stmt == UNPK && allType tp stmt &&
   isRegister (operandRead 0 stmt) &&
   isContiguous (operandWritten stmt) &&
   isRegisterizeable len (operandWritten stmt) &&
   isRegisterizeable len (operandRead 0 stmt) &&
+  not (isRegister $ operandWritten stmt)
+
+fits_unpack m n tp stmt =
+  opcode stmt == UNPK && allType tp stmt &&
+  isRegister (operandRead 0 stmt) &&
+  isRegisterGroupOp m n stmt &&
   not (isRegister $ operandWritten stmt)
 
 fits_mm256_maskload len tp stmt =

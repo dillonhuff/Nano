@@ -1,7 +1,10 @@
 module CBackEnd.CodeGeneration.AVX.CodeSnippets(mask,
                                                 maskDbl,
                                                 rrbroadcast,
-                                                accum4) where
+                                                accum4,
+                                                unpack_dbl_4x4,
+                                                pack_dbl_4x4,
+                                                eadd_dbl_4x4) where
 
 import Data.List as L
 
@@ -42,3 +45,12 @@ accum4 stmt =
     t1 <- freshTempVar
     t2 <- freshTempVar
     return [cExprSt (cFuncall "ACCUM4" [t0, t1, t2, cVar $ bufferName $ a, cVar $ bufferName $ b, cVar $ bufferName c]) ""]
+
+unpack_dbl_4x4 stmt =
+  return [cExprSt (cVar "UNPACK_DBL_4x4") ""]
+
+pack_dbl_4x4 stmt =
+  return [cExprSt (cVar "PACK_DBL_4x4") ""]
+
+eadd_dbl_4x4 stmt =
+  return [cExprSt (cVar "EADD_DBL_4x4") ""]
