@@ -48,11 +48,11 @@ accum4 stmt =
 
 unpack_dbl_4x4 stmt = do
   rgs <- registerGroupVars $ operandRead 0 stmt
-  return [cExprSt (cFuncall "UNPACK_DBL_4x4" (rgs ++ [matWExpr stmt])) ""]
+  return [cExprSt (cFuncall "UNPACK_DBL_4x4" (matWExpr stmt:rgs)) ""]
 
 pack_dbl_4x4 stmt = do
   rgs <- registerGroupVars $ operandWritten stmt
-  return [cExprSt (cFuncall "PACK_DBL_4x4" (matRExpr 0 stmt:rgs)) ""]
+  return [cExprSt (cFuncall "PACK_DBL_4x4" (rgs ++ [matRExpr 0 stmt])) ""]
 
 eadd_dbl_4x4 stmt = do
   lrgs <- registerGroupVars $ operandRead 0 stmt

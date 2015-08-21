@@ -27,10 +27,10 @@ void transformedOp(double* A, double* B, double* C){
 	{
 		for (iz = 0; (iz <= 7); iz = (iz + 4))
 		{
-			PACK_DBL_4x4((A + ((iz * 8) + i)), r_0ByCol0, r_0ByCol1, r_0ByCol2, r_0ByCol3);
-			PACK_DBL_4x4((B + (iz + (i * 8))), r_1ByRow0, r_1ByRow1, r_1ByRow2, r_1ByRow3);
+			PACK_DBL_4x4(r_0ByCol0, r_0ByCol1, r_0ByCol2, r_0ByCol3, (A + ((iz * 8) + i)));
+			PACK_DBL_4x4(r_1ByRow0, r_1ByRow1, r_1ByRow2, r_1ByRow3, (B + (iz + (i * 8))));
 			EADD_DBL_4x4(r_2ByCol0, r_2ByCol1, r_2ByCol2, r_2ByCol3, r_0ByCol0, r_0ByCol1, r_0ByCol2, r_0ByCol3, r_1ByRow0, r_1ByRow1, r_1ByRow2, r_1ByRow3);
-			UNPACK_DBL_4x4(r_2ByCol0, r_2ByCol1, r_2ByCol2, r_2ByCol3, (C + ((iz * 8) + i)));
+			UNPACK_DBL_4x4((C + ((iz * 8) + i)), r_2ByCol0, r_2ByCol1, r_2ByCol2, r_2ByCol3);
 		}
 	}
 }
