@@ -11,14 +11,26 @@ void transformedOp(double* A, double* B, double* C){
 	__m256d r_0;
 	__m256d r_1;
 	__m256d r_2;
+	__m256d r_0ByCol0;
+	__m256d r_0ByCol1;
+	__m256d r_0ByCol2;
+	__m256d r_0ByCol3;
+	__m256d r_1ByRow0;
+	__m256d r_1ByRow1;
+	__m256d r_1ByRow2;
+	__m256d r_1ByRow3;
+	__m256d r_2ByCol0;
+	__m256d r_2ByCol1;
+	__m256d r_2ByCol2;
+	__m256d r_2ByCol3;
 	for (i = 0; (i <= 7); i = (i + 4))
 	{
 		for (iz = 0; (iz <= 7); iz = (iz + 4))
 		{
-			PACK_DBL_4x4;
-			PACK_DBL_4x4;
-			EADD_DBL_4x4;
-			UNPACK_DBL_4x4;
+			PACK_DBL_4x4((A + ((iz * 8) + i)), r_0ByCol0, r_0ByCol1, r_0ByCol2, r_0ByCol3);
+			PACK_DBL_4x4((B + (iz + (i * 8))), r_1ByRow0, r_1ByRow1, r_1ByRow2, r_1ByRow3);
+			EADD_DBL_4x4(r_2ByCol0, r_2ByCol1, r_2ByCol2, r_2ByCol3, r_0ByCol0, r_0ByCol1, r_0ByCol2, r_0ByCol3, r_1ByRow0, r_1ByRow1, r_1ByRow2, r_1ByRow3);
+			UNPACK_DBL_4x4(r_2ByCol0, r_2ByCol1, r_2ByCol2, r_2ByCol3, (C + ((iz * 8) + i)));
 		}
 	}
 }

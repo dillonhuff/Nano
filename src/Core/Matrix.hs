@@ -4,6 +4,7 @@ module Core.Matrix(Matrix,
               isMatrix, isVector, isScalar, isRowVector, isColVector, isNull,
               isRowMajor, isColMajor, isContiguous, isFixedSize,
               bufferName, locationExpr, sizeExpr, matProperties,
+              matRegGroupFormat,
               numRows, numCols, rowStride, colStride,
               properties, dataType, matrixBufferNameAndType,
               substituteInIExprs, partitionList, accessedRectangle,
@@ -104,6 +105,11 @@ peelPartition (SubMatrix _ _ _ m _) = m
     
 matProperties (Matrix _ _ _ _ _ p) = p
 matProperties (SubMatrix _ _ _ _ p) = p
+
+matRegGroupFormat m =
+  let p = matProperties m
+      loc = propMemLocation p in
+   regGroupFormat loc
 
 bufferName (Matrix n _ _ _ _ _) = n
 bufferName (SubMatrix _ _ _ m _) = bufferName m

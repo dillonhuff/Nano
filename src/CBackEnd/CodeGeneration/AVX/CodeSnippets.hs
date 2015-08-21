@@ -46,11 +46,16 @@ accum4 stmt =
     t2 <- freshTempVar
     return [cExprSt (cFuncall "ACCUM4" [t0, t1, t2, cVar $ bufferName $ a, cVar $ bufferName $ b, cVar $ bufferName c]) ""]
 
-unpack_dbl_4x4 stmt =
-  return [cExprSt (cVar "UNPACK_DBL_4x4") ""]
+unpack_dbl_4x4 stmt = do
+  rgs <- registerGroupVars $ operandRead 0 stmt
+  return [cExprSt (cFuncall "UNPACK_DBL_4x4" (rgs ++ [matWExpr stmt])) ""]
 
-pack_dbl_4x4 stmt =
-  return [cExprSt (cVar "PACK_DBL_4x4") ""]
+pack_dbl_4x4 stmt = do
+  rgs <- registerGroupVars $ operandWritten stmt
+  return [cExprSt (cFuncall "PACK_DBL_4x4" (matRExpr 0 stmt:rgs)) ""]
 
-eadd_dbl_4x4 stmt =
-  return [cExprSt (cVar "EADD_DBL_4x4") ""]
+eadd_dbl_4x4 stmt = do
+  lrgs <- registerGroupVars $ operandRead 0 stmt
+  rrgs <- registerGroupVars $ operandRead 1 stmt
+  frgs <- registerGroupVars $ operandWritten stmt
+  return [cExprSt (cFuncall "EADD_DBL_4x4" (frgs ++ lrgs ++ rrgs)) ""]

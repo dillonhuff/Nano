@@ -20,3 +20,7 @@
     regB2 = _mm256_permute2f128_pd( r1, r13, 0x31 );			\
     regB3 = _mm256_permute2f128_pd( r0, r12, 0x31 );			\
   }
+
+#define PACK_DBL_4x4() {}
+#define UNPACK_DBL_4x4() {}
+#define EADD_DBL_4x4() {}

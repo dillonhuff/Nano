@@ -1,7 +1,8 @@
 module Core.MemLocation(MemLocation,
                         memory, registerGroup,
                         isRegisterGroup, isMemory,
-                        RegFormat(..)) where
+                        RegFormat(..),
+                        regGroupFormat) where
 
 data MemLocation
   = Memory
@@ -14,6 +15,8 @@ instance Show MemLocation where
 
 memory = Memory
 registerGroup = RegisterGroup
+
+regGroupFormat (RegisterGroup rf) = rf
 
 isRegisterGroup (RegisterGroup _) = True
 isRegisterGroup _ = False
