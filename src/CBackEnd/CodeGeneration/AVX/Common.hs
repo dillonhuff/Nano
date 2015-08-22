@@ -16,6 +16,7 @@ import CBackEnd.Utils
 import Core.IndexExpression
 import Core.Matrix
 import Core.Statement
+import Core.Type
 import Matching
 
 stmtsToAVX stmts =

@@ -29,6 +29,6 @@ blockingOpts n =
 maddUnmatched = [matrixAdd c a b]
 
 a = constDblMat "A" 8 8 1 8
-b = constDblMat "B" 8 8 8 1
+b = constDblMat "B" 8 8 1 8
 c = constDblMat "C" 8 8 1 8
 

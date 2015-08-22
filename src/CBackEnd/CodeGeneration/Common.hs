@@ -16,6 +16,7 @@ import CBackEnd.Utils
 import Core.IndexExpression
 import Core.Matrix
 import Core.Statement
+import Core.Type
 
 loopToCStmts toCStmts l =
   [cFor s e i b ""]

@@ -48,14 +48,19 @@ accum4 stmt =
 
 unpack_dbl_4x4 stmt = do
   rgs <- registerGroupVars $ operandRead 0 stmt
-  return [cExprSt (cFuncall "UNPACK_DBL_4x4" (matWExpr stmt:rgs)) ""]
+  return [cExprSt (cFuncall "UNPACK_DBL_4x4" (matWExpr stmt:(matStrideCExpr $ operandWritten stmt):rgs)) ""]
 
 pack_dbl_4x4 stmt = do
   rgs <- registerGroupVars $ operandWritten stmt
-  return [cExprSt (cFuncall "PACK_DBL_4x4" (rgs ++ [matRExpr 0 stmt])) ""]
+  return [cExprSt (cFuncall "PACK_DBL_4x4" (rgs ++ [matRExpr 0 stmt, matStrideCExpr $ operandRead 0 stmt])) ""]
 
 eadd_dbl_4x4 stmt = do
   lrgs <- registerGroupVars $ operandRead 0 stmt
   rrgs <- registerGroupVars $ operandRead 1 stmt
   frgs <- registerGroupVars $ operandWritten stmt
   return [cExprSt (cFuncall "EADD_DBL_4x4" (frgs ++ lrgs ++ rrgs)) ""]
+
+matStrideCExpr m =
+  case isRowMajor m of
+   True -> iExprToCExpr $ rowStride m
+   False -> iExprToCExpr $ colStride m

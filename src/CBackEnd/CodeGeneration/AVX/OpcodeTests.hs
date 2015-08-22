@@ -22,6 +22,7 @@ import CBackEnd.Utils
 import Core.IndexExpression
 import Core.Matrix
 import Core.Statement
+import Core.Type
 
 fits_mm256_add len tp stmt =
   opcode stmt == EADD && allInRegister stmt &&

@@ -2,7 +2,7 @@
 #include "utils.h"
 #include "avx_macros.h"
 void op(double* A, double* B, double* C){
-	simple_add(8, 8, (A + 0), 1, 8, (B + 0), 8, 1, (C + 0), 1, 8);
+	simple_add(8, 8, (A + 0), 1, 8, (B + 0), 1, 8, (C + 0), 1, 8);
 }
 
 void transformedOp(double* A, double* B, double* C){
@@ -15,10 +15,10 @@ void transformedOp(double* A, double* B, double* C){
 	__m256d r_0ByCol1;
 	__m256d r_0ByCol2;
 	__m256d r_0ByCol3;
-	__m256d r_1ByRow0;
-	__m256d r_1ByRow1;
-	__m256d r_1ByRow2;
-	__m256d r_1ByRow3;
+	__m256d r_1ByCol0;
+	__m256d r_1ByCol1;
+	__m256d r_1ByCol2;
+	__m256d r_1ByCol3;
 	__m256d r_2ByCol0;
 	__m256d r_2ByCol1;
 	__m256d r_2ByCol2;
@@ -27,10 +27,10 @@ void transformedOp(double* A, double* B, double* C){
 	{
 		for (iz = 0; (iz <= 7); iz = (iz + 4))
 		{
-			PACK_DBL_4x4(r_0ByCol0, r_0ByCol1, r_0ByCol2, r_0ByCol3, (A + ((iz * 8) + i)));
-			PACK_DBL_4x4(r_1ByRow0, r_1ByRow1, r_1ByRow2, r_1ByRow3, (B + (iz + (i * 8))));
-			EADD_DBL_4x4(r_2ByCol0, r_2ByCol1, r_2ByCol2, r_2ByCol3, r_0ByCol0, r_0ByCol1, r_0ByCol2, r_0ByCol3, r_1ByRow0, r_1ByRow1, r_1ByRow2, r_1ByRow3);
-			UNPACK_DBL_4x4((C + ((iz * 8) + i)), r_2ByCol0, r_2ByCol1, r_2ByCol2, r_2ByCol3);
+			PACK_DBL_4x4(r_0ByCol0, r_0ByCol1, r_0ByCol2, r_0ByCol3, (A + ((iz * 8) + i)), 8);
+			PACK_DBL_4x4(r_1ByCol0, r_1ByCol1, r_1ByCol2, r_1ByCol3, (B + ((iz * 8) + i)), 8);
+			EADD_DBL_4x4(r_2ByCol0, r_2ByCol1, r_2ByCol2, r_2ByCol3, r_0ByCol0, r_0ByCol1, r_0ByCol2, r_0ByCol3, r_1ByCol0, r_1ByCol1, r_1ByCol2, r_1ByCol3);
+			UNPACK_DBL_4x4((C + ((iz * 8) + i)), 8, r_2ByCol0, r_2ByCol1, r_2ByCol2, r_2ByCol3);
 		}
 	}
 }

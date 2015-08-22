@@ -7,6 +7,7 @@ import CBackEnd.Syntax
 import Core.IndexExpression
 import Core.Matrix
 import Core.Statement
+import Core.Type
 
 stmtsToCFunctions stmts =
   (scalarVarDecls stmts, L.concatMap toCStmtsFunction stmts)

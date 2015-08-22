@@ -10,10 +10,7 @@ module Core.Matrix(Matrix,
               substituteInIExprs, partitionList, accessedRectangle,
               setName, setRegister, isRegister, setLocal, underlyingMatrix, baseMatrix,
               replaceSupermatrix, smallestSubsumingPartition, partitionedBy,
-              Type,
-              single, double,
-              isDouble, isSingle,
-              arg, local, bufferScope) where
+              bufferScope, local, arg) where
 
 import Data.Map as M hiding (partition)
 

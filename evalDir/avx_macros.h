@@ -21,6 +21,23 @@
     regB3 = _mm256_permute2f128_pd( r0, r12, 0x31 );			\
   }
 
-#define PACK_DBL_4x4() {}
-#define UNPACK_DBL_4x4() {}
-#define EADD_DBL_4x4() {}
+#define PACK_DBL_4x4(r0, r1, r2, r3, a, s) { \
+    r0 = _mm256_loadu_pd(a + 0 * s);	     \
+    r1 = _mm256_loadu_pd(a + 1 * s);	     \
+    r2 = _mm256_loadu_pd(a + 2 * s);	     \
+    r3 = _mm256_loadu_pd(a + 3 * s);	     \
+}
+
+#define UNPACK_DBL_4x4(a, s, r0, r1, r2, r3) { \
+    _mm256_storeu_pd(a + 0 * s, r0);	       \
+    _mm256_storeu_pd(a + 1 * s, r1);	       \
+    _mm256_storeu_pd(a + 2 * s, r2);	       \
+    _mm256_storeu_pd(a + 3 * s, r3);	       \
+  }
+
+#define EADD_DBL_4x4(c0, c1, c2, c3, a0, a1, a2, a3, b0, b1, b2, b3) { \
+    c0 = _mm256_add_pd(a0, b0);					       \
+    c1 = _mm256_add_pd(a1, b1);					       \
+    c2 = _mm256_add_pd(a2, b2);					       \
+    c3 = _mm256_add_pd(a3, b3);					       \
+}

@@ -6,6 +6,7 @@ import Data.Foldable
 
 import Core.Matrix
 import Core.Statement
+import Core.Type
 
 compactTemps stmts =
   let sspReplacementPairs = computeReplacements stmts in
