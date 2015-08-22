@@ -9,6 +9,7 @@ import Core.IndexExpression
 import Core.Matrix
 import Core.MatrixOperation
 import Core.MemLocation
+import Core.Type
 import FrontEnd.Lexer
 import FrontEnd.Parser
 import FrontEnd.Token

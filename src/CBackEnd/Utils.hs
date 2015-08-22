@@ -2,7 +2,7 @@ module CBackEnd.Utils(initializeBuffer, freeBuffer,
                       bufSizeExpr,
                       bufDecls,
                       setArgToRandValuesCode,
-                      compileAndRunC, mainFunc, deleteDataFile,
+                      compileAndRunC, mainFunc, deleteFile,
                       matrixLocExpr) where
 
 import Data.List as L
@@ -40,10 +40,10 @@ compileAndRunC testName codeItems =
   do
     writeFile (cFileName testName) codeString
     runCommandStrict $ compileString testName
-    runCommandStrict $ runString testName  
+    runCommandStrict $ runString testName
 
-deleteDataFile :: FilePath -> IO ()
-deleteDataFile dataFile = do
+deleteFile :: FilePath -> IO ()
+deleteFile dataFile = do
   runCommandStrict $ deleteFileString dataFile
 
 mainFunc :: [String] -> FilePath -> CTopLevelItem String

@@ -11,6 +11,7 @@ import Core.IndexExpression
 import Core.Matrix
 import Core.MemLocation
 import Core.Statement
+import Core.Type
 import Dummies hiding (daxpy, alpha, beta, x, y, z)
 import Fuzz
 import OptimizationGroups.Level1

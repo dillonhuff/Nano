@@ -40,4 +40,4 @@
     c1 = _mm256_add_pd(a1, b1);					       \
     c2 = _mm256_add_pd(a2, b2);					       \
     c3 = _mm256_add_pd(a3, b3);					       \
-}
+  }

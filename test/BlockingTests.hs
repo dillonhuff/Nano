@@ -8,6 +8,7 @@ import Core.Matrix
 import Core.MemLocation
 import Core.Partition
 import Core.Statement
+import Core.Type
 import Module
 
 allBlockingTests = TestLabel "All blocking tests" $ TestList 

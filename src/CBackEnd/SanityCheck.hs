@@ -21,7 +21,8 @@ runSanityCheck testName scFunc testFunc argInfo =
   do
     compileAndRunC testName codeItems
     contents <- readFileShowingContents $ dataFileName testName
-    deleteDataFile $ dataFileName testName
+    deleteFile $ dataFileName testName
+    deleteFile $ executableFileName testName
     return contents
 
 runSanityCheckGS :: FilePath ->
@@ -43,5 +44,6 @@ runSanityCheckGS testName decls setupCode scFuncall testFuncall scFunc testFunc 
   do
     compileAndRunC testName codeItems
     contents <- readFileShowingContents $ dataFileName testName
-    deleteDataFile $ dataFileName testName
+    deleteFile $ dataFileName testName
+    deleteFile $ executableFileName testName
     return contents

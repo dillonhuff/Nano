@@ -5,9 +5,10 @@ import Test.HUnit
 
 import Analysis.IndexExpression
 import Core.IndexExpression
-import Dummies
 import Core.Matrix
 import Core.MemLocation
+import Core.Type
+import Dummies
 import Module
 
 allMatrixTests = TestLabel "All matrix tests" $ TestList
